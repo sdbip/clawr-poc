@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "todo": "markdown",
+        "*.ddl": "sql"
+    },
+    "C_Cpp.default.compilerPath": "/usr/bin/clang"
+}
