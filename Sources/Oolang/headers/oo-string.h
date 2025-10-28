@@ -57,7 +57,7 @@ static inline void print_desc(__oo_rc_header* const i) {
         (HasStringRepresentation_vtable*) __oo_trait_vtable(i, &HasStringRepresentation_trait);
     string* s = vtable->toString(i);
     printf("%s\n", s->data.buffer);
-    s = oo_release(&s->header);
+    s = oo_release(s);
 }
 
 #endif /*.OO_STRING_H */

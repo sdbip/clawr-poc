@@ -8,6 +8,6 @@ int main() {
     // print bf
     print_desc(bf);
 
-    bf = oo_release(&bf->header);
+    bf = oo_release(bf);
     return 0;
 }

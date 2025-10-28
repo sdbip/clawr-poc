@@ -15,10 +15,10 @@ int main() {
     x->Struct.value = 42;
 
 //        let y = x
-    Struct* y = oo_retain(&x->header);
+    Struct* y = oo_retain(x);
 
 //        x.value = 2
-    x = oo_preModify(&x->header);
+    x = oo_preModify(x);
     x->Struct.value = 2;
 
 //        print y.value
@@ -30,7 +30,7 @@ int main() {
     print_desc(xbox);
     xbox = oo_release(xbox);
 
-    x = oo_release(&x->header);
-    y = oo_release(&y->header);
+    x = oo_release(x);
+    y = oo_release(y);
     return 0;
 }
