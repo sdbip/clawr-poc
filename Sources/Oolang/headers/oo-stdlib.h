@@ -2,6 +2,7 @@
 #define OO_STDLIB_H
 
 #include <inttypes.h> // PRIx64, uint64_t, int64_t
+#include <math.h>     // fabs
 #include <stdio.h>    // printf
 #include "oo-string.h"
 
@@ -36,6 +37,32 @@ static __oo_struct_type __integer_box_info = {
     .size = sizeof(box),
     .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
     .trait_vtables = (void*[]) { &integer_HasStringRepresentation_vtable },
+    .trait_count = 1
+};
+
+typedef double real;
+
+// model real: HasStringRepresentation {
+//     func toString() { ... }
+// }
+static inline string* const real_toString(real const self) {
+    if (fabs(self) >= 1e6 || fabs(self) < 1e-3) {
+        return string_format("%#.1e", self);  // Scientific notation with decimal point
+    } else {
+        return string_format("%.1f", self);   // Regular decimal notation
+    }
+}
+static inline string* real_box_toString(void* self) {
+    return real_toString(((box*)self)->boxed);
+}
+static const HasStringRepresentation_vtable real_HasStringRepresentation_vtable = {
+    .toString = real_box_toString
+};
+
+static __oo_struct_type __real_box_info = {
+    .size = sizeof(box),
+    .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
+    .trait_vtables = (void*[]) { &real_HasStringRepresentation_vtable },
     .trait_count = 1
 };
 
