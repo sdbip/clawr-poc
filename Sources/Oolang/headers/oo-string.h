@@ -26,4 +26,10 @@ static inline string* string_format(const char* const format, ...) {
     return s;
 }
 
+/// @brief Print a string value to stdout
+/// @param s the string value
+void print(string* const s) {
+    printf("%s\n", s->buffer);
+}
+
 #endif /*.OO_STRING_H */

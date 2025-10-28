@@ -3,8 +3,7 @@
 int main() {
     // print "string"
     string* s = string_format("string");
-    printf("%s\n", s->buffer);
-
+    print(s);
     free(s);
     return 0;
 }
