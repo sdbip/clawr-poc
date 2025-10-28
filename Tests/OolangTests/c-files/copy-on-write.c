@@ -24,10 +24,10 @@ int main() {
 //        print y.value
     string* sy = integer_toString(y->Struct.value);
     print(sy);
-    free(sy);
+    sy = oo_release(sy);
     string* sx = integer_toString(x->Struct.value);
     print(sx);
-    free(sx);
+    sx = oo_release(sx);
 
     x = oo_release(&x->header);
     y = oo_release(&y->header);
