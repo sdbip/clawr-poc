@@ -33,9 +33,7 @@ public func codegen(ir: IR) -> String {
                 .trait_vtables = (void*[]) { \( traits.map { "&\(target)_\($0.name)_vtable" }.joined(separator: ", ") ) },
                 .trait_count = 1
             };
-            __oo_type_info __\(target)_info = {
-                .data = &__\(target)_data_type
-            };
+            __oo_type_info __\(target)_info = { .data = &__\(target)_data_type };
             """
     }
 }

@@ -1,8 +1,8 @@
 import Testing
 import Codegen
 
-@Suite("Codegen")
-struct CodegenTests {
+@Suite("Traits")
+struct TraitsTests {
     @Test("Generates data struct with single field")
     func data_struct_single_field() async throws {
         let output = codegen(ir: .data(name: "Struct", fields: [Field(type: "integer", name: "value")]))
@@ -47,9 +47,7 @@ struct CodegenTests {
                 .trait_vtables = (void*[]) { &Struct_HasStringRepresentation_vtable },
                 .trait_count = 1
             };
-            __oo_type_info __Struct_info = {
-                .data = &__Struct_data_type
-            };
+            __oo_type_info __Struct_info = { .data = &__Struct_data_type };
             """)
     }
 }
