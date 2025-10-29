@@ -2,7 +2,7 @@
 #include "oo-runtime.h"
 
 //        data Struct { value: integer }
-struct __Struct_data { int64_t value; };
+struct __Struct_data { integer value; };
 typedef struct Struct {
     struct __oo_rc_header header;
     struct __Struct_data Struct;
