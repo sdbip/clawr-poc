@@ -2,6 +2,7 @@
 #define OO_RUNTIME_H
 
 #include <stdlib.h>      // malloc, size_t, NULL
+#include <stdint.h>      // uintptr_t, UINTPTR_MAX
 #include <stdatomic.h>   // atomic_uintptr_t, atomic_init, _Atomic
 #include <string.h>      // memcpy
 #include <unistd.h>      // usleep
@@ -24,19 +25,17 @@
     events to entities in Segerfeldt.EventStore (C#).
  */
 
-/// @brief Flag to indicate variable semantics for an entity’s allocated memory block
-typedef enum {
-    /// @brief Reference Semantics (`ref` variable) - One entity, multiple variables
-    __oo_REFERENCE,
-    /// @brief Isolation Semantics (`let`, `mut` variable) - Variables modified independently
-    __oo_ISOLATED,
-} __oo_var_semantics;
+/// @brief Flag to indicate that a memory block is currently being copied. It must not be modified.
+static const uintptr_t __oo_COPYING_FLAG   = (uintptr_t)1 << (sizeof(uintptr_t) * 8 - 1);
+/// @brief Flag to indicate variable semantics for an entity’s allocated memory block.
+static const uintptr_t __oo_ISOLATION_FLAG = (uintptr_t)1 << (sizeof(uintptr_t) * 8 - 2);
+/// @brief Bitmask for the reference counter
+static const uintptr_t __oo_REFC_BITMASK   = ~(__oo_COPYING_FLAG | __oo_ISOLATION_FLAG);
 
-enum {
-    // Assuming 64-bit registers
-    __oo_COPYING_FLAG = ~INT64_MAX,
-    __oo_REFC_BM      = INT64_MAX,
-};
+/// @brief Reference Semantics (`ref` variable) - One entity, multiple variables
+static const uintptr_t __oo_REFERENCE      = 0;
+/// @brief Isolation Semantics (`let`, `mut` variable) - Variables modified independently
+static const uintptr_t __oo_ISOLATED       = __oo_ISOLATION_FLAG;
 
 /// @brief Descriptor for a trait. The address of a descriptor is a unique identifier
 /// for a trait at compile-time; user code should define one static descriptor per trait.
@@ -63,9 +62,7 @@ typedef struct __oo_struct_type {
 
 /// A header that is prefixed on all programmer types
 typedef struct __oo_rc_header {
-    /// @brief Copy or reference + Polymorphism or data semantics
-    __oo_var_semantics semantics;
-    /// @brief Reference counter
+    /// @brief Reference counter, and flags for semantics/copying
     atomic_uintptr_t refs;
     /// @brief Pointer to type data
     __oo_struct_type* is_a;
@@ -93,11 +90,10 @@ static inline void* __oo_trait_vtable(__oo_rc_header* header, const __oo_trait_d
 /// @brief Allocate reference-counted entity in memory
 /// @param semantics the semantics, copy or reference, to apply when assigning and modifying the entity
 /// @param typeInfo pointer to an object that represents the entity’s type
-static inline void* oo_alloc(__oo_var_semantics const semantics, __oo_struct_type* const typeInfo) {
+static inline void* oo_alloc(uintptr_t const semantics, __oo_struct_type* const typeInfo) {
     __oo_rc_header* const header = (__oo_rc_header*)__oo_alloc(typeInfo->size);
-    header->semantics = semantics;
     header->is_a = typeInfo;
-    atomic_init(&header->refs, 1);
+    atomic_init(&header->refs, semantics | 1);
     return header;
 }
 
@@ -113,7 +109,7 @@ static inline __oo_rc_header* oo_retain(__oo_rc_header* const header) {
 /// @param header the header of the entity to release
 /// @returns `NULL` so that the variable can be assigned to the function call.
 static inline void* oo_release(__oo_rc_header* const header) {
-    if (header && (atomic_fetch_sub_explicit(&header->refs, 1, memory_order_acq_rel) & __oo_REFC_BM) == 1) {
+    if (header && (atomic_fetch_sub_explicit(&header->refs, 1, memory_order_acq_rel) & __oo_REFC_BITMASK) == 1) {
         free(header);
     }
     return NULL;
@@ -136,7 +132,9 @@ static inline void* oo_release(__oo_rc_header* const header) {
 /// @endcode
 static inline void* oo_preModify(__oo_rc_header* const header) {
     if (!header) return NULL;
-    if (header->semantics == __oo_REFERENCE) {
+    // The ISOLATION flag never changes, so data races are irrelevant
+    // Access directly instead of through atomic_load()
+    if ((header->refs & __oo_ISOLATION_FLAG) == __oo_REFERENCE) {
         // No copy for reference semantics
         return header;
     }
@@ -144,7 +142,7 @@ static inline void* oo_preModify(__oo_rc_header* const header) {
     // Flag for copying.
     // refs |= __oo_COPYING_FLAG
     uintptr_t refs = atomic_fetch_or_explicit(&header->refs, __oo_COPYING_FLAG, memory_order_acquire);
-    if (refs == 1) {
+    if ((refs & __oo_REFC_BITMASK) == 1) {
         // No copy necessary for uniquely referenced entity. Unset the copying flag immediately.
         // refs &= ~__oo_COPYING_FLAG
         atomic_fetch_and_explicit(&header->refs, ~__oo_COPYING_FLAG, memory_order_acquire);
@@ -158,7 +156,9 @@ static inline void* oo_preModify(__oo_rc_header* const header) {
     __oo_struct_type* const typeInfo = header->is_a;
     __oo_rc_header* const newEntity = (__oo_rc_header*)__oo_alloc(typeInfo->size);
     memcpy(newEntity, header, typeInfo->size);
-    atomic_init(&newEntity->refs, 1);
+
+    // Preserve semantics flag on the new entity; start with unique refcount 1
+    atomic_init(&newEntity->refs, (refs & __oo_ISOLATION_FLAG) | 1);
 
     // Finished copying. Drop our strong ref to the original entity and unset the flag.
     atomic_fetch_and_explicit(&header->refs, ~__oo_COPYING_FLAG, memory_order_acquire);

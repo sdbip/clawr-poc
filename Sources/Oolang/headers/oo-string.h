@@ -25,8 +25,7 @@ static inline string* string_format(const char* const format, ...) {
     int length = vsnprintf(NULL, 0, format, args) + 1;
     string* s = (string*) __oo_alloc(__string_info.size + length);
     s->header.is_a = &__string_info;
-    s->header.semantics = __oo_ISOLATED;
-    atomic_init(&s->header.refs, 1);
+    atomic_init(&s->header.refs, __oo_ISOLATED | 1);
 
     // Format the string into the buffer
     vsnprintf(s->data.buffer, length, format, args);
