@@ -43,7 +43,10 @@ typedef struct __oo_trait_descriptor {
     const char* name;
 } __oo_trait_descriptor;
 
-/// @brief Information about an entity’s type (`struct` or `object`)
+/// @brief Flag to indicate structural semantics for a type.
+static const uintptr_t __oo_INHERITANCE_FLAG = (uintptr_t)1 << (sizeof(uintptr_t) * 8 - 1);
+
+/// @brief Information about an entity’s type (`data` or `object`)
 /// This should include:
 /// - inheritance and conformance information
 /// - method lookup table if `object` type
@@ -62,13 +65,43 @@ typedef struct __oo_data_type {
 
 } __oo_data_type;
 
+/// @brief Information about an entity’s type (`data` or `object`)
+/// This should include:
+/// - inheritance and conformance information
+/// - method lookup table if `object` type
+/// - field layout info if `data` type
+typedef struct __oo_object_type {
+
+    /// @brief The size of the entity payload for this type
+    size_t size;
+
+    /// @brief Parallel arrays describing implemented traits for this type.
+    /// `trait_descs[i]` is a pointer to the compile-time `__oo_trait_descriptor` for a trait
+    /// and `trait_vtables[i]` is the vtable implementation for that trait for this type.
+    const __oo_trait_descriptor** trait_descs;
+    void** trait_vtables;
+    size_t trait_count;
+
+    // ----- Replicate __oo_data_type above this line ------ //
+
+    /// @brief A vtable is used to look up functions (methods) that can be overridden
+    /// if a method is non-overridable, it should be referenced directly instead.
+    void* vtable;
+
+    /// @brief The `object` supertype of this `object` type.
+    /// Must be `NULL` for `data` types
+    struct __oo_object_type* super;
+
+} __oo_object_type;
+
 typedef union __oo_type_info {
     __oo_data_type* data;
+    __oo_object_type* object;
 } __oo_type_info;
 
 /// A header that is prefixed on all programmer types
 typedef struct __oo_rc_header {
-    /// @brief Reference counter, and flags for semantics/copying
+    /// @brief Reference counter and semantics flags (COPYING | ISOLATED | refcounter)
     atomic_uintptr_t refs;
     /// @brief Pointer to type data
     __oo_type_info is_a;
