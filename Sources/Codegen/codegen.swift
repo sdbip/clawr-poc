@@ -1,4 +1,8 @@
-public func codegen(ir: IR) -> String {
+public func codegen(ir: [IR]) -> String {
+    return ir.map(codegen(ir:)).joined(separator: "\n")
+}
+
+private func codegen(ir: IR) -> String {
     switch ir {
     case .data(name: let name, fields: let fields):
         return """

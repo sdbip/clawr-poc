@@ -5,7 +5,7 @@ import Codegen
 struct TraitsTests {
     @Test("Generates data struct with single field")
     func data_struct_single_field() async throws {
-        let output = codegen(ir: .data(name: "Struct", fields: [Field(type: "integer", name: "value")]))
+        let output = codegen(ir: [.data(name: "Struct", fields: [Field(type: "integer", name: "value")])])
         #expect(output == """
             struct __Struct_data { integer value; };
             typedef struct Struct {
@@ -17,14 +17,14 @@ struct TraitsTests {
 
     @Test("Generates trait declaration code")
     func trait_declaration() async throws {
-        let output = codegen(ir: .traitDeclaration(
+        let output = codegen(ir: [.traitDeclaration(
             name: "HasStringRepresentation",
             methods: [Function(
                 name: "toString",
                 returnType: "string*",
                 parameters: [Field(type: "void*", name: "self")],
             )],
-        ))
+        )])
         #expect(output == """
             typedef struct HasStringRepresentation_vtable {
                 string* (*toString)(void* self);
@@ -35,7 +35,7 @@ struct TraitsTests {
 
     @Test("Generates trait implementation code")
     func trait_conformance() async throws {
-        let output = codegen(ir: .traitImplementations(target: "Struct", traits: [Trait(name: "HasStringRepresentation", methods: ["toString"])]))
+        let output = codegen(ir: [.traitImplementations(target: "Struct", traits: [Trait(name: "HasStringRepresentation", methods: ["toString"])])])
         #expect(output == """
             HasStringRepresentation_vtable Struct_HasStringRepresentation_vtable = {
                 .toString = Struct_toString
