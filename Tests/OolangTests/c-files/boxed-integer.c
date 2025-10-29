@@ -6,7 +6,7 @@ int main() {
     box* i = (box*) __oo_make_box(42, __integer_box_info);
 
     // print i
-    print_desc(i);
+    print(i);
 
     i = oo_release(i);
     return 0;

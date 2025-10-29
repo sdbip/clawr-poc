@@ -108,19 +108,19 @@ int main() {
 
 //        print y.superValue()
     box* box1 = __oo_make_box(y->Object.value, __integer_box_info);
-    print_desc(box1);
+    print(box1);
     box1 = oo_release(box1);
 
     box* box2 = __oo_make_box(y->Super.value, __integer_box_info);
-    print_desc(box2);
+    print(box2);
     box2 = oo_release(box2);
 
     box* box3 = __oo_make_box(x->Object.value, __integer_box_info);
-    print_desc(box3);
+    print(box3);
     box3 = oo_release(box3);
 
     box* box4 = __oo_make_box(x->Super.value, __integer_box_info);
-    print_desc(box4);
+    print(box4);
     box4 = oo_release(box4);
 
     x = oo_release(x);

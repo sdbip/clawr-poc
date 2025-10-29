@@ -38,7 +38,7 @@ int main() {
     Struct* x = oo_alloc(__oo_ISOLATED, __Struct_info);
     x->Struct.value = 42;
 //        print x
-    print_desc(x);
+    print(x);
 
     x = oo_release(x);
     return 0;

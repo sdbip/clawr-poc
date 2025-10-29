@@ -6,7 +6,7 @@ int main() {
     box* bf = (box*) __oo_make_box(0x12, __bitfield_box_info);
 
     // print bf
-    print_desc(bf);
+    print(bf);
 
     bf = oo_release(bf);
     return 0;

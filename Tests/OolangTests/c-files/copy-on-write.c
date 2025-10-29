@@ -24,11 +24,11 @@ int main() {
 
 //        print y.value
     box* ybox = __oo_make_box(y->Struct.value, __integer_box_info);
-    print_desc(ybox);
+    print(ybox);
     ybox = oo_release(ybox);
 
     box* xbox = __oo_make_box(x->Struct.value, __integer_box_info);
-    print_desc(xbox);
+    print(xbox);
     xbox = oo_release(xbox);
 
     x = oo_release(x);

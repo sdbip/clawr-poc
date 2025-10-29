@@ -18,8 +18,28 @@ typedef struct string {
     struct __oo_rc_header header;
     struct __string_data data;
 } string;
-static __oo_data_type __string_data_type = { .size = sizeof(string) };
-static const __oo_type_info __string_info = { .data = &__string_data_type };
+
+// trait HasStringRepresentation {
+//     func toString() -> string
+// }
+typedef struct HasStringRepresentation_vtable {
+    string* (*toString)(void* self);
+} HasStringRepresentation_vtable;
+static const __oo_trait_descriptor HasStringRepresentation_trait = { .name = "HasStringRepresentation" };
+
+static inline string* string_toString(void* self) {
+    return oo_retain(self);
+}
+static const HasStringRepresentation_vtable string_HasStringRepresentation_vtable = {
+    .toString = string_toString
+};
+static __oo_data_type __string_data_type = {
+    .size = sizeof(string),
+    .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
+    .trait_vtables = (void*[]) { &string_HasStringRepresentation_vtable },
+    .trait_count = 1,
+};
+static __oo_type_info __string_info = { .data = &__string_data_type };
 
 static inline string* string_format(const char* const format, ...) {
     va_list args;
@@ -38,24 +58,9 @@ static inline string* string_format(const char* const format, ...) {
     return s;
 }
 
-// trait HasStringRepresentation {
-//     func toString() -> string
-// }
-typedef struct HasStringRepresentation_vtable {
-    string* (*toString)(void* self);
-} HasStringRepresentation_vtable;
-
 /// @brief Print a string value to stdout
 /// @param s the string value
-static inline void print(string* const s) {
-    printf("%s\n", s->data.buffer);
-}
-
-static const __oo_trait_descriptor HasStringRepresentation_trait = { .name = "HasStringRepresentation" };
-
-/// @brief Print a string value to stdout
-/// @param s the string value
-static inline void print_desc(__oo_rc_header* const i) {
+static inline void print(__oo_rc_header* const i) {
     HasStringRepresentation_vtable* vtable =
         (HasStringRepresentation_vtable*) __oo_trait_vtable(i, &HasStringRepresentation_trait);
     if (!vtable) {
