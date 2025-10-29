@@ -3,7 +3,7 @@
 
 int main() {
     // let i: integer = 42
-    box* i = (box*) __oo_make_box(42, &__integer_box_info);
+    box* i = (box*) __oo_make_box(42, __integer_box_info);
 
     // print i
     print_desc(i);

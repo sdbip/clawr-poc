@@ -12,7 +12,7 @@ typedef struct box
     uintptr_t boxed;
 } box;
 
-box* __oo_make_box(uintptr_t value, __oo_struct_type* type) {
+box* __oo_make_box(uintptr_t value, __oo_type_info type) {
     box* b = oo_alloc(__oo_ISOLATED, type);
     b->boxed = value;
     return b;
@@ -33,12 +33,13 @@ static const HasStringRepresentation_vtable integer_HasStringRepresentation_vtab
     .toString = integer_box_toString
 };
 
-static __oo_struct_type __integer_box_info = {
+static __oo_data_type __integer_box_data_type = {
     .size = sizeof(box),
     .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
     .trait_vtables = (void*[]) { &integer_HasStringRepresentation_vtable },
     .trait_count = 1
 };
+static const __oo_type_info __integer_box_info = { .data = &__integer_box_data_type };
 
 typedef double real;
 
@@ -59,12 +60,13 @@ static const HasStringRepresentation_vtable real_HasStringRepresentation_vtable 
     .toString = real_box_toString
 };
 
-static __oo_struct_type __real_box_info = {
+static __oo_data_type __real_box_data_type = {
     .size = sizeof(box),
     .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
     .trait_vtables = (void*[]) { &real_HasStringRepresentation_vtable },
     .trait_count = 1
 };
+static const __oo_type_info __real_box_info = { .data = &__real_box_data_type };
 
 typedef uint64_t bitfield;
 
@@ -81,11 +83,12 @@ static const HasStringRepresentation_vtable bitfield_HasStringRepresentation_vta
     .toString = bitfield_box_toString
 };
 
-static __oo_struct_type __bitfield_box_info = {
+static const __oo_data_type __bitfield_box_data_type = {
     .size = sizeof(box),
     .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
     .trait_vtables = (void*[]) { &bitfield_HasStringRepresentation_vtable },
     .trait_count = 1
 };
+static const __oo_type_info __bitfield_box_info = { .data = &__bitfield_box_data_type };
 
 #endif /* OO_STDLIB_H */

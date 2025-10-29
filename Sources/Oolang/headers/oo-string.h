@@ -15,7 +15,8 @@ typedef struct string {
     struct __oo_rc_header header;
     struct __string_data data;
 } string;
-static __oo_struct_type __string_info = {.size = sizeof(string)};
+static const __oo_data_type __string_data_type = { .size = sizeof(string) };
+static const __oo_type_info __string_info = { .data = &__string_data_type };
 
 static inline string* string_format(const char* const format, ...) {
     va_list args;
@@ -23,8 +24,8 @@ static inline string* string_format(const char* const format, ...) {
 
     // Determine the required buffer size
     int length = vsnprintf(NULL, 0, format, args) + 1;
-    string* s = (string*) __oo_alloc(__string_info.size + length);
-    s->header.is_a = &__string_info;
+    string* s = (string*) __oo_alloc(__string_data_type.size + length);
+    s->header.is_a = __string_info;
     atomic_init(&s->header.refs, __oo_ISOLATED | 1);
 
     // Format the string into the buffer

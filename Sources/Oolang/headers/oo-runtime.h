@@ -48,9 +48,10 @@ typedef struct __oo_trait_descriptor {
 /// - inheritance and conformance information
 /// - method lookup table if `object` type
 /// - field layout info if `struct` type
-typedef struct __oo_struct_type {
-    /// @brief The size of the entity payload for this type
-    size_t size;
+typedef struct __oo_data_type {
+
+    /// @brief The size of the entity payload for this type, and its semantics
+    uintptr_t size;
 
     /// @brief Parallel arrays describing implemented traits for this type.
     /// `trait_descs[i]` is a pointer to the compile-time `__oo_trait_descriptor` for a trait
@@ -58,14 +59,19 @@ typedef struct __oo_struct_type {
     const __oo_trait_descriptor** trait_descs;
     void** trait_vtables;
     size_t trait_count;
-} __oo_struct_type;
+
+} __oo_data_type;
+
+typedef union __oo_type_info {
+    __oo_data_type* data;
+} __oo_type_info;
 
 /// A header that is prefixed on all programmer types
 typedef struct __oo_rc_header {
     /// @brief Reference counter, and flags for semantics/copying
     atomic_uintptr_t refs;
     /// @brief Pointer to type data
-    __oo_struct_type* is_a;
+    __oo_type_info is_a;
 } __oo_rc_header;
 
 // -------- Implementation -------- ||
@@ -76,12 +82,12 @@ typedef struct __oo_rc_header {
 /// @return the vtable pointer for the trait if implemented, otherwise NULL
 static inline void* __oo_trait_vtable(__oo_rc_header* header, const __oo_trait_descriptor* trait) {
     if (!header || !trait) return NULL;
-    __oo_struct_type* typeInfo = header->is_a;
-    if (!typeInfo || !typeInfo->trait_descs || !typeInfo->trait_vtables) return NULL;
+    __oo_type_info typeInfo = header->is_a;
+    if (!typeInfo.data || !typeInfo.data->trait_descs || !typeInfo.data->trait_vtables) return NULL;
 
-    for (size_t i = 0; i < typeInfo->trait_count; i++) {
-        if (typeInfo->trait_descs[i] == trait) {
-            return typeInfo->trait_vtables[i];
+    for (size_t i = 0; i < typeInfo.data->trait_count; i++) {
+        if (typeInfo.data->trait_descs[i] == trait) {
+            return typeInfo.data->trait_vtables[i];
         }
     }
     return NULL;
@@ -90,8 +96,8 @@ static inline void* __oo_trait_vtable(__oo_rc_header* header, const __oo_trait_d
 /// @brief Allocate reference-counted entity in memory
 /// @param semantics the semantics, copy or reference, to apply when assigning and modifying the entity
 /// @param typeInfo pointer to an object that represents the entity’s type
-static inline void* oo_alloc(uintptr_t const semantics, __oo_struct_type* const typeInfo) {
-    __oo_rc_header* const header = (__oo_rc_header*)__oo_alloc(typeInfo->size);
+static inline void* oo_alloc(uintptr_t const semantics, __oo_type_info const typeInfo) {
+    __oo_rc_header* const header = (__oo_rc_header*)__oo_alloc(typeInfo.data->size);
     header->is_a = typeInfo;
     atomic_init(&header->refs, semantics | 1);
     return header;
@@ -153,9 +159,9 @@ static inline void* oo_preModify(__oo_rc_header* const header) {
     }
 
     // Copy payload for copy semantics with shared ownership
-    __oo_struct_type* const typeInfo = header->is_a;
-    __oo_rc_header* const newEntity = (__oo_rc_header*)__oo_alloc(typeInfo->size);
-    memcpy(newEntity, header, typeInfo->size);
+    __oo_type_info const typeInfo = header->is_a;
+    __oo_rc_header* const newEntity = (__oo_rc_header*)__oo_alloc(typeInfo.data->size);
+    memcpy(newEntity, header, typeInfo.data->size);
 
     // Preserve semantics flag on the new entity; start with unique refcount 1
     atomic_init(&newEntity->refs, (refs & __oo_ISOLATION_FLAG) | 1);
