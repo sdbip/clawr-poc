@@ -22,5 +22,10 @@ let package = Package(
                 .copy("c-files")
             ]
         ),
+        .target(name: "Codegen"),
+        .testTarget(
+            name: "CodegenTests",
+            dependencies: ["Codegen"]
+        ),
     ]
 )
