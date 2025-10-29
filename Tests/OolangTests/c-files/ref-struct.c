@@ -1,0 +1,36 @@
+#include "oo-stdlib.h"
+#include "oo-runtime.h"
+
+//        struct Struct { value: integer }
+struct __Struct_data { int64_t value; };
+typedef struct Struct {
+    struct __oo_rc_header header;
+    struct __Struct_data Struct;
+} Struct;
+__oo_struct_type __Struct_info = {.size = sizeof(Struct)};
+
+int main() {
+//        mut x: Struct = { value: 42 }
+    Struct* x = oo_alloc(__oo_REFERENCE, &__Struct_info);
+    x->Struct.value = 42;
+
+//        let y = x
+    Struct* y = oo_retain(x);
+
+//        x.value = 2
+    x = oo_preModify(x);
+    x->Struct.value = 2;
+
+//        print y.value
+    box* ybox = __oo_make_box(y->Struct.value, &__integer_box_info);
+    print_desc(ybox);
+    ybox = oo_release(ybox);
+
+    box* xbox = __oo_make_box(x->Struct.value, &__integer_box_info);
+    print_desc(xbox);
+    xbox = oo_release(xbox);
+
+    x = oo_release(x);
+    y = oo_release(y);
+    return 0;
+}
