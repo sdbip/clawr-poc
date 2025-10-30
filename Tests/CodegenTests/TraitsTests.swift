@@ -3,51 +3,120 @@ import Codegen
 
 @Suite("Traits")
 struct TraitsTests {
-    @Test("Generates data struct with single field")
-    func data_struct_single_field() async throws {
-        let output = codegen(statement: .data(name: "Struct", fields: [Field(type: "integer", name: "value")]))
-        #expect(output == """
-            struct __Struct_data { integer value; };
-            typedef struct Struct {
-                struct __oo_rc_header header;
-                struct __Struct_data StructData;
-            } Struct;
-            """)
-    }
 
-    @Test("Generates trait declaration code")
-    func trait_declaration() async throws {
-        let output = codegen(statement: .traitDeclaration(
-            name: "HasStringRepresentation",
-            methods: [Function(
-                name: "toString",
-                returnType: "string*",
-                parameters: [Field(type: "void*", name: "self")],
-            )],
-        ))
-        #expect(output == """
-            typedef struct HasStringRepresentation_vtable {
-                string* (*toString)(void* self);
-            } HasStringRepresentation_vtable;
-            static const __oo_trait_descriptor HasStringRepresentation_trait = { .name = "HasStringRepresentation" };
-            """)
-    }
-
-    @Test("Generates trait implementation code")
-    func trait_conformance() async throws {
-        let output = codegen(statement: .traitConformances(target: "Struct", traits: [Trait(name: "HasStringRepresentation", methods: ["toString"])]))
-        #expect(output == """
-            HasStringRepresentation_vtable Struct_HasStringRepresentation_vtable = {
-                .toString = Struct_toString
-            };
-
-            __oo_data_type __Struct_data_type = {
-                .size = sizeof(Struct),
-                .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
-                .trait_vtables = (void*[]) { &Struct_HasStringRepresentation_vtable },
-                .trait_count = 1
-            };
-            __oo_type_info __Struct_info = { .data = &__Struct_data_type };
-            """)
+    @Test("Conform to traits")
+    func traits() async throws {
+        let result = try run(
+            ir: [
+                .data(
+                    name: "Struct",
+                    fields: [Field(type: "integer", name: "value")]
+                ),
+                .function(
+                    "Struct_toString",
+                    returns: "string*",
+                    parameters: [
+                        Field(
+                            type: "void*",
+                            name: "self"
+                        )
+                    ],
+                    body: [
+                        .variable(
+                            "box",
+                            type: "box*",
+                            initializer: .call(
+                                .name("__oo_make_box"),
+                                arguments: [
+                                    .reference(
+                                        .field(
+                                            target: .field(
+                                                target: .cast(.name("self"), type: "Struct*"),
+                                                name: "StructData",
+                                                isPointer: true),
+                                            name: "value",
+                                            isPointer: false),
+                                    ),
+                                    .literal("__integer_box_info"),
+                                ]
+                            )
+                        ),
+                        .variable(
+                            "vtable",
+                            type: "HasStringRepresentation_vtable*",
+                            initializer: .call(
+                                .name("__oo_trait_vtable"),
+                                arguments: [
+                                    .literal("box"),
+                                    .literal("&HasStringRepresentation_trait"),
+                                ]
+                            )
+                        ),
+                        .variable(
+                            "result",
+                            type: "string*",
+                            initializer: .call(
+                                .field(
+                                    target: .name("vtable"),
+                                    name: "toString",
+                                    isPointer: true
+                                ),
+                                arguments: [.reference(.name("box"))]
+                            )
+                        ),
+                        .assign(
+                            .name("box"),
+                            value: .call(
+                                .name("oo_release"),
+                                arguments: [.literal("box")]
+                            )
+                        ),
+                        .return(.literal("result")),
+                    ]
+                ),
+                .traitConformances(
+                    target: "Struct",
+                    traits: [Trait(
+                        name: "HasStringRepresentation",
+                        methods: ["toString"])
+                    ]
+                ),
+                exec([
+                    .variable(
+                        "x",
+                        type: "Struct*",
+                        initializer: .call(
+                            .name("oo_alloc"),
+                            arguments: [
+                                .literal("__oo_ISOLATED"),
+                                .literal("__Struct_info"),
+                            ]
+                        )
+                    ),
+                    .assign(
+                        .field(
+                            target: .field(
+                                target: .name("x"),
+                                name: "StructData",
+                                isPointer: true),
+                            name: "value",
+                            isPointer: false
+                        ),
+                        value: .literal("42")
+                    ),
+                    .call(
+                        .name("print"),
+                        arguments: [.literal("x")]
+                    ),
+                    .assign(
+                        .name("x"),
+                        value: .call(
+                            .name("oo_release"),
+                            arguments: [.literal("x")]
+                        )
+                    ),
+                ])
+            ])
+        #expect(result == "42\n")
     }
 }
