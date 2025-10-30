@@ -15,7 +15,7 @@ public func codegen(statement: Statement) -> String {
     case .structDeclaration(let name, fields: let fields):
         return """
             typedef struct \(name) {
-                \( fields.map { "\($0.type) \($0.name);" }.joined())
+                \( fields.map(codegen(field:)).joined(separator: ";") );
             } \(name);
             """
     case .variable(let name, type: let type, initializer: let initializer):
@@ -24,7 +24,7 @@ public func codegen(statement: Statement) -> String {
         return "\(codegen(expression: .reference(reference))) = \(codegen(expression: value));"
     case .function(let name, returns: let type, parameters: let parameters, body: let body):
         return """
-            \(type) \(name) (\(parameters.map { "\($0.type) \($0.name)" }.joined(separator: ", "))) {
+            \(type) \(name) (\( parameters.map(codegen(field:)).joined(separator: ",") )) {
                 \(body.map(codegen(statement:)).joined(separator: "\n"))
             }
             """
@@ -54,5 +54,13 @@ func codegen(expression: Expression) -> String {
         return "(\(codegen(expression: .reference(reference))))\(isPointer ? "->" : ".")\(name)"
     case .call(let reference, arguments: let arguments):
         return "\(codegen(expression: .reference(reference)))(\(arguments.map(codegen(expression:)).joined(separator: ",")))"
+    }
+}
+
+func codegen(field: Field) -> String {
+    switch field.type {
+    case .simple(let t): "\(t) \(field.name)" 
+    case .function(returnType: let returnType, parameters: let parameters): 
+        "\(returnType) (*\(field.name))(\(parameters.joined(separator: ",")))"
     }
 }

@@ -15,9 +15,9 @@ typedef struct Super {
 } Super;
 typedef struct __Super_vtable {
 // func setValue(_ value: integer)
-    void (*setValue)(Super* self, integer value);
+    void (*setValue)(Super*, integer);
 // func value() -> integer
-    integer (*value)(Super* self);
+    integer (*value)(Super*);
 } __Super_vtable;
 
 // factory: func new(value: integer) => { value: value }

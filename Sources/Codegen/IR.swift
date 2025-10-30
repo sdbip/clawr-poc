@@ -53,11 +53,16 @@ public struct Function {
 }
 
 public struct Field {
-    public var type: String
+    public var type: Type
     public var name: String
 
-    public init(type: String, name: String) {
+    public init(type: Type, name: String) {
         self.type = type
         self.name = name
     }
+}
+
+public enum Type {
+    case simple(String)
+    case function(returnType: String, parameters: any Sequence<String>)
 }

@@ -10,13 +10,13 @@ struct TraitsTests {
             ir: [
                 .structDeclaration(
                     "__Struct_data", 
-                    fields: [Field(type: "integer", name: "value")]
+                    fields: [Field(type: .simple("integer"), name: "value")]
                 ),
                 .structDeclaration(
                     "Struct", 
                     fields: [
-                        Field(type: "__oo_rc_header", name: "header"),
-                        Field(type: "__Struct_data", name: "StructData"),
+                        Field(type: .simple("__oo_rc_header"), name: "header"),
+                        Field(type: .simple("__Struct_data"), name: "StructData"),
                     ]
                 ),
                 .function(
@@ -24,7 +24,7 @@ struct TraitsTests {
                     returns: "string*",
                     parameters: [
                         Field(
-                            type: "void*",
+                            type: .simple("void*"),
                             name: "self"
                         )
                     ],
