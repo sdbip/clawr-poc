@@ -45,7 +45,13 @@ func codegen(expression: Expression) -> String {
             }.joined())
             }
             """
+    case .arrayInitializer(let values):
+        return "(void*[]) {\( values.map(codegen(expression:)).joined(separator: ",") )}"
     case .literal(let s): return s
+    case .reference(.address(of: let reference)):
+        return "&\(codegen(expression: .reference(reference)))"
+    case .cast(let expression, type: let type):
+        return "(\(type))\(codegen(expression: expression))"
     case .reference(.cast(let reference, type: let type)):
         return "(\(type))\(codegen(expression: .reference(reference)))"
     case .reference(.name(let name)):

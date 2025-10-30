@@ -8,14 +8,17 @@ public enum Statement {
 }
 
 public indirect enum Expression {
+    case cast(Expression, type: String)
     case literal(String)
     case reference(Reference)
     case call(Reference, arguments: [Expression])
     case structInitializer([NamedValue])
+    case arrayInitializer([Expression])
 }
 
 public indirect enum Reference {
     case cast(Reference, type: String)
+    case address(of: Reference)
     case name(String)
     case field(target: Reference, name: String, isPointer: Bool)
 }

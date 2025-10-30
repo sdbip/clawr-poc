@@ -55,7 +55,7 @@ struct TraitsTests {
                                 .name("__oo_trait_vtable"),
                                 arguments: [
                                     .literal("box"),
-                                    .literal("&HasStringRepresentation_trait"),
+                                    .reference(.address(of: .name("HasStringRepresentation_trait"))),
                                 ]
                             )
                         ),
@@ -95,14 +95,18 @@ struct TraitsTests {
                     "__Struct_data_type", 
                     type: "__oo_data_type", 
                     initializer: .structInitializer([
-                        NamedValue(name: "size", value: .literal("sizeof(Struct)")),
+                        NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name("Struct"))])),
                         NamedValue(
                             name: "trait_descs", 
-                            value: .literal("(void*[]) { \( ["HasStringRepresentation_trait"].map { "&\($0)" }.joined(separator: ", ") ) }")
+                            value: .arrayInitializer([
+                                .reference(.address(of: .name("HasStringRepresentation_trait"))),
+                            ]),
                         ),
                         NamedValue(
                             name: "trait_vtables", 
-                            value: .literal("(void*[]) { \( ["Struct_HasStringRepresentation_vtable"].map { "&\($0)" }.joined(separator: ", ") ) }")
+                            value: .arrayInitializer([
+                                .reference(.address(of: .name("Struct_HasStringRepresentation_vtable"))),
+                            ]),
                         ),
                         NamedValue(name: "trait_count", value: .literal("1"))
                     ])
@@ -111,7 +115,7 @@ struct TraitsTests {
                     "__Struct_info", 
                     type: "__oo_type_info", 
                     initializer: .structInitializer([
-                        NamedValue(name: "data", value: .literal("&__Struct_data_type")),
+                        NamedValue(name: "data", value: .reference(.address(of: .name("__Struct_data_type")))),
                     ])
                 ),
                 exec([
