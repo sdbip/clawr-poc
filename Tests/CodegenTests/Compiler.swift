@@ -7,7 +7,12 @@ func run(ir: [Statement], testName name: String = #function) throws -> String {
     let cFile = cFileURL.path()
     let exeFile = cFileURL.deletingPathExtension().path()
 
-    try codegen(ir: ir)
+    try """
+    #pragma GCC diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+    #pragma GCC diagnostic ignored "-Wincompatible-function-pointer-types"
+    #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+    \(codegen(ir: ir))
+    """
         .write(toFile: cFile, atomically: true, encoding: .utf8)
 
     try compile(cFile: cFile, to:exeFile)

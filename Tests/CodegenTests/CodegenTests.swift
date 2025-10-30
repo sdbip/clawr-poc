@@ -59,4 +59,9 @@ extension Array {
         s.append(element)
         return s
     }
+    func appending(contentsOf sequence: any Sequence<Element>) -> Self {
+        var s = self
+        s.append(contentsOf: sequence)
+        return s
+    }
 }

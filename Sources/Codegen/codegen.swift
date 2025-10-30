@@ -51,13 +51,13 @@ func codegen(expression: Expression) -> String {
     case .reference(.address(of: let reference)):
         return "&\(codegen(expression: .reference(reference)))"
     case .cast(let expression, type: let type):
-        return "(\(type))\(codegen(expression: expression))"
+        return "/(\(type))\(codegen(expression: expression)))"
     case .reference(.cast(let reference, type: let type)):
-        return "(\(type))\(codegen(expression: .reference(reference)))"
+        return "((\(type))\(codegen(expression: .reference(reference))))"
     case .reference(.name(let name)):
         return "\(name)"
     case .reference(.field(target: let reference, name: let name, isPointer: let isPointer)):
-        return "(\(codegen(expression: .reference(reference))))\(isPointer ? "->" : ".")\(name)"
+        return "\(codegen(expression: .reference(reference)))\(isPointer ? "->" : ".")\(name)"
     case .call(let reference, arguments: let arguments):
         return "\(codegen(expression: .reference(reference)))(\(arguments.map(codegen(expression:)).joined(separator: ",")))"
     }
@@ -65,8 +65,8 @@ func codegen(expression: Expression) -> String {
 
 func codegen(field: Field) -> String {
     switch field.type {
-    case .simple(let t): "\(t) \(field.name)" 
-    case .function(returnType: let returnType, parameters: let parameters): 
+    case .simple(let t): "\(t) \(field.name)"
+    case .function(returnType: let returnType, parameters: let parameters):
         "\(returnType) (*\(field.name))(\(parameters.joined(separator: ",")))"
     }
 }
