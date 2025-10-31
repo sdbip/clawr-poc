@@ -160,7 +160,10 @@ private let keywords = Set([
     "data", "enum", "object", "service", "role", "trait",  // types
     "bitstruct", "bitobject", // Single-register structures (functionally bitfield)
     "static", "mutating", "factory", // object modeling
-    "abstract", "extendable", "virtual", "self", "super", // inheritance
+    "abstract", "extendable", "virtual", // inheritance
+
+    // Single keyword expressions
+    "true", "false", "null", "self", "super",
 
     "print",
 

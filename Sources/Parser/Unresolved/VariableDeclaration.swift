@@ -23,10 +23,18 @@ extension VariableDeclaration {
 
         if stream.peek()?.value == "=" {
             _ = try stream.next().requiring { $0.value == "=" }
-            let initializerToken = try stream.next().requiring { $0.kind == .decimal }
+            let initializerToken = try stream.next().required()
 
-            if initializerToken.value.contains(".") {
+            if initializerToken.value == "true" {
+                initializer = .boolean(true)
+            } else if initializerToken.value == "false" {
+                initializer = .boolean(false)
+            } else if initializerToken.value.contains(".") {
                 initializer = .real(Double(initializerToken.value)!)
+            } else if initializerToken.value.hasPrefix("0x") {
+                initializer = .bitfield(UInt64(initializerToken.value[initializerToken.value.index(initializerToken.value.startIndex, offsetBy: 2)...], radix: 16)!)
+            } else if initializerToken.value.hasPrefix("0b") {
+                initializer = .bitfield(UInt64(initializerToken.value[initializerToken.value.index(initializerToken.value.startIndex, offsetBy: 2)...], radix: 2)!)
             } else {
                 initializer = .integer(Int64(initializerToken.value)!)
             }

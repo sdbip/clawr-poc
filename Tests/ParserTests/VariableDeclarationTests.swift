@@ -40,6 +40,42 @@ struct VariableDeclarationTests {
         ])
     }
 
+    @Test("Explicit boolean")
+    func explicit_boolean() async throws {
+        let source = "let x: boolean = true"
+        let ast = try parse(source)
+        #expect(ast == [
+            .variableDeclaration("x", semantics: .immutable, type: .boolean, initializer: .boolean(true))
+        ])
+    }
+
+    @Test("Inferred boolean")
+    func inferred_boolean() async throws {
+        let source = "let x = false"
+        let ast = try parse(source)
+        #expect(ast == [
+            .variableDeclaration("x", semantics: .immutable, type: .boolean, initializer: .boolean(false))
+        ])
+    }
+
+    @Test("Explicit bitfield")
+    func explicit_bitfield() async throws {
+        let source = "let x: bitfield = 0x12"
+        let ast = try parse(source)
+        #expect(ast == [
+            .variableDeclaration("x", semantics: .immutable, type: .bitfield, initializer: .bitfield(0x12))
+        ])
+    }
+
+    @Test("Inferred bitfield")
+    func inferred_bitfield() async throws {
+        let source = "let x = 0b1010"
+        let ast = try parse(source)
+        #expect(ast == [
+            .variableDeclaration("x", semantics: .immutable, type: .bitfield, initializer: .bitfield(0b1010))
+        ])
+    }
+
     @Test("Type mismatch")
     func type_mismatch() async throws {
         let error = try #require(throws: ParserError.self) { try parse("let x: integer = 2.0") }
