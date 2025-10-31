@@ -12,7 +12,7 @@ struct TokenStreamTests {
     func keywords(_ keyword: String) async throws {
         let tokens = tokenize(keyword)
         #expect(tokens == [
-            Token(value: keyword, kind: .keyword, location: TokenLocation(line: 1, column: 1)),
+            Token(value: keyword, kind: .keyword, location: FileLocation(line: 1, column: 1)),
         ])
     }
 
@@ -20,7 +20,7 @@ struct TokenStreamTests {
     func primitive_types(_ type: String) async throws {
         let tokens = tokenize(type)
         #expect(tokens == [
-            Token(value: type, kind: .builtinType, location: TokenLocation(line: 1, column: 1)),
+            Token(value: type, kind: .builtinType, location: FileLocation(line: 1, column: 1)),
         ])
     }
 
@@ -28,7 +28,7 @@ struct TokenStreamTests {
     func identifiers(_ identifier: String) async throws {
         let tokens = tokenize(identifier)
         #expect(tokens == [
-            Token(value: identifier, kind: .identifier, location: TokenLocation(line: 1, column: 1)),
+            Token(value: identifier, kind: .identifier, location: FileLocation(line: 1, column: 1)),
         ])
     }
 
@@ -36,7 +36,7 @@ struct TokenStreamTests {
     func decimals(_ literal: String) async throws {
         let tokens = tokenize(literal)
         #expect(tokens == [
-            Token(value: literal, kind: .decimal, location: TokenLocation(line: 1, column: 1)),
+            Token(value: literal, kind: .decimal, location: FileLocation(line: 1, column: 1)),
         ])
     }
 
@@ -44,7 +44,7 @@ struct TokenStreamTests {
     func punctuation(_ symbol: String) async throws {
         let tokens = tokenize(symbol)
         #expect(tokens == [
-            Token(value: symbol, kind: .punctuation, location: TokenLocation(line: 1, column: 1)),
+            Token(value: symbol, kind: .punctuation, location: FileLocation(line: 1, column: 1)),
         ])
     }
 
@@ -52,12 +52,12 @@ struct TokenStreamTests {
     func full_variable_declaration() async throws {
         let tokens = tokenize("let x: integer = 27")
         #expect(tokens == [
-            Token(value: "let", kind: .keyword, location: TokenLocation(line: 1, column: 1)),
-            Token(value: "x", kind: .identifier, location: TokenLocation(line: 1, column: 5)),
-            Token(value: ":", kind: .punctuation, location: TokenLocation(line: 1, column: 6)),
-            Token(value: "integer", kind: .builtinType, location: TokenLocation(line: 1, column: 8)),
-            Token(value: "=", kind: .punctuation, location: TokenLocation(line: 1, column: 16)),
-            Token(value: "27", kind: .decimal, location: TokenLocation(line: 1, column: 18)),
+            Token(value: "let", kind: .keyword, location: FileLocation(line: 1, column: 1)),
+            Token(value: "x", kind: .identifier, location: FileLocation(line: 1, column: 5)),
+            Token(value: ":", kind: .punctuation, location: FileLocation(line: 1, column: 6)),
+            Token(value: "integer", kind: .builtinType, location: FileLocation(line: 1, column: 8)),
+            Token(value: "=", kind: .punctuation, location: FileLocation(line: 1, column: 16)),
+            Token(value: "27", kind: .decimal, location: FileLocation(line: 1, column: 18)),
         ])
     }
 
@@ -71,15 +71,15 @@ struct TokenStreamTests {
                 27
             """)
         #expect(tokens == [
-            Token(value: "let", kind: .keyword, location: TokenLocation(line: 1, column: 1)),
-            Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.TokenLocation(line: 1, column: 4)),
-            Token(value: "x", kind: .identifier, location: TokenLocation(line: 3, column: 1)),
-            Token(value: ":", kind: .punctuation, location: TokenLocation(line: 3, column: 2)),
-            Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.TokenLocation(line: 3, column: 3)),
-            Token(value: "integer", kind: .builtinType, location: TokenLocation(line: 4, column: 1)),
-            Token(value: "=", kind: .punctuation, location: TokenLocation(line: 4, column: 9)),
-            Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.TokenLocation(line: 4, column: 10)),
-            Token(value: "27", kind: .decimal, location: TokenLocation(line: 5, column: 5)),
+            Token(value: "let", kind: .keyword, location: FileLocation(line: 1, column: 1)),
+            Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.FileLocation(line: 1, column: 4)),
+            Token(value: "x", kind: .identifier, location: FileLocation(line: 3, column: 1)),
+            Token(value: ":", kind: .punctuation, location: FileLocation(line: 3, column: 2)),
+            Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.FileLocation(line: 3, column: 3)),
+            Token(value: "integer", kind: .builtinType, location: FileLocation(line: 4, column: 1)),
+            Token(value: "=", kind: .punctuation, location: FileLocation(line: 4, column: 9)),
+            Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.FileLocation(line: 4, column: 10)),
+            Token(value: "27", kind: .decimal, location: FileLocation(line: 5, column: 5)),
         ])
     }
 
@@ -90,8 +90,8 @@ struct TokenStreamTests {
             x
             """)
         #expect(tokens == [
-            Token(value: "let", kind: .keyword, location: TokenLocation(line: 1, column: 1)),
-            Token(value: "x", kind: .identifier, location: TokenLocation(line: 2, column: 1)),
+            Token(value: "let", kind: .keyword, location: FileLocation(line: 1, column: 1)),
+            Token(value: "x", kind: .identifier, location: FileLocation(line: 2, column: 1)),
         ])
 
     }
@@ -103,8 +103,8 @@ struct TokenStreamTests {
             text */ x
             """)
         #expect(tokens == [
-            Token(value: "let", kind: .keyword, location: TokenLocation(line: 1, column: 1)),
-            Token(value: "x", kind: .identifier, location: TokenLocation(line: 2, column: 9)),
+            Token(value: "let", kind: .keyword, location: FileLocation(line: 1, column: 1)),
+            Token(value: "x", kind: .identifier, location: FileLocation(line: 2, column: 9)),
         ])
     }
 
@@ -115,7 +115,7 @@ struct TokenStreamTests {
             text */ // x
             """)
         #expect(tokens == [
-            Token(value: "let", kind: .keyword, location: TokenLocation(line: 1, column: 1)),
+            Token(value: "let", kind: .keyword, location: FileLocation(line: 1, column: 1)),
         ])
     }
 

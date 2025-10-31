@@ -1,9 +1,9 @@
 public struct Token: Equatable, Sendable {
     public let value: String
     public let kind: Kind
-    public let location: TokenLocation
+    public let location: FileLocation
 
-    public init(value: String, kind: Kind, location: TokenLocation) {
+    public init(value: String, kind: Kind, location: FileLocation) {
         self.value = value
         self.kind = kind
         self.location = location
@@ -16,15 +16,5 @@ public struct Token: Equatable, Sendable {
         case keyword     = "KEYWORD"
         case identifier  = "IDENTIFIER"
         case builtinType = "BUILTIN"
-    }
-}
-
-public struct TokenLocation: Equatable, Sendable {
-    public var line: UInt
-    public var column: UInt
-
-    public init(line: UInt, column: UInt) {
-        self.line = line
-        self.column = column
     }
 }

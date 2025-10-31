@@ -68,7 +68,7 @@ public class TokenStream {
     private struct Location {
         private let source: String
         private var index: String.Index
-        private(set) var location: TokenLocation
+        private(set) var location: FileLocation
 
         var isAtEnd: Bool {
             index == source.endIndex
@@ -81,10 +81,10 @@ public class TokenStream {
         init(source: String) {
             self.source = source
             self.index = source.startIndex
-            self.location = TokenLocation(line: 1, column: 1)
+            self.location = FileLocation(line: 1, column: 1)
         }
 
-        init(source: String, nextIndex: String.Index, location: TokenLocation) {
+        init(source: String, nextIndex: String.Index, location: FileLocation) {
             self.source = source
             self.index = nextIndex
             self.location = location
