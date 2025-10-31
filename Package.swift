@@ -30,6 +30,14 @@ let package = Package(
             name: "CodegenTests",
             dependencies: ["Codegen"]
         ),
+        .target(
+            name: "Parser",
+            dependencies: ["Lexer"]
+        ),
+        .testTarget(
+            name: "ParserTests",
+            dependencies: ["Parser"]
+        ),
         .target(name: "Lexer"),
         .testTarget(
             name: "LexerTests",
