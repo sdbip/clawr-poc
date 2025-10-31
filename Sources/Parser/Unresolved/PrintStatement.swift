@@ -5,8 +5,8 @@ struct PrintStatement {
 }
 
 extension PrintStatement {
-    static func parse(stream: TokenStream) throws -> PrintStatement {
+    init(parsing stream: TokenStream) throws {
         _ = try stream.next().requiring { $0.value == "print" }
-        return try PrintStatement(expression: Expression.parse(stream: stream).value)
+        try self.init(expression: Expression.parse(stream: stream).value)
     }
 }

@@ -8,7 +8,7 @@ struct VariableDeclaration {
 }
 
 extension VariableDeclaration {
-    static func parse(stream: TokenStream) throws -> VariableDeclaration {
+    init(parsing stream: TokenStream) throws {
         let keywordToken = try stream.next().requiring { $0.kind == .keyword }
         guard let semantics = Semantics(rawValue: keywordToken.value) else { throw ParserError.invalidToken(keywordToken) }
         let nameToken = try stream.next().requiring { $0.kind == .identifier }
@@ -30,7 +30,7 @@ extension VariableDeclaration {
             initializer = nil
         }
 
-        return VariableDeclaration(
+        self.init(
             name: name,
             semantics: .init(value: semantics, location: keywordToken.location),
             type: type,

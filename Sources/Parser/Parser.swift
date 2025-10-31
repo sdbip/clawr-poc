@@ -6,10 +6,10 @@ public func parse(_ source: String) throws -> [Statement] {
 
     while stream.peek() != nil {
         if stream.peek()?.value == "print" {
-            let unresolved = try PrintStatement.parse(stream: stream)
+            let unresolved = try PrintStatement(parsing: stream)
             result.append(.printStatement(unresolved.expression))
         } else {
-            let unresolved = try VariableDeclaration.parse(stream: stream)
+            let unresolved = try VariableDeclaration(parsing: stream)
             guard let resolvedType = unresolved.type.map({ ResolvedType(rawValue: $0.value) }) ?? unresolved.initializer?.value.type else { throw ParserError.unresolvedType(unresolved.name.location) }
 
             switch (resolvedType, unresolved.initializer) {
