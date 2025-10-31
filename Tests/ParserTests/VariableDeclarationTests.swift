@@ -9,7 +9,7 @@ struct VariableDeclarationTests {
         let source = "let x: integer = 2"
         let ast = try parse(source)
         #expect(ast == [
-            .variableDeclaration("x", semantics: .immutable, type: "integer", initializer: .integer(2))
+            .variableDeclaration("x", semantics: .immutable, type: .integer, initializer: .integer(2))
         ])
     }
 
@@ -18,7 +18,7 @@ struct VariableDeclarationTests {
         let source = "let x = 2"
         let ast = try parse(source)
         #expect(ast == [
-            .variableDeclaration("x", semantics: .immutable, type: "integer", initializer: .integer(2))
+            .variableDeclaration("x", semantics: .immutable, type: .integer, initializer: .integer(2))
         ])
     }
 
@@ -27,7 +27,7 @@ struct VariableDeclarationTests {
         let source = "let x: real = 2"
         let ast = try parse(source)
         #expect(ast == [
-            .variableDeclaration("x", semantics: .immutable, type: "real", initializer: .integer(2))
+            .variableDeclaration("x", semantics: .immutable, type: .real, initializer: .integer(2))
         ])
     }
 
@@ -36,7 +36,7 @@ struct VariableDeclarationTests {
         let source = "let x = 2.0"
         let ast = try parse(source)
         #expect(ast == [
-            .variableDeclaration("x", semantics: .immutable, type: "real", initializer: .real(2.0))
+            .variableDeclaration("x", semantics: .immutable, type: .real, initializer: .real(2.0))
         ])
     }
 
@@ -44,7 +44,7 @@ struct VariableDeclarationTests {
     func type_mismatch() async throws {
         let error = try #require(throws: ParserError.self) { try parse("let x: integer = 2.0") }
         guard case .typeMismatch(declared: let declared, inferred: let resolved) = error else { Issue.record(); return; }
-        #expect(declared == "integer")
-        #expect(resolved == "real")
+        #expect(declared == .integer)
+        #expect(resolved == .real)
     }
 }

@@ -4,10 +4,10 @@ public enum Expression: Equatable {
 }
 
 extension Expression {
-    var type: String {
+    var type: ResolvedType {
         switch self {
-        case .integer(_): "integer"
-        case .real(_): "real"
+        case .integer(_): .integer
+        case .real(_): .real
         }
     }
 }
