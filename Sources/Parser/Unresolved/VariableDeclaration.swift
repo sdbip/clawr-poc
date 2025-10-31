@@ -4,7 +4,7 @@ struct VariableDeclaration {
     var name: String
     var semantics: Semantics
     var type: String?
-    var initializer: Expression
+    var initializer: Expression?
 }
 
 extension VariableDeclaration {
@@ -19,14 +19,19 @@ extension VariableDeclaration {
         } else {
             type = nil
         }
-        _ = try stream.next().requiring { $0.value == "=" }
-        let initializerToken = try stream.next().requiring { $0.kind == .decimal }
-        let initializer: Expression
+        let initializer: Expression?
 
-        if initializerToken.value.contains(".") {
-            initializer = .real(Double(initializerToken.value)!)
+        if stream.peek()?.value == "=" {
+            _ = try stream.next().requiring { $0.value == "=" }
+            let initializerToken = try stream.next().requiring { $0.kind == .decimal }
+
+            if initializerToken.value.contains(".") {
+                initializer = .real(Double(initializerToken.value)!)
+            } else {
+                initializer = .integer(Int64(initializerToken.value)!)
+            }
         } else {
-            initializer = .integer(Int64(initializerToken.value)!)
+            initializer = nil
         }
 
         return VariableDeclaration(
