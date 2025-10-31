@@ -74,7 +74,18 @@ typedef uint64_t bitfield;
 //     func toString() { ... }
 // }
 static inline string* const bitfield_toString(bitfield const self) {
-    return string_format("%018#" PRIx64, self);
+    // Hex representation without underscores
+    char buffer[22];
+    sprintf(buffer, "%018#" PRIx64, self);
+
+    // Move three groups of four digits leaving one space between
+    memmove(buffer + 17, buffer + 14, 4);
+    memmove(buffer + 12, buffer + 10, 4);
+    memmove(buffer + 7, buffer + 6, 4);
+    buffer[6] = buffer[11] = buffer[16] = '_';
+    buffer[21] = 0;
+
+    return string_format(buffer);
 }
 static inline string* bitfield_box_toString(void* self) {
     return bitfield_toString(((box*)self)->boxed);

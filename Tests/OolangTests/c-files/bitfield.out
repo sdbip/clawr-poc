@@ -1,2 +1,2 @@
-Bitfields contain 16 hex digits (64 bits). Their representation is always 18 characters long
-0x0000000000000012
+Bitfields contain 16 hex digits (64 bits). Their representation is always 21 characters long with grouping
+0x0000_0000_0000_0012
