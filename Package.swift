@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "Oolang",
+    platforms: [
+        .macOS(.v13)
+    ],
     products: [
         .executable(name: "ooc", targets: ["Oolang"])
     ],
@@ -26,6 +29,11 @@ let package = Package(
         .testTarget(
             name: "CodegenTests",
             dependencies: ["Codegen"]
+        ),
+        .target(name: "Lexer"),
+        .testTarget(
+            name: "LexerTests",
+            dependencies: ["Lexer"]
         ),
     ]
 )
