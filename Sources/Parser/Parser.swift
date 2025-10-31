@@ -10,22 +10,7 @@ public func parse(_ source: String) throws -> [Statement] {
             result.append(.printStatement(unresolved.expression))
         } else if VariableDeclaration.isNext(in: stream) {
             let unresolved = try VariableDeclaration(parsing: stream)
-            guard let resolvedType = unresolved.type.map({ ResolvedType(rawValue: $0.value) }) ?? unresolved.initializer?.value.type else { throw ParserError.unresolvedType(unresolved.name.location) }
-
-            switch (resolvedType, unresolved.initializer) {
-            case (_, nil): break
-            case (.real, let declared) where declared?.value.type == .integer: break
-            case (let a, let b) where a == b?.value.type: break
-            case (let a, .some(let b)):
-                throw ParserError.typeMismatch(declared: a, inferred: b.value.type, location: b.location)
-            }
-
-            result.append(.variableDeclaration(
-                unresolved.name.value,
-                semantics: unresolved.semantics.value,
-                type: resolvedType,
-                initializer: unresolved.initializer?.value
-            ))
+            try result.append(unresolved.resolve())
         }
     }
     return result
