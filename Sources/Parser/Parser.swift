@@ -21,7 +21,10 @@ func parse(_ stream: TokenStream, in scope: Scope) throws -> [Statement] {
         } else if FunctionDeclaration.isNext(in: stream) {
             let unresolved = try FunctionDeclaration(parsing: stream, in: scope)
             try result.append(unresolved.resolve())
-        } else {
+        } else if FunctionCall.isNext(in: stream) {
+            let unresolved = try FunctionCall(parsing: stream, in: scope)
+            try result.append(unresolved.resolve())
+        } else{
             throw ParserError.invalidToken(try stream.peek().required())
         }
     }
