@@ -4,7 +4,7 @@ extension Expression {
     static func parse(stream: TokenStream) throws -> Located<Expression> {
         let token = try stream.next().required()
 
-        return try .init(value: expr(), location: token.location)
+        return try (value: expr(), location: token.location)
 
         func expr() throws -> Expression {
             switch token.value {

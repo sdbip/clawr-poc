@@ -22,7 +22,7 @@ extension VariableDeclaration {
         if stream.peek()?.value == ":" {
             _ = try stream.next().requiring { $0.value == ":" }
             let typeToken = try stream.next().requiring { $0.kind == .builtinType }
-            type = .init(value: typeToken.value, location: typeToken.location)
+            type = (value: typeToken.value, location: typeToken.location)
         } else {
             type = nil
         }
@@ -37,7 +37,7 @@ extension VariableDeclaration {
 
         self.init(
             name: name,
-            semantics: .init(value: semantics, location: keywordToken.location),
+            semantics: (value: semantics, location: keywordToken.location),
             type: type,
             initializer: initializer
         )

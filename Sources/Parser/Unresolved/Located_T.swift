@@ -1,6 +1,3 @@
 import Lexer
 
-struct Located<T> {
-    var value: T
-    var location: FileLocation
-}
+typealias Located<T> = (value: T, location: FileLocation)
