@@ -10,7 +10,7 @@ public struct FunctionCall: Equatable {
     }
 }
 
-extension FunctionCall {
+extension FunctionCall: StatementParseable {
     static func isNext(in stream: TokenStream) -> Bool {
         return true
     }

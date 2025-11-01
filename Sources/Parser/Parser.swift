@@ -7,26 +7,21 @@ public func parse(_ source: String) throws -> [Statement] {
 }
 
 func parse(_ stream: TokenStream, in scope: Scope) throws -> [Statement] {
+    let parseables: [StatementParseable.Type] = [
+        PrintStatement.self,
+        VariableDeclaration.self,
+        FunctionDeclaration.self,
+        FunctionCall.self,
+    ]
+
     var result: [Statement] = []
 
     while stream.peek() != nil {
         if stream.peek()?.value == "}" { break }
 
-        if PrintStatement.isNext(in: stream) {
-            let unresolved = try PrintStatement(parsing: stream, in: scope)
-            result.append(.printStatement(unresolved.expression))
-        } else if VariableDeclaration.isNext(in: stream) {
-            let unresolved = try VariableDeclaration(parsing: stream, in: scope)
-            try result.append(unresolved.resolve())
-        } else if FunctionDeclaration.isNext(in: stream) {
-            let unresolved = try FunctionDeclaration(parsing: stream, in: scope)
-            try result.append(unresolved.resolve())
-        } else if FunctionCall.isNext(in: stream) {
-            let unresolved = try FunctionCall(parsing: stream, in: scope)
-            try result.append(unresolved.resolve())
-        } else{
-            throw ParserError.invalidToken(try stream.peek().required())
-        }
+        guard let type = parseables.first(where: { $0.isNext(in: stream) }) else { throw ParserError.invalidToken(try stream.peek().required()) }
+        let unresolved = try type.init(parsing: stream, in: scope)
+        result.append(try unresolved.resolve())
     }
     return result
 }

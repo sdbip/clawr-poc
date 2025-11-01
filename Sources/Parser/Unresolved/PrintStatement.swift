@@ -4,7 +4,7 @@ struct PrintStatement {
     var expression: Expression
 }
 
-extension PrintStatement {
+extension PrintStatement: StatementParseable {
     static func isNext(in stream: TokenStream) -> Bool {
         return stream.peek()?.value == "print"
     }
@@ -12,5 +12,9 @@ extension PrintStatement {
     init(parsing stream: TokenStream, in scope: Scope) throws {
         _ = try stream.next().requiring { $0.value == "print" }
         try self.init(expression: Expression.parse(stream: stream, in: scope).value)
+    }
+
+    func resolve() throws -> Statement {
+        return .printStatement(expression)
     }
 }

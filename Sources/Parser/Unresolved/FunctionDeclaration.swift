@@ -7,7 +7,7 @@ struct FunctionDeclaration {
     var returnType: String?
 }
 
-extension FunctionDeclaration {
+extension FunctionDeclaration: StatementParseable {
     static func isNext(in stream: TokenStream) -> Bool {
         guard let token = stream.peek() else { return false }
         return ["func", "pure"].contains(token.value)
