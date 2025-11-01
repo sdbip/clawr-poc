@@ -26,6 +26,10 @@ extension Expression {
                 }
                 throw ParserError.invalidToken(token)
 
+            case let v where token.kind == .identifier:
+                guard let variable = scope.variable(forName: v) else { throw ParserError.unknownVariable(v,  token.location) }
+                return .identifier(v, type: variable.type)
+
             default:
                 throw ParserError.invalidToken(token)
             }

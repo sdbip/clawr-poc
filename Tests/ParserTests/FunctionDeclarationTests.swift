@@ -163,4 +163,32 @@ struct FunctionDeclarationTests {
             body: .implicitReturn(.integer(1))
         )])
     }
+
+    @Test("Return an expression that references a parameter")
+    func return_parameter_value() async throws {
+        let source = "func identity(x: integer) => x"
+        let ast = try parse(source)
+        #expect(ast == [.functionDeclaration(
+            "identity",
+            returns: .integer,
+            parameters: [.labeled(
+                Variable(
+                    name: "x",
+                    semantics: .immutable,
+                    type: .integer
+                ),
+                label: "x"
+            )],
+            body: .implicitReturn(.identifier("x", type: .integer))
+        )])
+    }
+
+    @Test("Return an expression that references an unknown variable")
+    func return_unknown_variable() async throws {
+        let source = "func identity() => x"
+        let error = try #require(throws: ParserError.self) { try parse(source) }
+        guard case .unknownVariable(let name, let location) = error else { Issue.record("Wrong error thrown; was: \(error)"); return }
+        #expect(name == "x")
+        #expect(location == FileLocation(line: 1, column: 20))
+    }
 }

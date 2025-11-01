@@ -39,6 +39,14 @@ extension FunctionDeclaration {
         }
 
         let body: FunctionBody
+        let scope = Scope(parent: scope, parameters: parameters.map {
+            switch $0 {
+            case .labeled(let variable, label: _),
+                 .unlabeled(let variable):
+                return variable
+            }
+        })
+
         if stream.peek()?.value == "=>" {
             _ = stream.next()
             body = try .implicitReturn(Expression.parse(stream: stream, in:scope).value)

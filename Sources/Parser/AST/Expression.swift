@@ -3,6 +3,7 @@ public enum Expression: Equatable {
     case integer(Int64)
     case real(Double)
     case bitfield(UInt64)
+    case identifier(String, type: ResolvedType)
 }
 
 extension Expression {
@@ -12,6 +13,7 @@ extension Expression {
         case .integer(_): .integer
         case .real(_): .real
         case .bitfield(_): .bitfield
+        case .identifier(_, type: let t): t
         }
     }
 }
