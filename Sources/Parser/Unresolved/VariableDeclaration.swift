@@ -13,7 +13,7 @@ extension VariableDeclaration {
         return Semantics(rawValue: token.value) != nil
     }
 
-     init(parsing stream: TokenStream) throws {
+     init(parsing stream: TokenStream, in scope: Scope) throws {
         let keywordToken = try stream.next().requiring { $0.kind == .keyword }
         guard let semantics = Semantics(rawValue: keywordToken.value) else { throw ParserError.invalidToken(keywordToken) }
         let nameToken = try stream.next().requiring { $0.kind == .identifier }
@@ -30,7 +30,7 @@ extension VariableDeclaration {
 
         if stream.peek()?.value == "=" {
             _ = try stream.next().requiring { $0.value == "=" }
-            initializer = try Expression.parse(stream: stream)
+            initializer = try Expression.parse(stream: stream, in: scope)
         } else {
             initializer = nil
         }

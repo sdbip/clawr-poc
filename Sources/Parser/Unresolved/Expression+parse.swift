@@ -1,7 +1,7 @@
 import Lexer
 
 extension Expression {
-    static func parse(stream: TokenStream) throws -> Located<Expression> {
+    static func parse(stream: TokenStream, in scope: Scope) throws -> Located<Expression> {
         let token = try stream.next().required()
 
         return try (value: expr(), location: token.location)

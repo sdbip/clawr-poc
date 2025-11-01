@@ -9,8 +9,8 @@ extension PrintStatement {
         return stream.peek()?.value == "print"
     }
 
-    init(parsing stream: TokenStream) throws {
+    init(parsing stream: TokenStream, in scope: Scope) throws {
         _ = try stream.next().requiring { $0.value == "print" }
-        try self.init(expression: Expression.parse(stream: stream).value)
+        try self.init(expression: Expression.parse(stream: stream, in: scope).value)
     }
 }

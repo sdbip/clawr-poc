@@ -13,7 +13,7 @@ extension FunctionDeclaration {
         return ["func", "pure"].contains(token.value)
     }
 
-    init(parsing stream: TokenStream) throws {
+    init(parsing stream: TokenStream, in scope: Scope) throws {
         _ = try stream.next().requiring { $0.value == "func" }
 
         let name = try stream.next().requiring { $0.kind == .identifier }.value
@@ -22,7 +22,7 @@ extension FunctionDeclaration {
         var parameters: [Labeled<Variable>] = []
         if stream.peek()?.value != ")" {
             while true {
-                try parameters.append(parseParameter(stream: stream))
+                try parameters.append(parseParameter(stream: stream, in: scope))
                 if stream.peek()?.value == ")" { break }
                 _ = try stream.next()?.requiring { $0.value == "," }
             }
@@ -41,10 +41,10 @@ extension FunctionDeclaration {
         let body: FunctionBody
         if stream.peek()?.value == "=>" {
             _ = stream.next()
-            body = try .implicitReturn(Expression.parse(stream: stream).value)
+            body = try .implicitReturn(Expression.parse(stream: stream, in:scope).value)
         } else {
             _ = try stream.next().requiring { $0.value == "{" }
-            body = try .multipleStatements(parse(stream))
+            body = try .multipleStatements(parse(stream, in: scope))
             _ = try stream.next().requiring { $0.value == "}" }
         }
 
@@ -72,7 +72,7 @@ extension FunctionDeclaration {
     }
 }
 
-func parseParameter(stream: TokenStream) throws -> Labeled<Variable> {
+func parseParameter(stream: TokenStream, in scope: Scope) throws -> Labeled<Variable> {
     let nameToken = try stream.next().requiring { $0.kind == .identifier }
     let label = Located<String>(value: nameToken.value, location: nameToken.location)
     let name: String
@@ -94,7 +94,7 @@ func parseParameter(stream: TokenStream) throws -> Labeled<Variable> {
 
     if stream.peek()?.value == "=" {
         _ = try stream.next().requiring { $0.value == "=" }
-        initializer = try Expression.parse(stream: stream)
+        initializer = try Expression.parse(stream: stream, in: scope)
     } else {
         initializer = nil
     }
