@@ -7,6 +7,8 @@ public func irgen(ast: [Parser.Statement]) -> [Codegen.Statement] {
         switch statement {
         case .variableDeclaration(let variable, initializer: let initializer):
             statements.append(.variable(variable.name, type: variable.type.rawValue, initializer: initializer.map(irgen(expression:)) ?? .literal("NULL")))
+        case .functionDeclaration(let name, returns: let returnType, parameters: let parameters, body: let body):
+            fatalError("functionDeclaration not yet implemented!!")
         case .printStatement(let expression):
             statements.append(.call(.name("print"), arguments: [toString(expression: expression)]))
         }

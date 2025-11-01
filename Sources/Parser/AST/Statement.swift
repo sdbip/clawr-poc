@@ -1,5 +1,6 @@
 public enum Statement: Equatable {
     case variableDeclaration(Variable, initializer: Expression?)
+    case functionDeclaration(String, returns: ResolvedType?, parameters: [Labeled<Variable>], body: FunctionBody)
     case printStatement(Expression)
 }
 
@@ -10,6 +11,16 @@ public enum ResolvedType: String, Sendable {
     case bitfield
     case string
     case regex
+}
+
+public enum FunctionBody: Equatable {
+    case implicitReturn(Expression)
+    case multipleStatements([Statement])
+}
+
+public enum Labeled<T: Equatable>: Equatable {
+    case unlabeled(T)
+    case labeled(T, label: String)
 }
 
 public struct Variable: Equatable {
