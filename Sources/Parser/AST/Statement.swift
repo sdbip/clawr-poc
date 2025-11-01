@@ -22,6 +22,20 @@ public enum FunctionBody: Equatable {
 public enum Labeled<T: Equatable>: Equatable {
     case unlabeled(T)
     case labeled(T, label: String)
+
+    public var label: String? {
+        switch self {
+        case .unlabeled(_): nil
+        case .labeled(_, label: let l): l
+        }
+    }
+
+    public var value: T {
+        switch self {
+        case .labeled(let value, label: _),
+             .unlabeled(let value): value
+        }
+    }
 }
 
 public struct Variable: Equatable {
