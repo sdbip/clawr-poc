@@ -13,7 +13,7 @@ extension UnresolvedStatement {
 
         case .variableDeclaration(let decl):
             // TODO: register Variable
-            return try .variableDeclaration(decl.resolveVariable(in: scope), initializer: decl.initializer?.resolve(in: scope))
+            return try .variableDeclaration(decl.resolveVariable(in: scope), initializer: decl.initializer?.resolve(in: scope, declaredType: decl.type?.value))
 
         case .functionDeclaration(let name, returns: let returnType, parameters: let parameters, body: let body):
             let parameters = try parameters.map {
@@ -32,7 +32,7 @@ extension UnresolvedStatement {
             func resolveBody() throws -> (ResolvedType?, [Statement]) {
                 switch body {
                 case .implicitReturn(let expression):
-                    let resolvedExpression = try expression.resolve(in: bodyScope)
+                    let resolvedExpression = try expression.resolve(in: bodyScope, declaredType: returnType?.value)
                     let resolvedReturnType = try bodyScope.resolveType(name: returnType.map { ($0.value, location: $0.location) }, initializer: expression)
                     guard let resolvedReturnType else { throw ParserError.unresolvedType(name.location) }
                     return (resolvedReturnType, [.returnStatement(resolvedExpression)])
@@ -44,7 +44,8 @@ extension UnresolvedStatement {
 
         case .functionCall(let name, arguments: let arguments):
             return try .functionCall(name.value, arguments: arguments.map {
-                return try $0.map { try $0.resolve(in: scope) }
+                // TODO: Look up the called function and match arguments to parameters
+                return try $0.map { try $0.resolve(in: scope, declaredType: nil) }
             })
 
         case .dataStructureDeclaration(let name, fields: let fields):
@@ -56,10 +57,10 @@ extension UnresolvedStatement {
             )
 
         case .printStatement(let expression):
-            return try .printStatement(expression.resolve(in: scope))
+            return try .printStatement(expression.resolve(in: scope, declaredType: nil))
 
         case .returnStatement(let expression):
-            return try .returnStatement(expression.resolve(in: scope))
+            return try .returnStatement(expression.resolve(in: scope, declaredType: nil))
         }
     }
 }

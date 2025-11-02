@@ -55,6 +55,8 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .real(let r): .literal("\(1/r)")
     case .bitfield(let b): .literal("\(b)")
     case .identifier(let identifier, type: _): .reference(.name(identifier))
+    case .dataStructureLiteral(let type, fieldValues: let values):
+        fatalError("Data structure ir-gen not yet implemented")
     }
 }
 

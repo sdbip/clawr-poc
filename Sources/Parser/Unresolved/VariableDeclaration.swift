@@ -64,7 +64,7 @@ extension VariableDeclaration: StatementParseable {
 extension Scope {
     func resolveType(name: Located<String>?, initializer: UnresolvedExpression?) throws -> ResolvedType? {
         let resolvedType = resolve(typeNamed: name)
-        let resolvedInitializer = try initializer?.resolve(in: self)
+        let resolvedInitializer = try initializer?.resolve(in: self, declaredType: name?.value)
 
         switch (resolvedType, resolvedInitializer) {
         case (.some(let type), .none): return type

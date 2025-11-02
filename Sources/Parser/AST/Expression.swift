@@ -4,6 +4,7 @@ public enum Expression: Equatable {
     case real(Double)
     case bitfield(UInt64)
     case identifier(String, type: ResolvedType)
+    case dataStructureLiteral(ResolvedType, fieldValues: [String: Expression])
 }
 
 extension Expression {
@@ -14,6 +15,7 @@ extension Expression {
         case .real(_): .builtin(.real)
         case .bitfield(_): .builtin(.bitfield)
         case .identifier(_, type: let t): t
+        case .dataStructureLiteral(let t, fieldValues: _): t
         }
     }
 }
