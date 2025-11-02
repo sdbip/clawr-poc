@@ -8,13 +8,7 @@ extension Optional where Wrapped == Token {
 
     func requiring(_ isGood: (Token) -> Bool) throws -> Token {
         let token = try required()
-        return try token.requiring(isGood)
-    }
-}
-
-extension Token {
-    func requiring(_ isGood: (Token) -> Bool) throws -> Token {
-        guard isGood(self) else { throw ParserError.invalidToken(self) }
-        return self
+        guard isGood(token) else { throw ParserError.invalidToken(token) }
+        return token
     }
 }

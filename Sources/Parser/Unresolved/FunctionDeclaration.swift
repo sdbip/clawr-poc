@@ -24,7 +24,7 @@ extension FunctionDeclaration: StatementParseable {
             while true {
                 try parameters.append(parseParameter(stream: stream, in: scope))
                 if stream.peek()?.value == ")" { break }
-                _ = try stream.next()?.requiring { $0.value == "," }
+                _ = try stream.next().requiring { $0.value == "," }
             }
         }
 
