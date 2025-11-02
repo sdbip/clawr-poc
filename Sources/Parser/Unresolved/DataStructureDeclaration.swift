@@ -1,10 +1,10 @@
 import Lexer
 
-public struct DataStructureDeclaration: Equatable {
+struct DataStructureDeclaration {
     public var name: String
-    public var fields: [Variable]
+    public var fields: [VariableDeclaration]
 
-    public init(name: String, fields: [Variable]) {
+    public init(name: String, fields: [VariableDeclaration]) {
         self.name = name
         self.fields = fields
     }
@@ -19,9 +19,9 @@ extension DataStructureDeclaration: StatementParseable {
         _ = try stream.next().requiring { $0.value == "data" }
         let name = try stream.next().requiring { $0.kind == .identifier }.value
         _ = try stream.next().requiring { $0.value == "{" }
-        var fields: [Variable] = []
+        var fields: [VariableDeclaration] = []
         while stream.peek()?.value != "}" {
-            try fields.append(parseField(stream: stream, in: scope))
+            try fields.append(VariableDeclaration(parsing: stream, defaultSemantics: .isolated, in: scope))
 
             if stream.peek()?.value == "," {
                 _ = stream.next()
@@ -34,43 +34,6 @@ extension DataStructureDeclaration: StatementParseable {
     }
 
     func resolve() throws -> Statement {
-        return .dataStructureDeclaration(name, fields: fields)
+        return try .dataStructureDeclaration(name, fields: fields.map { try $0.resolveVariable() })
     }
-}
-
-func parseField(stream: TokenStream, in scope: Scope) throws -> Variable {
-    let nameToken = try stream.next().requiring { $0.kind == .identifier }
-    let name = Located<String>(value: nameToken.value, location: nameToken.location)
-
-    let type: Located<String>?
-    if stream.peek()?.value == ":" {
-        _ = try stream.next().requiring { $0.value == ":" }
-        let typeToken = try stream.next().requiring { $0.kind == .builtinType }
-        type = (value: typeToken.value, location: typeToken.location)
-    } else {
-        type = nil
-    }
-    let initializer: Located<Expression>?
-
-    if stream.peek()?.value == "=" {
-        _ = try stream.next().requiring { $0.value == "=" }
-        initializer = try Expression.parse(stream: stream, in: scope)
-    } else {
-        initializer = nil
-    }
-
-    let resolvedType: ResolvedType;
-    if let initializer {
-        resolvedType = try ResolvedType(resolving: type?.value, expression: initializer)
-    } else if let type = type.flatMap({ ResolvedType(rawValue: $0.value) }) {
-        resolvedType = type
-    } else {
-        throw ParserError.unresolvedType(nameToken.location)
-    }
-
-    return Variable(
-        name: name.value,
-        semantics: .isolated,
-        type: resolvedType
-    )
 }

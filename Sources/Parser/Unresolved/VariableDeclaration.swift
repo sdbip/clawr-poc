@@ -13,10 +13,14 @@ extension VariableDeclaration: StatementParseable {
         return Semantics(rawValue: token.value) != nil
     }
 
-     init(parsing stream: TokenStream, in scope: Scope) throws {
-        let keywordToken = try stream.next().requiring { $0.kind == .keyword }
-        guard let semantics = Semantics(rawValue: keywordToken.value) else { throw ParserError.invalidToken(keywordToken) }
-        let nameToken = try stream.next().requiring { $0.kind == .identifier }
+    init(parsing stream: TokenStream, in scope: Scope) throws {
+        try self.init(parsing: stream, defaultSemantics: nil, in: scope)
+    }
+
+    init(parsing stream: TokenStream, defaultSemantics: Semantics?, in scope: Scope) throws {
+        let keywordToken: Token = try stream.next().required()
+        guard let semantics = Semantics(rawValue: keywordToken.value) ?? defaultSemantics else { throw ParserError.invalidToken(keywordToken) }
+        let nameToken = keywordToken.kind == .identifier ? keywordToken : try stream.next().requiring { $0.kind == .identifier }
         let name = Located<String>(value: nameToken.value, location: nameToken.location)
         let type: Located<String>?
         if stream.peek()?.value == ":" {
@@ -44,6 +48,13 @@ extension VariableDeclaration: StatementParseable {
     }
 
     func resolve() throws -> Statement {
+        return try .variableDeclaration(
+            resolveVariable(),
+            initializer: initializer?.value
+        )
+    }
+
+    func resolveVariable() throws -> Variable {
         let resolvedType: ResolvedType?
         if let initializer {
             resolvedType = try ResolvedType(resolving: type?.value, expression: initializer)
@@ -54,12 +65,10 @@ extension VariableDeclaration: StatementParseable {
         }
 
         guard let resolvedType else { throw ParserError.unresolvedType(name.location) }
-        return .variableDeclaration(
-            Variable(
-                name: name.value,
-                semantics: semantics.value,
-                type: resolvedType),
-            initializer: initializer?.value
+        return Variable(
+            name: name.value,
+            semantics: semantics.value,
+            type: resolvedType
         )
     }
 }

@@ -2,7 +2,7 @@ import Lexer
 
 struct FunctionDeclaration {
     var name: String
-    var parameters: [Labeled<Variable>]
+    var parameters: [Labeled<VariableDeclaration>]
     var body: FunctionBody
     var returnType: String?
 }
@@ -19,7 +19,7 @@ extension FunctionDeclaration: StatementParseable {
         let name = try stream.next().requiring { $0.kind == .identifier }.value
         _ = try stream.next().requiring { $0.value == "(" }
 
-        var parameters: [Labeled<Variable>] = []
+        var parameters: [Labeled<VariableDeclaration>] = []
         if stream.peek()?.value != ")" {
             while true {
                 try parameters.append(parseParameter(stream: stream, in: scope))
@@ -39,11 +39,11 @@ extension FunctionDeclaration: StatementParseable {
         }
 
         let body: FunctionBody
-        let scope = Scope(parent: scope, parameters: parameters.map {
+        let scope = try Scope(parent: scope, parameters: parameters.map {
             switch $0 {
             case .labeled(let variable, label: _),
                  .unlabeled(let variable):
-                return variable
+                return try variable.resolveVariable()
             }
         })
 
@@ -65,64 +65,39 @@ extension FunctionDeclaration: StatementParseable {
             return try .functionDeclaration(
                 name,
                 returns: ResolvedType(resolving: returnType, expression: (returnExpression, FileLocation(line: 0, column: 0))),
-                parameters: parameters,
+                parameters: parameters.map(resolveParameter(_:)),
                 body: body
             )
         } else {
-            return .functionDeclaration(
+            return try .functionDeclaration(
                 name,
                 returns: returnType.flatMap { ResolvedType(rawValue: $0) },
-                parameters: parameters,
+                parameters: parameters.map(resolveParameter(_:)),
                 body: body
             )
 
         }
     }
+
+    func resolveParameter(_ variable: Labeled<VariableDeclaration>) throws -> Labeled<Variable> {
+        switch variable {
+        case .labeled(let v, label: let l): try .labeled(v.resolveVariable(), label: l)
+        case .unlabeled(let v): try .unlabeled(v.resolveVariable())
+        }
+    }
 }
 
-func parseParameter(stream: TokenStream, in scope: Scope) throws -> Labeled<Variable> {
-    let nameToken = try stream.next().requiring { $0.kind == .identifier }
-    let label = Located<String>(value: nameToken.value, location: nameToken.location)
-    let name: String
-    if stream.peek()?.kind == .identifier {
-        name = try stream.next().required().value
+func parseParameter(stream: TokenStream, in scope: Scope) throws -> Labeled<VariableDeclaration> {
+    let clone = stream.clone()
+    let labelToken = try clone.next().requiring { $0.kind == .identifier }
+    if clone.next()?.kind == .identifier {
+        _ = stream.next()
+        let variable = try VariableDeclaration(parsing: stream, defaultSemantics: .immutable, in: scope)
+        return labelToken.value == "_"
+            ? .unlabeled(variable)
+            : .labeled(variable, label: labelToken.value)
     } else {
-        name = label.value
+        let variable = try VariableDeclaration(parsing: stream, defaultSemantics: .immutable, in: scope)
+        return .labeled(variable, label: variable.name.value)
     }
-
-    let type: Located<String>?
-    if stream.peek()?.value == ":" {
-        _ = try stream.next().requiring { $0.value == ":" }
-        let typeToken = try stream.next().requiring { $0.kind == .builtinType }
-        type = (value: typeToken.value, location: typeToken.location)
-    } else {
-        type = nil
-    }
-    let initializer: Located<Expression>?
-
-    if stream.peek()?.value == "=" {
-        _ = try stream.next().requiring { $0.value == "=" }
-        initializer = try Expression.parse(stream: stream, in: scope)
-    } else {
-        initializer = nil
-    }
-
-    let resolvedType: ResolvedType;
-    if let initializer {
-        resolvedType = try ResolvedType(resolving: type?.value, expression: initializer)
-    } else if let type = type.flatMap({ ResolvedType(rawValue: $0.value) }) {
-        resolvedType = type
-    } else {
-        throw ParserError.unresolvedType(nameToken.location)
-    }
-
-    let variable = Variable(
-        name: name,
-        semantics: .immutable,
-        type: resolvedType
-    )
-
-    return label.value == "_"
-        ? .unlabeled(variable)
-        : .labeled(variable, label: label.value)
 }
