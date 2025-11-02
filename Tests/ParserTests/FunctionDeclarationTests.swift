@@ -41,7 +41,7 @@ struct FunctionDeclarationTests {
         let ast = try parse("func f() -> integer {}")
         #expect(ast == [.functionDeclaration(
             "f",
-            returns: .integer,
+            returns: .builtin(.integer),
             parameters: [],
             body: []
         )])
@@ -57,7 +57,7 @@ struct FunctionDeclarationTests {
                 Variable(
                     name: "x",
                     semantics: .immutable,
-                    type: .integer
+                    type: .builtin(.integer)
                 ),
                 label: "x"
             )],
@@ -75,7 +75,7 @@ struct FunctionDeclarationTests {
                 Variable(
                     name: "y",
                     semantics: .immutable,
-                    type: .integer
+                    type: .builtin(.integer)
                 ),
                 label: "x"
             )],
@@ -93,7 +93,7 @@ struct FunctionDeclarationTests {
                 Variable(
                     name: "x",
                     semantics: .immutable,
-                    type: .integer
+                    type: .builtin(.integer)
                 ),
             )],
             body: []
@@ -111,7 +111,7 @@ struct FunctionDeclarationTests {
                     Variable(
                         name: "x",
                         semantics: .immutable,
-                        type: .integer
+                        type: .builtin(.integer)
                     ),
                     label: "x"
                 ),
@@ -119,7 +119,7 @@ struct FunctionDeclarationTests {
                     Variable(
                         name: "y",
                         semantics: .immutable,
-                        type: .bitfield
+                        type: .builtin(.bitfield)
                     ),
                     label: "y"
                 ),
@@ -145,7 +145,7 @@ struct FunctionDeclarationTests {
                     Variable(
                         name: "x",
                         semantics: .immutable,
-                        type: .integer),
+                        type: .builtin(.integer)),
                     initializer: .integer(1)
                 )
             ]
@@ -158,7 +158,7 @@ struct FunctionDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.functionDeclaration(
             "f",
-            returns: .integer,
+            returns: .builtin(.integer),
             parameters: [],
             body: [.returnStatement(.integer(1))]
         )])
@@ -170,16 +170,16 @@ struct FunctionDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.functionDeclaration(
             "identity",
-            returns: .integer,
+            returns: .builtin(.integer),
             parameters: [.labeled(
                 Variable(
                     name: "x",
                     semantics: .immutable,
-                    type: .integer
+                    type: .builtin(.integer)
                 ),
                 label: "x"
             )],
-            body: [.returnStatement(.identifier("x", type: .integer))]
+            body: [.returnStatement(.identifier("x", type: .builtin(.integer)))]
         )])
     }
 

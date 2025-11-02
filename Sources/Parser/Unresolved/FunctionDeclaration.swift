@@ -20,7 +20,7 @@ extension FunctionBody {
             let resolvedReturnType = try ResolvedType(resolving: declaredReturnType, expression: (resolvedExpression, location: expression.location))
             return (resolvedReturnType, [.returnStatement(resolvedExpression)])
         case .multipleStatements(let statements):
-            let resolvedReturnType = declaredReturnType.flatMap { ResolvedType(rawValue: $0) } ?? .none
+            let resolvedReturnType = declaredReturnType.flatMap { BuiltinType(rawValue: $0) }.map { ResolvedType.builtin($0) }
             return (resolvedReturnType, try statements.map { try $0.resolve(in: scope) })
         }
     }

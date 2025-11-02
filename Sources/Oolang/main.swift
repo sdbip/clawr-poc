@@ -39,7 +39,7 @@ do {
     case .unresolvedType(let location):
         fputs("\(inputFile.lastPathComponent):\(location.line):\(location.column):Unresolved type\n", stderr)
     case .typeMismatch(declared: let declared, inferred: let inferred, location: let location):
-        fputs("\(inputFile.lastPathComponent):\(location.line):\(location.column):Type mismatch; expected: \(declared.rawValue), was: (\(inferred.rawValue)\n", stderr)
+        fputs("\(inputFile.lastPathComponent):\(location.line):\(location.column):Type mismatch; expected: \(declared), was: (\(inferred)\n", stderr)
     case .unknownVariable(let name, let location):
         fputs("\(inputFile.lastPathComponent):\(location.line):\(location.column):Unknown variable: \(name)\n", stderr)
     }

@@ -9,10 +9,10 @@ public enum Expression: Equatable {
 extension Expression {
     var type: ResolvedType {
         switch self {
-        case .boolean(_): .boolean
-        case .integer(_): .integer
-        case .real(_): .real
-        case .bitfield(_): .bitfield
+        case .boolean(_): .builtin(.boolean)
+        case .integer(_): .builtin(.integer)
+        case .real(_): .builtin(.real)
+        case .bitfield(_): .builtin(.bitfield)
         case .identifier(_, type: let t): t
         }
     }

@@ -7,7 +7,11 @@ public enum Statement: Equatable {
     case returnStatement(Expression)
 }
 
-public enum ResolvedType: String, Sendable {
+public enum ResolvedType: Equatable, Sendable {
+    case builtin(BuiltinType)
+}
+
+public enum BuiltinType: String, Sendable {
     case boolean
     case integer
     case real
@@ -30,18 +34,18 @@ public struct Variable: Equatable {
 
 extension ResolvedType {
     init(resolving string: String?, expression: Located<Expression>) throws {
-        let resolved = string.flatMap { ResolvedType(rawValue:$0) }
+        let resolved = string.flatMap { BuiltinType(rawValue:$0) }
         switch (resolved, expression) {
         case (.real, (.integer(_), _)):
-            self = .real
+            self = .builtin(.real)
 
-        case (.some(let type), (let e, _)) where e.type == type:
-            self = type
+        case (.some(let type), (let e, _)) where e.type == .builtin(type):
+            self = .builtin(type)
 
         case (.some(let t), (let e, let location)):
-            throw ParserError.typeMismatch(declared: t, inferred: e.type, location: location)
+            throw ParserError.typeMismatch(declared: .builtin(t), inferred: e.type, location: location)
 
-        case (.none, (let e, _)):
+        case (nil, (let e, _)):
             self = e.type
         }
     }

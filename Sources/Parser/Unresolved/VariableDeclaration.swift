@@ -56,7 +56,7 @@ extension VariableDeclaration: StatementParseable {
         if let initializer {
             resolvedType = try ResolvedType(resolving: type?.value, expression: (value: initializer.resolve(in: scope), location: initializer.location))
         } else if let type = type?.value {
-            resolvedType = ResolvedType(rawValue: type)
+            resolvedType = BuiltinType(rawValue: type).map { .builtin($0) }
         } else {
             resolvedType = nil
         }

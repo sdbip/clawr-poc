@@ -36,7 +36,7 @@ struct DataStructureDeclarationTests {
             fields: [Variable(
                 name: "x",
                 semantics: .isolated,
-                type: .integer
+                type: .builtin(.integer)
             )]
         )])
     }
@@ -47,8 +47,8 @@ struct DataStructureDeclarationTests {
         #expect(ast == [.dataStructureDeclaration(
             "S",
             fields: [
-                Variable(name: "x", semantics: .isolated, type: .integer),
-                Variable(name: "y", semantics: .isolated, type: .bitfield),
+                Variable(name: "x", semantics: .isolated, type: .builtin(.integer)),
+                Variable(name: "y", semantics: .isolated, type: .builtin(.bitfield)),
             ]
         )])
     }
@@ -68,12 +68,12 @@ struct DataStructureDeclarationTests {
                 Variable(
                     name: "x",
                     semantics: .isolated,
-                    type: .integer
+                    type: .builtin(.integer)
                 ),
                 Variable(
                     name: "y",
                     semantics: .isolated,
-                    type: .bitfield
+                    type: .builtin(.bitfield)
                 ),
             ]
         )])
@@ -94,12 +94,12 @@ struct DataStructureDeclarationTests {
                 Variable(
                     name: "x",
                     semantics: .isolated,
-                    type: .integer
+                    type: .builtin(.integer)
                 ),
                 Variable(
                     name: "y",
                     semantics: .isolated,
-                    type: .bitfield
+                    type: .builtin(.bitfield)
                 ),
             ]
         )])
@@ -122,12 +122,12 @@ struct DataStructureDeclarationTests {
                 Variable(
                     name: "x",
                     semantics: .isolated,
-                    type: .integer
+                    type: .builtin(.integer)
                 ),
                 Variable(
                     name: "y",
                     semantics: .isolated,
-                    type: .bitfield
+                    type: .builtin(.bitfield)
                 ),
             ]
         )])
