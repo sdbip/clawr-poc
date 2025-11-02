@@ -1,10 +1,10 @@
 import Lexer
 
 struct FunctionDeclaration {
-    var name: String
+    var name: Located<String>
     var parameters: [Labeled<VariableDeclaration>]
     var body: FunctionBody
-    var returnType: String?
+    var returnType: Located<String>?
 }
 
 enum FunctionBody {
@@ -21,7 +21,7 @@ extension FunctionDeclaration: StatementParseable {
     init(parsing stream: TokenStream, in scope: Scope) throws {
         _ = try stream.next().requiring { $0.value == "func" }
 
-        let name = try stream.next().requiring { $0.kind == .identifier }.value
+        let nameToken = try stream.next().requiring { $0.kind == .identifier }
         _ = try stream.next().requiring { $0.value == "(" }
 
         var parameters: [Labeled<VariableDeclaration>] = []
@@ -35,13 +35,14 @@ extension FunctionDeclaration: StatementParseable {
 
         _ = try stream.next().requiring { $0.value == ")" }
 
-        let returnType: String?
+        let returnTypeToken: Token?
         if stream.peek()?.value == "->" {
             _ = stream.next()
-            returnType = try stream.next().requiring { $0.kind == .identifier || $0.kind == .builtinType }.value
+            returnTypeToken = try stream.next().requiring { $0.kind == .identifier || $0.kind == .builtinType }
         } else {
-            returnType = nil
+            returnTypeToken = nil
         }
+        let returnType = returnTypeToken.map { ($0.value, $0.location) }
 
         let body: FunctionBody
         let scope = try Scope(parent: scope, parameters: parameters.map {
@@ -61,7 +62,7 @@ extension FunctionDeclaration: StatementParseable {
             _ = try stream.next().requiring { $0.value == "}" }
         }
 
-        self.init(name: name, parameters: parameters, body: body, returnType: returnType)
+        self.init(name: (nameToken.value, nameToken.location), parameters: parameters, body: body, returnType: returnType)
     }
 
     func resolve(in scope: Scope) throws -> Statement {
@@ -72,15 +73,15 @@ extension FunctionDeclaration: StatementParseable {
         switch body {
         case .implicitReturn(let returnExpression):
             return try .functionDeclaration(
-                name,
-                returns: ResolvedType(resolving: returnType, expression: (value: returnExpression.resolve(in: bodyScope), location: returnExpression.location)),
+                name.value,
+                returns: ResolvedType(resolving: returnType?.value, expression: (value: returnExpression.resolve(in: bodyScope), location: returnExpression.location)),
                 parameters: parameters,
                 body: [.returnStatement(returnExpression.resolve(in: bodyScope))]
             )
         case .multipleStatements(let statements):
             return try .functionDeclaration(
-                name,
-                returns: returnType.flatMap { ResolvedType(rawValue: $0) },
+                name.value,
+                returns: returnType.flatMap { ResolvedType(rawValue: $0.value) },
                 parameters: parameters,
                 body: statements
             )
