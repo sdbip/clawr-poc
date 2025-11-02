@@ -1,13 +1,8 @@
 import Lexer
 
-public struct FunctionCall: Equatable {
-    public var target: String
-    public var arguments: [Labeled<Expression>]
-
-    public init(target: String, arguments: [Labeled<Expression>]) {
-        self.target = target
-        self.arguments = arguments
-    }
+struct FunctionCall: Equatable {
+    var target: String
+    var arguments: [Labeled<Expression>]
 }
 
 extension FunctionCall: StatementParseable {
