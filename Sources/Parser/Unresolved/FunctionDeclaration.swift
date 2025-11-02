@@ -7,6 +7,11 @@ struct FunctionDeclaration {
     var returnType: String?
 }
 
+public enum FunctionBody {
+    case implicitReturn(Expression)
+    case multipleStatements([Statement])
+}
+
 extension FunctionDeclaration: StatementParseable {
     static func isNext(in stream: TokenStream) -> Bool {
         guard let token = stream.peek() else { return false }
@@ -61,21 +66,21 @@ extension FunctionDeclaration: StatementParseable {
 
     func resolve() throws -> Statement {
 
-        if case .implicitReturn(let returnExpression) = body {
+        switch body {
+        case .implicitReturn(let returnExpression):
             return try .functionDeclaration(
                 name,
                 returns: ResolvedType(resolving: returnType, expression: (returnExpression, FileLocation(line: 0, column: 0))),
                 parameters: parameters.map(resolveParameter(_:)),
-                body: body
+                body: [.returnStatement(returnExpression)]
             )
-        } else {
+        case .multipleStatements(let statements):
             return try .functionDeclaration(
                 name,
                 returns: returnType.flatMap { ResolvedType(rawValue: $0) },
                 parameters: parameters.map(resolveParameter(_:)),
-                body: body
+                body: statements
             )
-
         }
     }
 

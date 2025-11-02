@@ -1,9 +1,10 @@
 public enum Statement: Equatable {
     case variableDeclaration(Variable, initializer: Expression?)
-    case functionDeclaration(String, returns: ResolvedType?, parameters: [Labeled<Variable>], body: FunctionBody)
+    case functionDeclaration(String, returns: ResolvedType?, parameters: [Labeled<Variable>], body: [Statement])
     case functionCall(String, arguments: [Labeled<Expression>])
     case dataStructureDeclaration(String, fields: [Variable])
     case printStatement(Expression)
+    case returnStatement(Expression)
 }
 
 public enum ResolvedType: String, Sendable {
@@ -13,11 +14,6 @@ public enum ResolvedType: String, Sendable {
     case bitfield
     case string
     case regex
-}
-
-public enum FunctionBody: Equatable {
-    case implicitReturn(Expression)
-    case multipleStatements([Statement])
 }
 
 public enum Labeled<Value> {

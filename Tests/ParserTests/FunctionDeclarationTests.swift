@@ -33,7 +33,7 @@ struct FunctionDeclarationTests {
             "f",
             returns: nil,
             parameters: [],
-            body: .multipleStatements([])
+            body: []
         )])
     }
     @Test("Declared return type")
@@ -43,7 +43,7 @@ struct FunctionDeclarationTests {
             "f",
             returns: .integer,
             parameters: [],
-            body: .multipleStatements([])
+            body: []
         )])
     }
 
@@ -61,7 +61,7 @@ struct FunctionDeclarationTests {
                 ),
                 label: "x"
             )],
-            body: .multipleStatements([])
+            body: []
         )])
     }
 
@@ -79,7 +79,7 @@ struct FunctionDeclarationTests {
                 ),
                 label: "x"
             )],
-            body: .multipleStatements([])
+            body: []
         )])
     }
 
@@ -96,7 +96,7 @@ struct FunctionDeclarationTests {
                     type: .integer
                 ),
             )],
-            body: .multipleStatements([])
+            body: []
         )])
     }
 
@@ -124,7 +124,7 @@ struct FunctionDeclarationTests {
                     label: "y"
                 ),
             ],
-            body: .multipleStatements([])
+            body: []
         )])
     }
 
@@ -140,7 +140,7 @@ struct FunctionDeclarationTests {
             "f",
             returns: nil,
             parameters: [],
-            body: .multipleStatements([
+            body: [
                 .variableDeclaration(
                     Variable(
                         name: "x",
@@ -148,7 +148,7 @@ struct FunctionDeclarationTests {
                         type: .integer),
                     initializer: .integer(1)
                 )
-            ])
+            ]
         )])
     }
 
@@ -160,7 +160,7 @@ struct FunctionDeclarationTests {
             "f",
             returns: .integer,
             parameters: [],
-            body: .implicitReturn(.integer(1))
+            body: [.returnStatement(.integer(1))]
         )])
     }
 
@@ -179,7 +179,7 @@ struct FunctionDeclarationTests {
                 ),
                 label: "x"
             )],
-            body: .implicitReturn(.identifier("x", type: .integer))
+            body: [.returnStatement(.identifier("x", type: .integer))]
         )])
     }
 

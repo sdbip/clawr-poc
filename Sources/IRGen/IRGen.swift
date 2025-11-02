@@ -35,11 +35,13 @@ public func irgen(statements: [Parser.Statement]) -> [Codegen.Statement] {
         case .dataStructureDeclaration(_, fields: _):
             fatalError("dataStructureDclaration not yet implemented!!")
         case .functionDeclaration(let name, returns: let returnType, parameters: let parameters, body: let body):
-            result.append(.function(name, returns: returnType?.rawValue ?? "void", parameters: [], body: body.statements))
+            result.append(.function(name, returns: returnType?.rawValue ?? "void", parameters: [], body: irgen(statements: body)))
         case .functionCall(let name, arguments: let arguments):
             result.append(.call(.name(name), arguments: []))
         case .printStatement(let expression):
             result.append(.call(.name("print"), arguments: [toString(expression: expression)]))
+        case .returnStatement(let expression):
+            result.append(.return(irgen(expression: expression)))
         }
     }
 
@@ -63,14 +65,5 @@ func toString(expression: Parser.Expression) -> Codegen.Expression {
     case .real(let r): .call(.name("real_toString"), arguments: [.literal("\(r)")])
     case .bitfield(let b): .call(.name("bitfield_toString"), arguments: [.literal("\(b)")])
     default: fatalError("toString is not yet supported for \(expression). Should look for a HasStringRepresentation vtable")
-    }
-}
-
-extension FunctionBody {
-    var statements: [Codegen.Statement] {
-        switch self {
-        case .implicitReturn(let expr): fatalError()
-        case .multipleStatements(let statements): irgen(statements: statements)
-        }
     }
 }
