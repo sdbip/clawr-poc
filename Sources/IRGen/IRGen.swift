@@ -32,6 +32,8 @@ public func irgen(statements: [Parser.Statement]) -> [Codegen.Statement] {
         switch statement {
         case .variableDeclaration(let variable, initializer: let initializer):
             result.append(.variable(variable.name, type: variable.type.rawValue, initializer: initializer.map(irgen(expression:)) ?? .literal("NULL")))
+        case .dataStructureDeclaration(_, fields: _):
+            fatalError("dataStructureDclaration not yet implemented!!")
         case .functionDeclaration(let name, returns: let returnType, parameters: let parameters, body: let body):
             result.append(.function(name, returns: returnType?.rawValue ?? "void", parameters: [], body: body.statements))
         case .functionCall(let name, arguments: let arguments):

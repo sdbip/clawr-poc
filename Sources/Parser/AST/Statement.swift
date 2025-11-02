@@ -2,6 +2,7 @@ public enum Statement: Equatable {
     case variableDeclaration(Variable, initializer: Expression?)
     case functionDeclaration(String, returns: ResolvedType?, parameters: [Labeled<Variable>], body: FunctionBody)
     case functionCall(String, arguments: [Labeled<Expression>])
+    case dataStructureDeclaration(String, fields: [Variable])
     case printStatement(Expression)
 }
 

@@ -10,6 +10,7 @@ func parse(_ stream: TokenStream, in scope: Scope) throws -> [Statement] {
     let parseables: [StatementParseable.Type] = [
         PrintStatement.self,
         VariableDeclaration.self,
+        DataStructureDeclaration.self,
         FunctionDeclaration.self,
         FunctionCall.self,
     ]
