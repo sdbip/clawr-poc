@@ -2,7 +2,7 @@ import Testing
 import Lexer
 @testable import Parser
 
-@Suite("tata Structure Literals")
+@Suite("Data Structure Literals")
 struct DataStructureLiteralTests {
     @Test
     func empty_struct() async throws {
