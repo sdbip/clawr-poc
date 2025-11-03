@@ -45,7 +45,7 @@ public func irgen(statements: [Parser.Statement]) -> [Codegen.Statement] {
             result.append(.structDeclaration(
                 "__\(name)_data",
                 fields: fields.map {
-                    Field(type: irgen(type: $0.type), name: $0.name)
+                    Field(type: .simple($0.type.irName), name: $0.name)
                 }
             ))
             result.append(.structDeclaration(
@@ -114,15 +114,21 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .real(let r): .literal("\(1/r)")
     case .bitfield(let b): .literal("\(b)")
     case .identifier(let identifier, type: _): .reference(.name(identifier))
+    case .memberLookup(let target): irgen(lookup: target)
     case .dataStructureLiteral(let type, fieldValues: _):
         .call(.name("oo_alloc"), arguments: [.reference(.name("__oo_ISOLATED")), .reference(.name("__\(type.name)_info"))])
     }
 }
 
-func irgen(type: ResolvedType) -> Type {
-    switch type {
-    case .builtin(let type): .simple(type.rawValue)
-    case .data(let data): .simple("\(data.name)*")
+func irgen(lookup: LookupTarget) -> Codegen.Expression {
+    switch lookup {
+    case .expression(let expression): irgen(expression: expression)
+    case .member(let target, member: let member, type: _):
+        .reference(.field(
+            target: irgen(lookup: target),
+            name: member,
+            isPointer: target.type.isPointer
+        ))
     }
 }
 
@@ -133,5 +139,18 @@ func toString(expression: Parser.Expression) -> Codegen.Expression {
     case .real(let r): .call(.name("real_toString"), arguments: [.literal("\(r)")])
     case .bitfield(let b): .call(.name("bitfield_toString"), arguments: [.literal("\(b)")])
     default: fatalError("toString is not yet supported for \(expression). Should look for a HasStringRepresentation vtable")
+    }
+}
+
+extension ResolvedType {
+    var isPointer: Bool {
+        switch self {
+        case .builtin(_): false
+        case .data(_): true
+        }
+    }
+
+    var irName: String {
+        "\(name)\(isPointer ? "*" : "")"
     }
 }

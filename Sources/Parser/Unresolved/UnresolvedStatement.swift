@@ -12,8 +12,9 @@ extension UnresolvedStatement {
         switch self {
 
         case .variableDeclaration(let decl):
-            // TODO: register Variable
-            return try .variableDeclaration(decl.resolveVariable(in: scope), initializer: decl.initializer?.resolve(in: scope, declaredType: decl.type?.value))
+            let variable = try decl.resolveVariable(in: scope)
+            scope.register(variable: variable)
+            return try .variableDeclaration(variable, initializer: decl.initializer?.resolve(in: scope, declaredType: decl.type?.value))
 
         case .functionDeclaration(let name, returns: let returnType, parameters: let parameters, body: let body):
             let parameters = try parameters.map {

@@ -7,6 +7,12 @@ enum UnresolvedExpression: Equatable {
     case bitfield(UInt64, location: FileLocation)
     case identifier(String, location: FileLocation)
     case dataStructureLiteral(DataStructureLiteral, location: FileLocation)
+    case memberLookup(UnresolvedLookupTarget)
+}
+
+indirect enum UnresolvedLookupTarget: Equatable {
+    case expression(UnresolvedExpression, location: FileLocation)
+    case member(UnresolvedLookupTarget, member: String, location: FileLocation)
 }
 
 extension UnresolvedExpression {
@@ -17,6 +23,8 @@ extension UnresolvedExpression {
              .bitfield(_, let l),
              .real(_, let l),
              .dataStructureLiteral(_, let l),
+             .memberLookup(.expression(_, location: let l)),
+             .memberLookup(.member(_, member: _, location: let l)),
              .identifier(_, let l):
                 return l
         }
@@ -24,7 +32,30 @@ extension UnresolvedExpression {
     static func parse(stream: TokenStream) throws -> UnresolvedExpression {
         let token = try stream.peek().required()
 
-        return try expr()
+        let expression = try expr()
+        if stream.peek()?.value == "." {
+            _ = stream.next()
+            let memberToken = try stream.next().requiring { $0.kind == .identifier }
+
+            let expression2: UnresolvedExpression = .memberLookup(.member(
+                .expression(expression, location: token.location),
+                member: memberToken.value,
+                location: memberToken.location
+            ))
+            if stream.peek()?.value == "." {
+                _ = stream.next()
+                let memberToken2 = try stream.next().requiring { $0.kind == .identifier }
+                return .memberLookup(.member(
+                    .expression(expression2, location: memberToken.location),
+                    member: memberToken2.value,
+                    location: memberToken2.location
+                ))
+            }
+
+            return expression2
+        }
+
+        return expression
 
         func expr() throws -> UnresolvedExpression {
             switch token.value {
@@ -83,6 +114,20 @@ extension UnresolvedExpression {
                 return (key, try value.resolve(in: scope, declaredType: field?.type.name))
             }
             return .dataStructureLiteral(.data(dataType), fieldValues: Dictionary(uniqueKeysWithValues: fieldValues))
+        case .memberLookup(let lookup):
+            return .memberLookup(try resolve(lookup: lookup, in: scope))
+        }
+    }
+
+    private func resolve(lookup: UnresolvedLookupTarget, in scope: Scope) throws -> LookupTarget {
+        switch lookup {
+        case .expression(let expression, location: let location):
+            return .expression(try expression.resolve(in: scope, declaredType: nil))
+        case .member(let target, member: let member, location: let location):
+            let parent = try resolve(lookup: target, in: scope)
+            guard case .data(let data) = parent.type else { throw ParserError.unresolvedType(location) }
+            guard let field = data.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
+            return .member(parent, member: member, type: field.type)
         }
     }
 }
