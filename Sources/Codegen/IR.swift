@@ -17,7 +17,6 @@ public indirect enum Expression {
 }
 
 public indirect enum Reference {
-    case cast(Reference, type: String)
     case address(of: Reference)
     case name(String)
     case field(target: Expression, name: String, isPointer: Bool)

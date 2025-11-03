@@ -56,8 +56,6 @@ func codegen(expression: Expression) -> String {
         return "&\(codegen(expression: .reference(reference)))"
     case .cast(let expression, type: let type):
         return "((\(type))\(codegen(expression: expression)))"
-    case .reference(.cast(let reference, type: let type)):
-        return "((\(type))\(codegen(expression: .reference(reference))))"
     case .reference(.name(let name)):
         return "\(name)"
     case .reference(.field(target: let target, name: let name, isPointer: let isPointer)):
