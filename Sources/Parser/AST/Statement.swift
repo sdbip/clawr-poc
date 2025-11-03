@@ -1,6 +1,6 @@
 public enum Statement: Equatable {
     case variableDeclaration(Variable, initializer: Expression?)
-    case functionDeclaration(String, returns: ResolvedType?, parameters: [Labeled<Variable>], body: [Statement])
+    case functionDeclaration(Function)
     case functionCall(String, arguments: [Labeled<Expression>])
     case dataStructureDeclaration(String, fields: [Variable])
     case printStatement(Expression)
@@ -37,6 +37,20 @@ public struct Variable: Equatable {
         self.name = name
         self.semantics = semantics
         self.type = type
+    }
+}
+
+public struct Function: Equatable {
+    public var name: String
+    public var returnType: ResolvedType?
+    public var parameters: [Labeled<Variable>]
+    public var body: [Statement]
+
+    public init(name: String, returnType: ResolvedType?, parameters: [Labeled<Variable>], body: [Statement]) {
+        self.name = name
+        self.returnType = returnType
+        self.parameters = parameters
+        self.body = body
     }
 }
 

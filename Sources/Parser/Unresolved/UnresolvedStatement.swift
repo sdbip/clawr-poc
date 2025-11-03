@@ -23,12 +23,12 @@ extension UnresolvedStatement {
             let bodyScope = Scope(parent: scope, parameters: parameters.map(\.value))
             let (resolvedReturnType, bodyStatements) = try resolveBody()
 
-            return try .functionDeclaration(
-                name.value,
-                returns: resolvedReturnType,
+            return try .functionDeclaration(Function(
+                name: name.value,
+                returnType: resolvedReturnType,
                 parameters: parameters,
                 body: bodyStatements
-            )
+            ))
 
             func resolveBody() throws -> (ResolvedType?, [Statement]) {
                 switch body {

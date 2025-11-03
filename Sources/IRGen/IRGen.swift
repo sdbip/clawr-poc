@@ -4,14 +4,14 @@ import Codegen
 public func irgen(ast: [Parser.Statement]) -> [Codegen.Statement] {
     var functions = irgen(statements: ast.filter {
         switch $0 {
-        case .functionDeclaration(_, returns: _, parameters: _, body: _): true
+        case .functionDeclaration(_): true
         default: false
         }
     })
 
     let nonFunctions = irgen(statements: ast.filter {
         switch $0 {
-        case .functionDeclaration(_, returns: _, parameters: _, body: _): false
+        case .functionDeclaration(_): false
         default: true
         }
     })
@@ -64,8 +64,8 @@ public func irgen(statements: [Parser.Statement]) -> [Codegen.Statement] {
                     NamedValue(name: "data", value: .reference(.address(of: .name("__\(name)_data_type"))))
                 ])
             ))
-        case .functionDeclaration(let name, returns: let returnType, parameters: let parameters, body: let body):
-            result.append(.function(name, returns: returnType?.name ?? "void", parameters: [], body: irgen(statements: body)))
+        case .functionDeclaration(let function):
+            result.append(.function(function.name, returns: function.returnType?.name ?? "void", parameters: [], body: irgen(statements: function.body)))
         case .functionCall(let name, arguments: let arguments):
             result.append(.call(.name(name), arguments: []))
         case .printStatement(let expression):
