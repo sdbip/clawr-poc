@@ -24,6 +24,7 @@ extension ObjectDeclaration: StatementParseable {
         _ = try stream.next().requiring { $0.value == "object" }
 
         let isAbstract: Bool
+        let supertype : Located<String>?
         if stream.peek()?.value == "abstract" {
             _ = stream.next()
             isAbstract = true
@@ -32,17 +33,20 @@ extension ObjectDeclaration: StatementParseable {
         }
 
         let nameToken = try stream.next().requiring { $0.kind == .identifier }
-        self.init(
-            name: (nameToken.value, location: nameToken.location),
-            isAbstract: isAbstract,
-            supertype: nil,
-        )
 
         if stream.peek()?.value == ":" {
             _ = stream.next()
             let supertypeToken = try stream.next().requiring { $0.kind == .identifier }
             supertype = (supertypeToken.value, supertypeToken.location)
+        } else {
+            supertype = nil
         }
+
+        var pureMethods: [FunctionDeclaration] = []
+        var mutatingMethods: [FunctionDeclaration]? = nil
+        var staticMethods: [FunctionDeclaration]? = nil
+        var staticFields: [VariableDeclaration]? = nil
+        var dataFields: [VariableDeclaration]? = nil
 
         _ = try stream.next().requiring { $0.value == "{" }
 
@@ -53,34 +57,46 @@ extension ObjectDeclaration: StatementParseable {
 
         while let t = stream.peek(), t.value != "}" {
             if t.value == "mutating" {
+                if mutatingMethods != nil { throw ParserError.invalidToken(t) }
                 _ = stream.next()
                 _ = try stream.next().requiring { $0.value == ":" }
 
+                var methods: [FunctionDeclaration] = []
                 while let t = stream.peek(), !sectionEnders.contains(t.value)  {
                     let method = try FunctionDeclaration(parsing: stream)
-                    mutatingMethods.append(method)
+                    methods.append(method)
                 }
+
+                mutatingMethods = methods
             }
 
             if t.value == "static" {
+                if staticFields != nil { throw ParserError.invalidToken(t) }
                 _ = stream.next()
                 _ = try stream.next().requiring { $0.value == ":" }
 
+                var fields: [VariableDeclaration] = []
+                var methods: [FunctionDeclaration] = []
                 while let t = stream.peek(), !sectionEnders.contains(t.value)  {
                     if FunctionDeclaration.isNext(in: stream) {
-                        try staticMethods.append(FunctionDeclaration(parsing: stream))
+                        try methods.append(FunctionDeclaration(parsing: stream))
                     } else if VariableDeclaration.isNext(in: stream) {
-                        try staticFields.append(VariableDeclaration(parsing: stream))
+                        try fields.append(VariableDeclaration(parsing: stream))
                     } else {
                         throw ParserError.invalidToken(t)
                     }
                 }
+
+                staticFields = fields
+                staticMethods = methods
             }
 
             if t.value == "data" {
+                if dataFields != nil { throw ParserError.invalidToken(t) }
                 _ = stream.next()
                 _ = try stream.next().requiring { $0.value == ":" }
 
+                var fields: [VariableDeclaration] = []
                 while let t = stream.peek(), !sectionEnders.contains(t.value)  {
                     try fields.append(VariableDeclaration(parsing: stream, defaultSemantics: .isolated))
 
@@ -90,9 +106,22 @@ extension ObjectDeclaration: StatementParseable {
                         _ = stream.next(skippingNewlines: false)
                     }
                 }
+
+                dataFields = fields
             }
         }
         _ = try stream.next().requiring { $0.value == "}" }
+
+        self.init(
+            name: (nameToken.value, location: nameToken.location),
+            isAbstract: isAbstract,
+            supertype: supertype,
+            pureMethods: pureMethods,
+            mutatingMethods: mutatingMethods ?? [],
+            fields: dataFields ?? [],
+            staticMethods: staticMethods ?? [],
+            staticFields: staticFields ?? [],
+        )
     }
 
     func resolveObject(in scope: Scope) throws -> Object {

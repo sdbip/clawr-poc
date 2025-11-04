@@ -23,6 +23,15 @@ struct ObjectDeclarationTests {
         }
     }
 
+    @Test(arguments: ["object O {data:data:}", "object S {static:static:}", "object S {mutating:mutating:}"])
+    func repeated_section(_ source: String) async throws {
+        let error = try #require(throws: ParserError.self) { try parse(source)}
+        guard case .invalidToken(_) = error else {
+            Issue.record("Did not throw the expected error, was: \(error)")
+            return
+        }
+    }
+
     @Test(arguments: [
         "object O {mutating:}",
         "object O {static:}",
