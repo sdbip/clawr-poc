@@ -51,42 +51,44 @@ extension ObjectDeclaration: StatementParseable {
             pureMethods.append(method)
         }
 
-        if stream.peek()?.value == "mutating" {
-            _ = stream.next()
-            _ = try stream.next().requiring { $0.value == ":" }
+        while let t = stream.peek(), t.value != "}" {
+            if t.value == "mutating" {
+                _ = stream.next()
+                _ = try stream.next().requiring { $0.value == ":" }
 
-            while let t = stream.peek(), !sectionEnders.contains(t.value)  {
-                let method = try FunctionDeclaration(parsing: stream)
-                mutatingMethods.append(method)
-            }
-        }
-
-        if stream.peek()?.value == "static" {
-            _ = stream.next()
-            _ = try stream.next().requiring { $0.value == ":" }
-
-            while let t = stream.peek(), !sectionEnders.contains(t.value)  {
-                if FunctionDeclaration.isNext(in: stream) {
-                    try staticMethods.append(FunctionDeclaration(parsing: stream))
-                } else if VariableDeclaration.isNext(in: stream) {
-                    try staticFields.append(VariableDeclaration(parsing: stream))
-                } else {
-                    throw ParserError.invalidToken(t)
+                while let t = stream.peek(), !sectionEnders.contains(t.value)  {
+                    let method = try FunctionDeclaration(parsing: stream)
+                    mutatingMethods.append(method)
                 }
             }
-        }
 
-        if stream.peek()?.value == "data" {
-            _ = stream.next()
-            _ = try stream.next().requiring { $0.value == ":" }
+            if t.value == "static" {
+                _ = stream.next()
+                _ = try stream.next().requiring { $0.value == ":" }
 
-            while let t = stream.peek(), !sectionEnders.contains(t.value)  {
-                try fields.append(VariableDeclaration(parsing: stream, defaultSemantics: .isolated))
+                while let t = stream.peek(), !sectionEnders.contains(t.value)  {
+                    if FunctionDeclaration.isNext(in: stream) {
+                        try staticMethods.append(FunctionDeclaration(parsing: stream))
+                    } else if VariableDeclaration.isNext(in: stream) {
+                        try staticFields.append(VariableDeclaration(parsing: stream))
+                    } else {
+                        throw ParserError.invalidToken(t)
+                    }
+                }
+            }
 
-                if stream.peek()?.value == "," {
-                    _ = stream.next()
-                } else if stream.peek(skippingNewlines: false)?.value == "\n" {
-                    _ = stream.next(skippingNewlines: false)
+            if t.value == "data" {
+                _ = stream.next()
+                _ = try stream.next().requiring { $0.value == ":" }
+
+                while let t = stream.peek(), !sectionEnders.contains(t.value)  {
+                    try fields.append(VariableDeclaration(parsing: stream, defaultSemantics: .isolated))
+
+                    if stream.peek()?.value == "," {
+                        _ = stream.next()
+                    } else if stream.peek(skippingNewlines: false)?.value == "\n" {
+                        _ = stream.next(skippingNewlines: false)
+                    }
                 }
             }
         }

@@ -23,6 +23,28 @@ struct ObjectDeclarationTests {
         }
     }
 
+    @Test(arguments: [
+        "object O {mutating:}",
+        "object O {static:}",
+        "object O {data:}",
+        "object O {mutating:data:}",
+        "object O {static:mutating:}",
+        "object O {data:static:}",
+    ])
+    func empty_sections(source: String) async throws {
+        let ast = try parse(source)
+        #expect(ast == [.objectDeclaration(Object(
+            name: "O",
+            isAbstract: false,
+            supertype: nil,
+            pureMethods: [],
+            mutatingMethods: [],
+            fields: [],
+            staticMethods: [],
+            staticFields: [],
+        ))])
+    }
+
     @Test
     func empty_object() async throws {
         let ast = try parse("object S {}")
