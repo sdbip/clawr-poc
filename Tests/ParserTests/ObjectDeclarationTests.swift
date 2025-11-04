@@ -116,4 +116,23 @@ struct ObjectDeclarationTests {
             ],
         ))])
     }
+
+    @Test
+    func static_methods() async throws {
+        let source = """
+            object S {
+            static:
+                func method1() => 42
+                func method2() => 43
+            }
+            """
+        let ast = try parse(source)
+        #expect(ast == [.objectDeclaration(Object(
+            name: "S",
+            staticMethods: [
+                Function(name: "method1", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))]),
+                Function(name: "method2", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(43))]),
+            ],
+        ))])
+    }
 }

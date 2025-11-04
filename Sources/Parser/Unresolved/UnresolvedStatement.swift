@@ -38,8 +38,9 @@ extension UnresolvedStatement {
         case .objectDeclaration(let decl):
             return try .objectDeclaration(Object(
                 name: decl.name,
+                methods: decl.methods.map { try $0.resolveFunction(in: scope) },
                 fields: decl.fields.map { try $0.resolveVariable(in: scope) },
-                methods: decl.methods.map { try $0.resolveFunction(in: scope) }
+                staticMethods: decl.staticMethods.map { try $0.resolveFunction(in: scope) },
             ))
 
         case .printStatement(let expression):

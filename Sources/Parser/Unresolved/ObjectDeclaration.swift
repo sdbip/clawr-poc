@@ -4,6 +4,7 @@ struct ObjectDeclaration {
     var name: String
     var methods: [FunctionDeclaration]
     var fields: [VariableDeclaration]
+    var staticMethods: [FunctionDeclaration]
 }
 
 extension ObjectDeclaration: StatementParseable {
@@ -18,13 +19,23 @@ extension ObjectDeclaration: StatementParseable {
     init(parsing stream: TokenStream) throws {
         _ = try stream.next().requiring { $0.value == "object" }
         let name = try stream.next().requiring { $0.kind == .identifier }.value
-        self.init(name: name, methods: [], fields: [])
+        self.init(name: name, methods: [], fields: [], staticMethods: [])
 
         _ = try stream.next().requiring { $0.value == "{" }
 
-        while let t = stream.peek(), t.value != "data" && t.value != "}" {
+        while let t = stream.peek(), t.value != "data" && t.value != "static" && t.value != "}" {
             let method = try FunctionDeclaration(parsing: stream)
             methods.append(method)
+        }
+
+        if stream.peek()?.value == "static" {
+            _ = stream.next()
+            _ = try stream.next().requiring { $0.value == ":" }
+
+            while let t = stream.peek(), t.value != "data" && t.value != "}" {
+                let method = try FunctionDeclaration(parsing: stream)
+                staticMethods.append(method)
+            }
         }
 
         if stream.peek()?.value == "data" {

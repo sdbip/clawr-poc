@@ -77,14 +77,17 @@ public struct Object: Equatable {
     public var name: String
     public var methods: [Function]
     public var fields: [Variable]
+    public var staticMethods: [Function]
 
     public init(
             name: String,
+            methods: [Function] = [],
             fields: [Variable] = [],
-            methods: [Function] = []
+            staticMethods: [Function] = [],
             ) {
         self.name = name
-        self.fields = fields
         self.methods = methods
+        self.fields = fields
+        self.staticMethods = staticMethods
     }
 }
