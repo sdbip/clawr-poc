@@ -75,10 +75,16 @@ public struct DataStructure: Equatable {
 
 public struct Object: Equatable {
     public var name: String
+    public var methods: [Function]
     public var fields: [Variable]
 
-    public init(name: String, fields: [Variable] = []) {
+    public init(
+            name: String,
+            fields: [Variable] = [],
+            methods: [Function] = []
+            ) {
         self.name = name
         self.fields = fields
+        self.methods = methods
     }
 }

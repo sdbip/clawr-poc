@@ -88,4 +88,32 @@ struct ObjectDeclarationTests {
             ],
         ))])
     }
+
+    @Test
+    func single_method() async throws {
+        let source = "object S { func method() => 42 }"
+        let ast = try parse(source)
+        #expect(ast == [.objectDeclaration(Object(
+            name: "S",
+            methods: [Function(name: "method", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))])],
+        ))])
+    }
+
+    @Test
+    func multiple_methods() async throws {
+        let source = """
+            object S {
+                func method1() => 42
+                func method2() => 43
+            }
+            """
+        let ast = try parse(source)
+        #expect(ast == [.objectDeclaration(Object(
+            name: "S",
+            methods: [
+                Function(name: "method1", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))]),
+                Function(name: "method2", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(43))]),
+            ],
+        ))])
+    }
 }
