@@ -25,7 +25,7 @@ struct DataStructureDeclarationTests {
     @Test
     func empty_data() async throws {
         let ast = try parse("data S {}")
-        #expect(ast == [.dataStructureDeclaration("S", fields: [])])
+        #expect(ast == [.dataStructureDeclaration(DataStructure(name: "S", fields: []))])
     }
 
     @Test("Can be used as variable type")
@@ -36,26 +36,26 @@ struct DataStructureDeclarationTests {
     @Test
     func single_field() async throws {
         let ast = try parse("data S { x: integer }")
-        #expect(ast == [.dataStructureDeclaration(
-            "S",
+        #expect(ast == [.dataStructureDeclaration(DataStructure(
+            name: "S",
             fields: [Variable(
                 name: "x",
                 semantics: .isolated,
                 type: .builtin(.integer)
             )]
-        )])
+        ))])
     }
 
     @Test
     func multiple_fields() async throws {
         let ast = try parse("data S { x: integer, y: bitfield }")
-        #expect(ast == [.dataStructureDeclaration(
-            "S",
+        #expect(ast == [.dataStructureDeclaration(DataStructure(
+            name: "S",
             fields: [
                 Variable(name: "x", semantics: .isolated, type: .builtin(.integer)),
                 Variable(name: "y", semantics: .isolated, type: .builtin(.bitfield)),
             ]
-        )])
+        ))])
     }
 
     @Test
@@ -67,8 +67,8 @@ struct DataStructureDeclarationTests {
             }
             """
         let ast = try parse(source)
-        #expect(ast == [.dataStructureDeclaration(
-            "S",
+        #expect(ast == [.dataStructureDeclaration(DataStructure(
+            name: "S",
             fields: [
                 Variable(
                     name: "x",
@@ -81,7 +81,7 @@ struct DataStructureDeclarationTests {
                     type: .builtin(.bitfield)
                 ),
             ]
-        )])
+        ))])
     }
 
     @Test
@@ -93,8 +93,8 @@ struct DataStructureDeclarationTests {
             }
             """
         let ast = try parse(source)
-        #expect(ast == [.dataStructureDeclaration(
-            "S",
+        #expect(ast == [.dataStructureDeclaration(DataStructure(
+            name: "S",
             fields: [
                 Variable(
                     name: "x",
@@ -107,7 +107,7 @@ struct DataStructureDeclarationTests {
                     type: .builtin(.bitfield)
                 ),
             ]
-        )])
+        ))])
     }
 
     @Test
@@ -121,8 +121,8 @@ struct DataStructureDeclarationTests {
             }
             """
         let ast = try parse(source)
-        #expect(ast == [.dataStructureDeclaration(
-            "S",
+        #expect(ast == [.dataStructureDeclaration(DataStructure(
+            name: "S",
             fields: [
                 Variable(
                     name: "x",
@@ -135,6 +135,6 @@ struct DataStructureDeclarationTests {
                     type: .builtin(.bitfield)
                 ),
             ]
-        )])
+        ))])
     }
 }

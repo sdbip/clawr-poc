@@ -2,7 +2,7 @@ enum UnresolvedStatement {
     case variableDeclaration(VariableDeclaration)
     case functionDeclaration(FunctionDeclaration)
     case functionCall(FunctionCall)
-    case dataStructureDeclaration(Located<String>, fields: [VariableDeclaration])
+    case dataStructureDeclaration(DataStructureDeclaration)
     case printStatement(UnresolvedExpression)
     case returnStatement(UnresolvedExpression)
 }
@@ -29,13 +29,10 @@ extension UnresolvedStatement {
                 return try $0.element.map { try $0.resolve(in: scope, declaredType: parameter.value.type.name) }
             })
 
-        case .dataStructureDeclaration(let name, fields: let fields):
-            let data = DataStructure(name: name.value, fields: try fields.map { try $0.resolveVariable(in: scope) })
+        case .dataStructureDeclaration(let decl):
+            let data = try decl.resolveDataStructure(in: scope)
             scope.register(type: data)
-            return .dataStructureDeclaration(
-                data.name,
-                fields: data.fields
-            )
+            return .dataStructureDeclaration(data)
 
         case .printStatement(let expression):
             return try .printStatement(expression.resolve(in: scope, declaredType: nil))

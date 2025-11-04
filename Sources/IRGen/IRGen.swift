@@ -36,32 +36,32 @@ public func irgen(statements: [Parser.Statement]) -> [Codegen.Statement] {
                 let assignments = irgen(assigned: initializer, to: .name(variable.name))
                 result.append(contentsOf: assignments)
             }
-        case .dataStructureDeclaration(let name, fields: let fields):
+        case .dataStructureDeclaration(let dataStructure):
             result.append(.structDeclaration(
-                "__\(name)_data",
-                fields: fields.map {
+                "__\(dataStructure.name)_data",
+                fields: dataStructure.fields.map {
                     Field(type: .simple($0.type.irName), name: $0.name)
                 }
             ))
             result.append(.structDeclaration(
-                name,
+                dataStructure.name,
                 fields: [
                     Field(type: .simple("struct __oo_rc_header"), name: "header"),
-                    Field(type: .simple("struct __\(name)_data"), name: name),
+                    Field(type: .simple("struct __\(dataStructure.name)_data"), name: dataStructure.name),
                 ]
             ))
             result.append(.variable(
-                "__\(name)_data_type",
+                "__\(dataStructure.name)_data_type",
                 type: "__oo_data_type",
                 initializer: .structInitializer([
-                    NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name(name))]))
+                    NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name(dataStructure.name))]))
                 ])
             ))
             result.append(.variable(
-                "__\(name)_info",
+                "__\(dataStructure.name)_info",
                 type: "__oo_type_info",
                 initializer: .structInitializer([
-                    NamedValue(name: "data", value: .reference(.address(of: .name("__\(name)_data_type"))))
+                    NamedValue(name: "data", value: .reference(.address(of: .name("__\(dataStructure.name)_data_type"))))
                 ])
             ))
         case .functionDeclaration(let function):

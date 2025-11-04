@@ -11,7 +11,7 @@ extension DataStructureDeclaration: StatementParseable {
     }
 
     var asStatement: UnresolvedStatement {
-        return .dataStructureDeclaration(name, fields: fields)
+        return .dataStructureDeclaration(self)
     }
 
     init(parsing stream: TokenStream) throws {
@@ -30,5 +30,12 @@ extension DataStructureDeclaration: StatementParseable {
         }
         _ = try stream.next().requiring { $0.value == "}" }
         self.init(name: (nameToken.value, nameToken.location), fields: fields)
+    }
+
+    func resolveDataStructure(in scope: Scope) throws -> DataStructure {
+        return DataStructure(
+            name: name.value,
+            fields: try fields.map { try $0.resolveVariable(in: scope) }
+        )
     }
 }
