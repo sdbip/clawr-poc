@@ -54,4 +54,14 @@ struct FunctionCallTests {
         let error = try #require(throws: ParserError.self) { try parse(source) }
         guard case .unknownFunction(_, _) = error else { Issue.record("Threw the wrong error: \(error)"); return }
     }
+
+    @Test("Requires matching labels")
+    func fails_to_resolve_different_labels() async throws {
+        let source = """
+            func f(lsbel: integer) {}
+            f(4)
+            """
+        let error = try #require(throws: ParserError.self) { try parse(source) }
+        guard case .unknownFunction(_, _) = error else { Issue.record("Threw the wrong error: \(error)"); return }
+    }
 }

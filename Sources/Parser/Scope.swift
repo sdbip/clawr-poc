@@ -25,7 +25,7 @@ public class Scope {
     }
 
     public func register(function: Function) {
-        functions[function.name] = function
+        functions[function.resolutionName] = function
     }
 
     public func function(forName name: String) -> Function? {

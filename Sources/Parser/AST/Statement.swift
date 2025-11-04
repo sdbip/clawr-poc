@@ -46,11 +46,19 @@ public struct Function: Equatable {
     public var parameters: [Labeled<Variable>]
     public var body: [Statement]
 
+    var resolutionName: String {
+        return Self.resolvedName(base: name, labels: parameters.map { $0.label })
+    }
+
     public init(name: String, returnType: ResolvedType?, parameters: [Labeled<Variable>], body: [Statement]) {
         self.name = name
         self.returnType = returnType
         self.parameters = parameters
         self.body = body
+    }
+
+    static func resolvedName(base: String, labels: [String?]) -> String {
+        return "\(base)(\(labels.map { "\($0 ?? "_"):"}))"
     }
 }
 
