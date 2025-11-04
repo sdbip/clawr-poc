@@ -79,6 +79,7 @@ public struct Object: Equatable {
     public var mutatingMethods: [Function]
     public var fields: [Variable]
     public var staticMethods: [Function]
+    public var staticFields: [Variable]
 
     public init(
             name: String,
@@ -86,11 +87,13 @@ public struct Object: Equatable {
             mutatingMethods: [Function] = [],
             fields: [Variable] = [],
             staticMethods: [Function] = [],
+            staticFields: [Variable] = [],
             ) {
         self.name = name
         self.pureMethods = pureMethods
         self.mutatingMethods = mutatingMethods
         self.fields = fields
         self.staticMethods = staticMethods
+        self.staticFields = staticFields
     }
 }

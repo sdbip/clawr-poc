@@ -6,6 +6,7 @@ struct ObjectDeclaration {
     var mutatingMethods: [FunctionDeclaration] = []
     var fields: [VariableDeclaration] = []
     var staticMethods: [FunctionDeclaration] = []
+    var staticFields: [VariableDeclaration] = []
 }
 
 extension ObjectDeclaration: StatementParseable {
@@ -44,8 +45,13 @@ extension ObjectDeclaration: StatementParseable {
             _ = try stream.next().requiring { $0.value == ":" }
 
             while let t = stream.peek(), t.value != "data" && t.value != "}" {
-                let method = try FunctionDeclaration(parsing: stream)
-                staticMethods.append(method)
+                if FunctionDeclaration.isNext(in: stream) {
+                    try staticMethods.append(FunctionDeclaration(parsing: stream))
+                } else if VariableDeclaration.isNext(in: stream) {
+                    try staticFields.append(VariableDeclaration(parsing: stream))
+                } else {
+                    throw ParserError.invalidToken(t)
+                }
             }
         }
 
@@ -73,6 +79,7 @@ extension ObjectDeclaration: StatementParseable {
             mutatingMethods: try mutatingMethods.map { try $0.resolveFunction(in: scope) },
             fields: try fields.map { try $0.resolveVariable(in: scope) },
             staticMethods: try staticMethods.map { try $0.resolveFunction(in: scope) },
+            staticFields: try staticFields.map { try $0.resolveVariable(in: scope) },
         )
     }
 }

@@ -152,4 +152,19 @@ struct ObjectDeclarationTests {
             ],
         ))])
     }
+
+    @Test
+    func static_fields() async throws {
+        let source = """
+            object LifeTheUniverseAndEverything {
+            static:
+                let answer = 42
+            }
+            """
+        let ast = try parse(source)
+        #expect(ast == [.objectDeclaration(Object(
+            name: "LifeTheUniverseAndEverything",
+            staticFields: [Variable(name: "answer", semantics: .immutable, type: .builtin(.integer))],
+        ))])
+    }
 }
