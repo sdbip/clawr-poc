@@ -3,6 +3,10 @@ import Lexer
 struct FunctionCall {
     var target: Located<String>
     var arguments: [Labeled<UnresolvedExpression>]
+
+    var resolvedName: String {
+        Function.resolvedName(base: target.value, labels: arguments.map { $0.label })
+    }
 }
 
 extension FunctionCall: StatementParseable {
@@ -11,7 +15,7 @@ extension FunctionCall: StatementParseable {
     }
 
     var asStatement: UnresolvedStatement {
-        return .functionCall(target, arguments: arguments)
+        return .functionCall(self)
     }
 
     init(parsing stream: TokenStream) throws {

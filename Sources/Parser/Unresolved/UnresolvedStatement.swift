@@ -1,7 +1,7 @@
 enum UnresolvedStatement {
     case variableDeclaration(VariableDeclaration)
     case functionDeclaration(FunctionDeclaration)
-    case functionCall(Located<String>, arguments: [Labeled<UnresolvedExpression>])
+    case functionCall(FunctionCall)
     case dataStructureDeclaration(Located<String>, fields: [VariableDeclaration])
     case printStatement(UnresolvedExpression)
     case returnStatement(UnresolvedExpression)
@@ -21,10 +21,10 @@ extension UnresolvedStatement {
             scope.register(function: function)
             return .functionDeclaration(function)
 
-        case .functionCall(let name, arguments: let arguments):
-            let resolvedName = Function.resolvedName(base: name.value, labels: arguments.map { $0.label })
-            guard let function = scope.function(forName: resolvedName) else { throw ParserError.unknownFunction(resolvedName, name.location) }
-            return try .functionCall(name.value, arguments: arguments.map {
+        case .functionCall(let call):
+            let resolvedName = call.resolvedName
+            guard let function = scope.function(forName: resolvedName) else { throw ParserError.unknownFunction(resolvedName, call.target.location) }
+            return try .functionCall(call.target.value, arguments: call.arguments.map {
                 // TODO: Match arguments to parameters
                 return try $0.map { try $0.resolve(in: scope, declaredType: nil) }
             })
