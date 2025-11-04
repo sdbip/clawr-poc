@@ -118,6 +118,23 @@ struct ObjectDeclarationTests {
     }
 
     @Test
+    func mutating_method() async throws {
+        let source = """
+            object S {
+            mutating:
+                func method1() {}
+            }
+            """
+        let ast = try parse(source)
+        #expect(ast == [.objectDeclaration(Object(
+            name: "S",
+            mutatingMethods: [
+                Function(name: "method1", returnType: nil, parameters: [], body: []),
+            ],
+        ))])
+    }
+
+    @Test
     func static_methods() async throws {
         let source = """
             object S {
