@@ -49,7 +49,7 @@ private func cInputFiles() -> [TestInputFile] {
 func compile_clawr_code(file: TestInputFile) async throws {
     let fm = FileManager.default
 
-    let executablePath = [".build/debug/ooc", "ooc"].first { fm.fileExists(atPath: $0) }!
+    let executablePath = [".build/debug/rwrc", "rwrc"].first { fm.fileExists(atPath: $0) }!
     try #require(fm.fileExists(atPath: file.url.path()))
 
     let (compilerOutput, isCompilerError) = try runExecutable(

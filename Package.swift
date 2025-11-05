@@ -9,7 +9,7 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .executable(name: "ooc", targets: ["Clawr"])
+        .executable(name: "rwrc", targets: ["Clawr"])
     ],
     targets: [
         .executableTarget(
