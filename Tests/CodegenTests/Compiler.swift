@@ -53,7 +53,7 @@ private func runExecutable(atPath path: String, arguments: [String]) throws -> S
 }
 
 private let debugDir = Bundle(for: X.self).bundleURL.deletingLastPathComponent()
-private let oolangBundle = Bundle(url: debugDir.appending(path: "Oolang_Oolang.bundle"))!
-private let headersDir = oolangBundle.resourceURL!.appending(component: "headers").path()
+private let clawrBundle = Bundle(url: debugDir.appending(path: "Clawr_Clawr.bundle"))!
+private let headersDir = clawrBundle.resourceURL!.appending(component: "headers").path()
 
 class X {}

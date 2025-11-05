@@ -3,7 +3,7 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/Sources/Oolang/headers"
+                "${workspaceFolder}/Sources/Clawr/headers"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

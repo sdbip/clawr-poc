@@ -45,8 +45,8 @@ private func cInputFiles() -> [TestInputFile] {
             }
 }
 
-@Test("Compile and Run Oolang Code", arguments: oolangInputFiles())
-func compile_oolang_code(file: TestInputFile) async throws {
+@Test("Compile and Run Clawr Code", arguments: clawrInputFiles())
+func compile_clawr_code(file: TestInputFile) async throws {
     let fm = FileManager.default
 
     let executablePath = [".build/debug/ooc", "ooc"].first { fm.fileExists(atPath: $0) }!
@@ -71,7 +71,7 @@ func compile_oolang_code(file: TestInputFile) async throws {
     }
 }
 
-private func oolangInputFiles() -> [TestInputFile] {
+private func clawrInputFiles() -> [TestInputFile] {
     let resourceURL = Bundle.module.resourceURL!
     return try! FileManager.default.contentsOfDirectory(at: resourceURL.appending(component: "oo-files"), includingPropertiesForKeys: [])
         .filter { $0.pathExtension == "oo" }
@@ -123,7 +123,7 @@ private extension Bundle {
     static var target: Bundle {
         let url = Bundle.module.bundleURL
             .deletingLastPathComponent()
-            .appending(path: "Oolang_Oolang.bundle")
+            .appending(path: "Clawr_Clawr.bundle")
         return Bundle(url: url)!
     }
 }

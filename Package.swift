@@ -4,24 +4,24 @@
 import PackageDescription
 
 let package = Package(
-    name: "Oolang",
+    name: "Clawr",
     platforms: [
         .macOS(.v13)
     ],
     products: [
-        .executable(name: "ooc", targets: ["Oolang"])
+        .executable(name: "ooc", targets: ["Clawr"])
     ],
     targets: [
         .executableTarget(
-            name: "Oolang",
+            name: "Clawr",
             dependencies: ["IRGen"],
             resources: [
                 .copy("headers")
             ]
         ),
         .testTarget(
-            name: "OolangTests",
-            dependencies: ["Oolang"],
+            name: "ClawrTests",
+            dependencies: ["Clawr"],
             resources: [
                 .copy("c-files"),
                 .copy("oo-files"),
