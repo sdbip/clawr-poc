@@ -51,14 +51,19 @@ extension UnresolvedExpression {
         }
     }
 
-    static func expression(parsing stream: TokenStream) throws -> UnresolvedExpression {
-        let expression = try prefixExpression(parsing: stream)
-        if let token = stream.peek(), let op = binaryOperator(for: token.value) {
-            _ = stream.next()
-            return try .binaryOperation(left: expression, operator: op, right: self.expression(parsing: stream), location: token.location)
-        } else {
-            return expression
+    static func expression(parsing stream: TokenStream, precedence p: Int = 0) throws -> UnresolvedExpression {
+        var left = try prefixExpression(parsing: stream)
+
+        while let token = stream.peek(), let op = binaryOperator(for: token.value) {
+            let currentPrecedence = precedence(of: op)
+            if currentPrecedence < p { break }
+
+            _ = stream.next() // consume operator
+            let right = try expression(parsing: stream, precedence: currentPrecedence + 1)
+            left = .binaryOperation(left: left, operator: op, right: right, location: token.location)
         }
+
+        return left
     }
 
     static func prefixExpression(parsing stream: TokenStream) throws -> UnresolvedExpression {
@@ -152,9 +157,14 @@ private func binaryOperator(for token: String) -> BinaryOperator? {
     case "<<": .leftShift
     case ">>": .rightShift
     case "+": .addition
+    case "-": .subtraction
     case "*": .multiplication
     default: nil
     }
+}
+
+private func precedence(of op: BinaryOperator) -> Int {
+    return op == .multiplication ? 1 : 0
 }
 
 private func prefixOperator(for token: String) -> UnaryOperator? {

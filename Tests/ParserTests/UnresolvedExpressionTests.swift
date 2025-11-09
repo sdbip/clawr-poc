@@ -63,6 +63,14 @@ struct UnresolvedExpressionTests {
         #expect(expr == .binaryOperation(left: .integer(2), operator: .multiplication, right: .integer(3)))
     }
 
+    @Test("Multiple operators are evaluated left-to-right")
+    func multiple_additions() async throws {
+        let source = "let x = 1 + 2 - 3"
+        let ast = try parse(source)
+        guard case .variableDeclaration(_, initializer: let expr) = ast.first else { Issue.record("Unexpected expression: \(ast)"); return }
+        #expect(expr == .binaryOperation(left: .binaryOperation(left: .integer(1), operator: .addition, right: .integer(2)), operator: .subtraction, right: .integer(3)))
+    }
+
     @Test("Addition has lower precedence than multiplication")
     func precedence() async throws {
         let source = "let x = 1 + 2 * 3"

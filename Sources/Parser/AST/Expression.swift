@@ -18,6 +18,7 @@ public enum BinaryOperator: Equatable {
     case leftShift
     case rightShift
     case addition
+    case subtraction
     case multiplication
 }
 
