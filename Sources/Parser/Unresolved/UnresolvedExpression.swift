@@ -74,14 +74,23 @@ extension UnresolvedExpression {
         }
 
         switch token.value {
+        case "(":
+            _ = stream.next()
+            let expr = try expression(parsing: stream)
+            _ = try stream.next().requiring { $0.value == ")" }
+            return expr
+
         case "true":
             _ = stream.next()
             return .boolean(true, location: token.location)
+
         case "false":
             _ = stream.next()
             return .boolean(false, location: token.location)
-        case "{" :
+
+        case "{":
             return try .dataStructureLiteral(DataStructureLiteral.parse(stream: stream), location: token.location)
+
         case let v where token.kind == .decimal:
             _ = stream.next()
             if let i = Int64(v.replacing("_", with: "")) {
