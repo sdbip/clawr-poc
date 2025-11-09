@@ -1,6 +1,6 @@
 import Lexer
 
-enum UnresolvedExpression: Equatable {
+indirect enum UnresolvedExpression: Equatable {
     case boolean(Bool, location: FileLocation)
     case integer(Int64, location: FileLocation)
     case real(Double, location: FileLocation)
@@ -8,6 +8,7 @@ enum UnresolvedExpression: Equatable {
     case identifier(String, location: FileLocation)
     case dataStructureLiteral(DataStructureLiteral, location: FileLocation)
     case memberLookup(UnresolvedLookupTarget)
+    case bitwiseNegation(of: UnresolvedExpression, location: FileLocation)
 }
 
 indirect enum UnresolvedLookupTarget: Equatable {
@@ -26,12 +27,11 @@ extension UnresolvedExpression {
         case .dataStructureLiteral(_, let l): return l
         case .memberLookup(.member(_, member: _, location: let l)): return l
         case .identifier(_, let l): return l
+        case .bitwiseNegation(of: _, location: let l): return l
         }
     }
     static func parse(stream: TokenStream) throws -> UnresolvedExpression {
-        let token = try stream.peek().required()
-
-        let expression = try expr()
+        let expression = try expression(parsing: stream)
         return try lookup(current: expression)
 
         func lookup(current: UnresolvedExpression) throws -> UnresolvedExpression {
@@ -47,42 +47,46 @@ extension UnresolvedExpression {
 
             return current
         }
+    }
 
-        func expr() throws -> UnresolvedExpression {
-            switch token.value {
-            case "true":
-                _ = stream.next()
-                return .boolean(true, location: token.location)
-            case "false":
-                _ = stream.next()
-                return .boolean(false, location: token.location)
-            case "{" :
-                return try .dataStructureLiteral(DataStructureLiteral.parse(stream: stream), location: token.location)
-            case let v where token.kind == .decimal:
-                _ = stream.next()
-                if let i = Int64(v.replacing("_", with: "")) {
-                    return .integer(i, location: token.location)
-                } else if let r = Double(v.replacing("_", with: "")) {
-                    return .real(r, location: token.location)
-                }
-                throw ParserError.invalidToken(token)
-
-            case let v where token.kind == .binary:
-                _ = stream.next()
-                if v.hasPrefix("0x"), let b = UInt64(v.dropFirst(2).replacing("_", with: ""), radix: 16) {
-                    return .bitfield(b, location: token.location)
-                } else if v.hasPrefix("0b"), let b = UInt64(v.dropFirst(2).replacing("_", with: ""), radix: 2) {
-                    return .bitfield(b, location: token.location)
-                }
-                throw ParserError.invalidToken(token)
-
-            case let v where token.kind == .identifier:
-                _ = stream.next()
-                return .identifier(v, location: token.location)
-
-            default:
-                throw ParserError.invalidToken(token)
+    static func expression(parsing stream: TokenStream) throws -> UnresolvedExpression {
+        let token = try stream.peek().required()
+        switch token.value {
+        case "~":
+            _ = stream.next()
+            return try .bitwiseNegation(of: expression(parsing: stream), location: token.location)
+        case "true":
+            _ = stream.next()
+            return .boolean(true, location: token.location)
+        case "false":
+            _ = stream.next()
+            return .boolean(false, location: token.location)
+        case "{" :
+            return try .dataStructureLiteral(DataStructureLiteral.parse(stream: stream), location: token.location)
+        case let v where token.kind == .decimal:
+            _ = stream.next()
+            if let i = Int64(v.replacing("_", with: "")) {
+                return .integer(i, location: token.location)
+            } else if let r = Double(v.replacing("_", with: "")) {
+                return .real(r, location: token.location)
             }
+            throw ParserError.invalidToken(token)
+
+        case let v where token.kind == .binary:
+            _ = stream.next()
+            if v.hasPrefix("0x"), let b = UInt64(v.dropFirst(2).replacing("_", with: ""), radix: 16) {
+                return .bitfield(b, location: token.location)
+            } else if v.hasPrefix("0b"), let b = UInt64(v.dropFirst(2).replacing("_", with: ""), radix: 2) {
+                return .bitfield(b, location: token.location)
+            }
+            throw ParserError.invalidToken(token)
+
+        case let v where token.kind == .identifier:
+            _ = stream.next()
+            return .identifier(v, location: token.location)
+
+        default:
+            throw ParserError.invalidToken(token)
         }
     }
 
@@ -107,6 +111,9 @@ extension UnresolvedExpression {
             return .dataStructureLiteral(.data(dataType), fieldValues: Dictionary(uniqueKeysWithValues: fieldValues))
         case .memberLookup(let lookup):
             return .memberLookup(try resolve(lookup: lookup, in: scope))
+        case .bitwiseNegation(of: let expr, location: let location):
+            // TODO: Check that the resolved type supports ~x
+            return try .bitwiseNegation(of: expr.resolve(in: scope, declaredType: nil))
         }
     }
 

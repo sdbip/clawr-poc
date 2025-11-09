@@ -123,6 +123,7 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .memberLookup(let target): irgen(lookup: target)
     case .dataStructureLiteral(let type, fieldValues: _):
         .call(.name("oo_alloc"), arguments: [.reference(.name("__oo_ISOLATED")), .reference(.name("__\(type.name)_info"))])
+    case .bitwiseNegation(of: let expression): fatalError("Operators not yet implemented")
     }
 }
 
