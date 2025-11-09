@@ -124,6 +124,7 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .dataStructureLiteral(let type, fieldValues: _):
         .call(.name("oo_alloc"), arguments: [.reference(.name("__oo_ISOLATED")), .reference(.name("__\(type.name)_info"))])
     case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")
+    case .binaryOperation(left: let left, operator: let op, right: let right): fatalError("Operators not yet implemented")
     }
 }
 

@@ -35,4 +35,15 @@ struct UnresolvedExpressionTests {
         guard case .bitfield(let value, _) = expr else { Issue.record(); return }
         #expect(value == 0b110)
     }
+
+    @Test("Right-shifted bitfield")
+    func right_shifted_bitfield() async throws {
+        let source = "0b1010 >> 2"
+        let stream = TokenStream(source: source)
+        let expr = try UnresolvedExpression.parse(stream: stream)
+        guard case .binaryOperation(left: .bitfield(let bitfield, _), operator: let op, right: .integer(let i, _), _) = expr else { Issue.record("Unexpected expression: \(expr)"); return }
+        #expect(bitfield == 0b1010)
+        #expect(op == .rightShift)
+        #expect(i == 2)
+    }
 }

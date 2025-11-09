@@ -7,10 +7,16 @@ public indirect enum Expression: Equatable {
     case dataStructureLiteral(ResolvedType, fieldValues: [String: Expression])
     case memberLookup(LookupTarget)
     case unaryOperation(operator: UnaryOperator, expression: Expression)
+    case binaryOperation(left: Expression, operator: BinaryOperator, right: Expression)
+}
 
 public enum UnaryOperator: Equatable {
     case bitfieldNegation
 }
+
+public enum BinaryOperator: Equatable {
+    case leftShift
+    case rightShift
 }
 
 public indirect enum LookupTarget: Equatable {
@@ -38,6 +44,7 @@ extension Expression {
         case .dataStructureLiteral(let t, fieldValues: _): t
         case .memberLookup(let target): target.type
         case .unaryOperation(operator: _, expression: let ex): ex.type
+        case .binaryOperation(left: let ex, operator: _, right: _): ex.type
         }
     }
 }

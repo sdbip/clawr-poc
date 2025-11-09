@@ -9,6 +9,7 @@ indirect enum UnresolvedExpression: Equatable {
     case dataStructureLiteral(DataStructureLiteral, location: FileLocation)
     case memberLookup(UnresolvedLookupTarget)
     case unaryOperation(operator: UnaryOperator, expression: UnresolvedExpression, location: FileLocation)
+    case binaryOperation(left: UnresolvedExpression, operator: BinaryOperator, right: UnresolvedExpression, location: FileLocation)
 }
 
 indirect enum UnresolvedLookupTarget: Equatable {
@@ -28,6 +29,7 @@ extension UnresolvedExpression {
         case .memberLookup(.member(_, member: _, location: let l)): return l
         case .identifier(_, let l): return l
         case .unaryOperation(operator: _, expression: _, location: let l): return l
+        case .binaryOperation(_, _, _, location: let l): return l
         }
     }
     static func parse(stream: TokenStream) throws -> UnresolvedExpression {
@@ -50,11 +52,24 @@ extension UnresolvedExpression {
     }
 
     static func expression(parsing stream: TokenStream) throws -> UnresolvedExpression {
+        let expression = try prefixExpression(parsing: stream)
+        switch stream.peek() {
+        case .some(let token) where token.value == "<<":
+            _ = stream.next()
+            return try .binaryOperation(left: expression, operator: .leftShift, right: self.expression(parsing: stream), location: token.location)
+        case .some(let token) where token.value == ">>":
+            _ = stream.next()
+            return try .binaryOperation(left: expression, operator: .rightShift, right: self.expression(parsing: stream), location: token.location)
+        default: return expression
+        }
+    }
+
+    static func prefixExpression(parsing stream: TokenStream) throws -> UnresolvedExpression {
         let token = try stream.peek().required()
         switch token.value {
         case "~":
             _ = stream.next()
-            return try .unaryOperation(operator: .bitfieldNegation, expression: expression(parsing: stream), location: token.location)
+            return try .unaryOperation(operator: .bitfieldNegation, expression: prefixExpression(parsing: stream), location: token.location)
         case "true":
             _ = stream.next()
             return .boolean(true, location: token.location)
@@ -114,6 +129,9 @@ extension UnresolvedExpression {
         case .unaryOperation(operator: let op, expression: let expr, location: let location):
             // TODO: Check that the resolved type supports ~x
             return try .unaryOperation(operator: op, expression: expr.resolve(in: scope, declaredType: declaredType))
+        case .binaryOperation(left: let left, operator: let op, right: let right, location: let location):
+            // TODO: Check that the resolved type supports x << n
+            return try .binaryOperation(left: left.resolve(in: scope, declaredType: declaredType), operator: op, right: right.resolve(in: scope, declaredType: nil))
         }
     }
 

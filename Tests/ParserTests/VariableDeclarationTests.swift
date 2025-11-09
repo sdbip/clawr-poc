@@ -86,6 +86,15 @@ struct VariableDeclarationTests {
         ])
     }
 
+    @Test("Left-shifted bitfield")
+    func left_shifted_bitfield() async throws {
+        let source = "let x = 0b1010 << 2"
+        let ast = try parse(source)
+        #expect(ast == [
+            .variableDeclaration(Variable(name: "x", semantics: .immutable, type: .builtin(.bitfield)), initializer: .binaryOperation(left: .bitfield(0b1010), operator: .leftShift, right: .integer(2)))
+        ])
+    }
+
     @Test("Type mismatch")
     func type_mismatch() async throws {
         let error = try #require(throws: ParserError.self) { try parse("let x: integer = 2.0") }
