@@ -53,23 +53,22 @@ extension UnresolvedExpression {
 
     static func expression(parsing stream: TokenStream) throws -> UnresolvedExpression {
         let expression = try prefixExpression(parsing: stream)
-        switch stream.peek() {
-        case .some(let token) where token.value == "<<":
+        if let token = stream.peek(), let op = binaryOperator(for: token.value) {
             _ = stream.next()
-            return try .binaryOperation(left: expression, operator: .leftShift, right: self.expression(parsing: stream), location: token.location)
-        case .some(let token) where token.value == ">>":
-            _ = stream.next()
-            return try .binaryOperation(left: expression, operator: .rightShift, right: self.expression(parsing: stream), location: token.location)
-        default: return expression
+            return try .binaryOperation(left: expression, operator: op, right: self.expression(parsing: stream), location: token.location)
+        } else {
+            return expression
         }
     }
 
     static func prefixExpression(parsing stream: TokenStream) throws -> UnresolvedExpression {
         let token = try stream.peek().required()
-        switch token.value {
-        case "~":
+        if let op = prefixOperator(for: token.value) {
             _ = stream.next()
-            return try .unaryOperation(operator: .bitfieldNegation, expression: prefixExpression(parsing: stream), location: token.location)
+            return try .unaryOperation(operator: op, expression: prefixExpression(parsing: stream), location: token.location)
+        }
+
+        switch token.value {
         case "true":
             _ = stream.next()
             return .boolean(true, location: token.location)
@@ -145,5 +144,20 @@ extension UnresolvedExpression {
             guard let field = data.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
             return .member(parent, member: member, type: field.type)
         }
+    }
+}
+
+private func binaryOperator(for token: String) -> BinaryOperator? {
+    switch token {
+    case "<<": .leftShift
+    case ">>": .rightShift
+    default: nil
+    }
+}
+
+private func prefixOperator(for token: String) -> UnaryOperator? {
+    switch token {
+    case "~": .bitfieldNegation
+    default: nil
     }
 }
