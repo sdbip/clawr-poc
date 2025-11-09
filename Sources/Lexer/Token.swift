@@ -12,6 +12,7 @@ public struct Token: Equatable, Sendable {
     public enum Kind: String, Sendable {
         case binary      = "BINARY"
         case decimal     = "DECIMAL"
+        case `operator`  = "OPERATOR"
         case punctuation = "PUNCTUATION"
         case keyword     = "KEYWORD"
         case identifier  = "IDENTIFIER"

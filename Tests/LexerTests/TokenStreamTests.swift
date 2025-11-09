@@ -40,11 +40,19 @@ struct TokenStreamTests {
         ])
     }
 
-    @Test("Punctuation symbols", arguments: [":", "=", "=>", "->"])
+    @Test("Punctuation symbols", arguments: [":", "=>", "->"])
     func punctuation(_ symbol: String) async throws {
         let tokens = tokenize(symbol)
         #expect(tokens == [
             Token(value: symbol, kind: .punctuation, location: FileLocation(line: 1, column: 1)),
+        ])
+    }
+
+    @Test("Operators", arguments: ["=", ">>", "<<"])
+    func operators(_ symbol: String) async throws {
+        let tokens = tokenize(symbol)
+        #expect(tokens == [
+            Token(value: symbol, kind: .operator, location: FileLocation(line: 1, column: 1)),
         ])
     }
 
@@ -56,7 +64,7 @@ struct TokenStreamTests {
             Token(value: "x", kind: .identifier, location: FileLocation(line: 1, column: 5)),
             Token(value: ":", kind: .punctuation, location: FileLocation(line: 1, column: 6)),
             Token(value: "integer", kind: .builtinType, location: FileLocation(line: 1, column: 8)),
-            Token(value: "=", kind: .punctuation, location: FileLocation(line: 1, column: 16)),
+            Token(value: "=", kind: .operator, location: FileLocation(line: 1, column: 16)),
             Token(value: "27", kind: .decimal, location: FileLocation(line: 1, column: 18)),
         ])
     }
@@ -77,7 +85,7 @@ struct TokenStreamTests {
             Token(value: ":", kind: .punctuation, location: FileLocation(line: 3, column: 2)),
             Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.FileLocation(line: 3, column: 3)),
             Token(value: "integer", kind: .builtinType, location: FileLocation(line: 4, column: 1)),
-            Token(value: "=", kind: .punctuation, location: FileLocation(line: 4, column: 9)),
+            Token(value: "=", kind: .operator, location: FileLocation(line: 4, column: 9)),
             Token(value: "\n", kind: Lexer.Token.Kind.punctuation, location: Lexer.FileLocation(line: 4, column: 10)),
             Token(value: "27", kind: .decimal, location: FileLocation(line: 5, column: 5)),
         ])

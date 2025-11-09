@@ -39,7 +39,7 @@ public class TokenStream {
         }
 
         if punctuationGlyphs.contains(location.currentCharacter) {
-            let p = punctuation
+            let p = punctuation.union(operators)
                 .filter { location.matches(string: $0) }
                 .sorted { $1.count < $0.count }
                 .first!
@@ -51,7 +51,7 @@ public class TokenStream {
 
             return Token(
                 value: p,
-                kind: .punctuation,
+                kind: kind(for: p),
                 location: location.location)
         }
 
@@ -177,19 +177,9 @@ private let keywords = Set([
     "do", "while", "for", "in",
 ])
 
-private let punctuation = Set([
+private let operators = Set([
     // Arithmetics
     "+", "-", "*", "/",
-    "++", "--", "+=", "-=", "/=", "*=",
-
-    "=", ",", ".", "?", ":",
-    "[", "]", "{", "}", "(", ")",
-
-    // Functions
-    "->", "=>",
-
-    // Null-coalescing
-    "!.", "?.", "??",
 
     // Comparisons
     "==", "===", "!=", "!==", "<", ">", ">=", "<=",
@@ -199,10 +189,25 @@ private let punctuation = Set([
 
     // Bitfield operators
     "&", "|", "^", "~",
+
+    // Assignment
+    "+=", "-=", "/=", "*=", "=",
     "|=", "&=", "^=", "<<", ">>", "<<=", ">>=",
 ])
 
-private let punctuationGlyphs = Set(punctuation.flatMap(\.self))
+private let punctuation = Set([
+
+    ",", ".", "?", ":",
+    "[", "]", "{", "}", "(", ")",
+
+    // Functions
+    "->", "=>",
+
+    // Null-coalescing
+    "!.", "?.", "??",
+])
+
+private let punctuationGlyphs = Set((punctuation.union(operators)).flatMap(\.self))
 
 private func kind(for value: String) -> Token.Kind {
     if value.wholeMatch(of: /^\d+(_\d+)*(\.\d+(_\d+)*)?$/) != nil {
@@ -211,6 +216,8 @@ private func kind(for value: String) -> Token.Kind {
         .keyword
     } else if builtins.contains(value) {
         .builtinType
+    } else if operators.contains(value) {
+        .operator
     } else if punctuation.contains(value) {
         .punctuation
     } else if value.hasPrefix("0x") || value.hasPrefix("0b") {
