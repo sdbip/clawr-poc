@@ -3,7 +3,7 @@
 
 int main() {
     // let bf: bitfield = 0x12
-    box* bf = (box*) __oo_make_box(0x0123456789abcdef, __bitfield_box_info);
+    box* bf = (box*) __clawr_make_box(0x0123456789abcdef, __bitfield_box_info);
 
     // print bf
     print(bf);

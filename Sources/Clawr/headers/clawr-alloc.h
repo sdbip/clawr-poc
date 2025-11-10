@@ -4,7 +4,7 @@
 #include <stdio.h>    // fprintf
 #include <stdlib.h>   // malloc, size_t, NULL
 
-static inline void* __oo_alloc(size_t size) {
+static inline void* __clawr_alloc(size_t size) {
     void* const memory = malloc(size);
     if (memory == NULL) {
         // TODO: Allow user to manage memory.

@@ -46,20 +46,20 @@ public func irgen(statements: [Parser.Statement]) -> [Codegen.Statement] {
             result.append(.structDeclaration(
                 dataStructure.name,
                 fields: [
-                    Field(type: .simple("struct __oo_rc_header"), name: "header"),
+                    Field(type: .simple("struct __clawr_rc_header"), name: "header"),
                     Field(type: .simple("struct __\(dataStructure.name)_data"), name: dataStructure.name),
                 ]
             ))
             result.append(.variable(
                 "__\(dataStructure.name)_data_type",
-                type: "__oo_data_type",
+                type: "__clawr_data_type",
                 initializer: .structInitializer([
                     NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name(dataStructure.name))]))
                 ])
             ))
             result.append(.variable(
                 "__\(dataStructure.name)_info",
-                type: "__oo_type_info",
+                type: "__clawr_type_info",
                 initializer: .structInitializer([
                     NamedValue(name: "data", value: .reference(.address(of: .name("__\(dataStructure.name)_data_type"))))
                 ])
@@ -122,7 +122,7 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .identifier(let identifier, type: _): .reference(.name(identifier))
     case .memberLookup(let target): irgen(lookup: target)
     case .dataStructureLiteral(let type, fieldValues: _):
-        .call(.name("oo_alloc"), arguments: [.reference(.name("__oo_ISOLATED")), .reference(.name("__\(type.name)_info"))])
+        .call(.name("oo_alloc"), arguments: [.reference(.name("__clawr_ISOLATED")), .reference(.name("__\(type.name)_info"))])
     case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")
     case .binaryOperation(left: let left, operator: .leftShift, right: let right):
         .call(.name("leftShift"), arguments: [irgen(expression: left), irgen(expression: right)])

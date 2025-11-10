@@ -14,7 +14,7 @@ struct InheritanceTests {
             .structDeclaration(
                 "Super",
                 fields: [
-                    Field(type: .simple("__oo_rc_header"), name: "header"),
+                    Field(type: .simple("__clawr_rc_header"), name: "header"),
                     Field(type: .simple("__Super_data"), name: "SuperData"),
                 ]
             ),
@@ -104,7 +104,7 @@ struct InheritanceTests {
             ),
             .variable(
                 "__Super_object_type",
-                type: "__oo_object_type",
+                type: "__clawr_object_type",
                 initializer: .structInitializer([
                     NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name("Super"))])),
                     NamedValue(name: "vtable", value: .reference(.address(of: .name("super_vtable")))),
@@ -112,7 +112,7 @@ struct InheritanceTests {
             ),
             .variable(
                 "__Super_info",
-                type: "__oo_type_info",
+                type: "__clawr_type_info",
                 initializer: .structInitializer([
                     NamedValue(name: "object", value: .reference(.address(of: .name("__Super_object_type")))),
                 ])
@@ -126,7 +126,7 @@ struct InheritanceTests {
             .structDeclaration(
                 "Object",
                 fields: [
-                    Field(type: .simple("__oo_rc_header"), name: "header"),
+                    Field(type: .simple("__clawr_rc_header"), name: "header"),
                     Field(type: .simple("__Super_data"), name: "SuperData"),
                     Field(type: .simple("__Object_data"), name: "ObjectData"),
                 ]
@@ -200,7 +200,7 @@ struct InheritanceTests {
             ),
             .variable(
                 "__Object_object_type",
-                type: "__oo_object_type",
+                type: "__clawr_object_type",
                 initializer: .structInitializer([
                     NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name("Super"))])),
                     NamedValue(name: "super", value: .reference(.address(of: .name("__Super_object_type")))),
@@ -209,7 +209,7 @@ struct InheritanceTests {
             ),
             .variable(
                 "__Object_info",
-                type: "__oo_type_info",
+                type: "__clawr_type_info",
                 initializer: .structInitializer([
                     NamedValue(name: "object", value: .reference(.address(of: .name("__Object_object_type")))),
                 ])
@@ -229,7 +229,7 @@ struct InheritanceTests {
                         initializer: .call(
                             .name("oo_alloc"),
                             arguments: [
-                                .reference(.name("__oo_ISOLATED")),
+                                .reference(.name("__clawr_ISOLATED")),
                                 .reference(.name("__Object_info")),
                             ]
                         )
@@ -310,7 +310,7 @@ struct InheritanceTests {
                         "box1",
                         type: "box*",
                         initializer: .call(
-                            .name("__oo_make_box"),
+                            .name("__clawr_make_box"),
                             arguments: [
                                 .call(
                                     .name("Object_objectValue"),
@@ -335,7 +335,7 @@ struct InheritanceTests {
                         "box2",
                         type: "box*",
                         initializer: .call(
-                            .name("__oo_make_box"),
+                            .name("__clawr_make_box"),
                             arguments: [
                                 .call(
                                     .field(
@@ -383,7 +383,7 @@ struct InheritanceTests {
                         "box3",
                         type: "box*",
                         initializer: .call(
-                            .name("__oo_make_box"),
+                            .name("__clawr_make_box"),
                             arguments: [
                                 .call(
                                     .name("Object_objectValue"),
@@ -408,7 +408,7 @@ struct InheritanceTests {
                         "box4",
                         type: "box*",
                         initializer: .call(
-                            .name("__oo_make_box"),
+                            .name("__clawr_make_box"),
                             arguments: [
                                  .call(
                                     .field(

@@ -9,13 +9,13 @@ struct TraitsTests {
         let result = try run(
             ir: [
                 .structDeclaration(
-                    "__Struct_data", 
+                    "__Struct_data",
                     fields: [Field(type: .simple("integer"), name: "value")]
                 ),
                 .structDeclaration(
-                    "Struct", 
+                    "Struct",
                     fields: [
-                        Field(type: .simple("__oo_rc_header"), name: "header"),
+                        Field(type: .simple("__clawr_rc_header"), name: "header"),
                         Field(type: .simple("__Struct_data"), name: "StructData"),
                     ]
                 ),
@@ -33,7 +33,7 @@ struct TraitsTests {
                             "box",
                             type: "box*",
                             initializer: .call(
-                                .name("__oo_make_box"),
+                                .name("__clawr_make_box"),
                                 arguments: [
                                     .reference(
                                         .field(
@@ -53,7 +53,7 @@ struct TraitsTests {
                             "vtable",
                             type: "HasStringRepresentation_vtable*",
                             initializer: .call(
-                                .name("__oo_trait_vtable"),
+                                .name("__clawr_trait_vtable"),
                                 arguments: [
                                     .literal("box"),
                                     .reference(.address(of: .name("HasStringRepresentation_trait"))),
@@ -83,28 +83,28 @@ struct TraitsTests {
                     ]
                 ),
                 .variable(
-                    "Struct_HasStringRepresentation_vtable", 
-                    type: "HasStringRepresentation_vtable", 
+                    "Struct_HasStringRepresentation_vtable",
+                    type: "HasStringRepresentation_vtable",
                     initializer: .structInitializer([
                         NamedValue(
-                            name: "toString", 
+                            name: "toString",
                             value: .reference(.name("Struct_toString"))
                         )
                     ])
                 ),
                 .variable(
-                    "__Struct_data_type", 
-                    type: "__oo_data_type", 
+                    "__Struct_data_type",
+                    type: "__clawr_data_type",
                     initializer: .structInitializer([
                         NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name("Struct"))])),
                         NamedValue(
-                            name: "trait_descs", 
+                            name: "trait_descs",
                             value: .arrayInitializer([
                                 .reference(.address(of: .name("HasStringRepresentation_trait"))),
                             ]),
                         ),
                         NamedValue(
-                            name: "trait_vtables", 
+                            name: "trait_vtables",
                             value: .arrayInitializer([
                                 .reference(.address(of: .name("Struct_HasStringRepresentation_vtable"))),
                             ]),
@@ -113,8 +113,8 @@ struct TraitsTests {
                     ])
                 ),
                 .variable(
-                    "__Struct_info", 
-                    type: "__oo_type_info", 
+                    "__Struct_info",
+                    type: "__clawr_type_info",
                     initializer: .structInitializer([
                         NamedValue(name: "data", value: .reference(.address(of: .name("__Struct_data_type")))),
                     ])
@@ -126,7 +126,7 @@ struct TraitsTests {
                         initializer: .call(
                             .name("oo_alloc"),
                             arguments: [
-                                .literal("__oo_ISOLATED"),
+                                .literal("__clawr_ISOLATED"),
                                 .literal("__Struct_info"),
                             ]
                         )

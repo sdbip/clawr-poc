@@ -15,7 +15,7 @@ struct __string_data {
     char buffer[];
 };
 typedef struct string {
-    struct __oo_rc_header header;
+    struct __clawr_rc_header header;
     struct __string_data data;
 } string;
 
@@ -25,7 +25,7 @@ typedef struct string {
 typedef struct HasStringRepresentation_vtable {
     string* (*toString)(void* self);
 } HasStringRepresentation_vtable;
-static const __oo_trait_descriptor HasStringRepresentation_trait = { .name = "HasStringRepresentation" };
+static const __clawr_trait_descriptor HasStringRepresentation_trait = { .name = "HasStringRepresentation" };
 
 static inline string* string_toString(void* self) {
     return oo_retain(self);
@@ -33,13 +33,13 @@ static inline string* string_toString(void* self) {
 static const HasStringRepresentation_vtable string_HasStringRepresentation_vtable = {
     .toString = string_toString
 };
-static __oo_data_type __string_data_type = {
+static __clawr_data_type __string_data_type = {
     .size = sizeof(string),
-    .trait_descs = (__oo_trait_descriptor*[]) { &HasStringRepresentation_trait },
+    .trait_descs = (__clawr_trait_descriptor*[]) { &HasStringRepresentation_trait },
     .trait_vtables = (void*[]) { &string_HasStringRepresentation_vtable },
     .trait_count = 1,
 };
-static __oo_type_info __string_info = { .data = &__string_data_type };
+static __clawr_type_info __string_info = { .data = &__string_data_type };
 
 static inline string* string_format(const char* const format, ...) {
     va_list args;
@@ -47,9 +47,9 @@ static inline string* string_format(const char* const format, ...) {
 
     // Determine the required buffer size
     int length = vsnprintf(NULL, 0, format, args) + 1;
-    string* s = (string*) __oo_alloc(__string_data_type.size + length);
+    string* s = (string*) __clawr_alloc(__string_data_type.size + length);
     s->header.is_a = __string_info;
-    atomic_init(&s->header.refs, __oo_ISOLATED | 1);
+    atomic_init(&s->header.refs, __clawr_ISOLATED | 1);
 
     // Format the string into the buffer
     vsnprintf(s->data.buffer, length, format, args);
@@ -60,9 +60,9 @@ static inline string* string_format(const char* const format, ...) {
 
 /// @brief Print a string value to stdout
 /// @param s the string value
-static inline void print(__oo_rc_header* const i) {
+static inline void print(__clawr_rc_header* const i) {
     HasStringRepresentation_vtable* vtable =
-        (HasStringRepresentation_vtable*) __oo_trait_vtable(i, &HasStringRepresentation_trait);
+        (HasStringRepresentation_vtable*) __clawr_trait_vtable(i, &HasStringRepresentation_trait);
     if (!vtable) {
         printf("vtable not found!!");
         exit(EXIT_FAILURE);

@@ -10,7 +10,7 @@
 // data: value: integer
 struct __Super_data { integer value; };
 typedef struct Super {
-    struct __oo_rc_header header;
+    struct __clawr_rc_header header;
     struct __Super_data Super;
 } Super;
 typedef struct __Super_vtable {
@@ -38,11 +38,11 @@ __Super_vtable super_vtable = {
     .value = Super_value,
 };
 
-__oo_object_type __Super_object_type = {
+__clawr_object_type __Super_object_type = {
     .size = sizeof(Super),
     .vtable = &super_vtable,
 };
-__oo_type_info __Super_info = { .object = &__Super_object_type };
+__clawr_type_info __Super_info = { .object = &__Super_object_type };
 
 // object Object: Super {
 //     func objectValue() => self.value
@@ -60,7 +60,7 @@ __oo_type_info __Super_info = { .object = &__Super_object_type };
 // data: value: integer
 struct __Object_data { integer value; };
 typedef struct Object {
-    struct __oo_rc_header header;
+    struct __clawr_rc_header header;
     struct __Super_data Super;
     struct __Object_data Object;
 } Object;
@@ -83,17 +83,17 @@ integer Object_objectValue(Object* self) {
     return self->Object.value;
 }
 
-__oo_object_type __Object_object_type = {
+__clawr_object_type __Object_object_type = {
     .size = sizeof(Object),
     .super = &__Super_object_type,
     .vtable = &super_vtable,
 };
-__oo_type_info __Object_info = { .object = &__Object_object_type };
+__clawr_type_info __Object_info = { .object = &__Object_object_type };
 
 int main() {
 
     // mut x = Object.new(value: 42)
-    Object* x = oo_alloc(__oo_ISOLATED, __Object_info);
+    Object* x = oo_alloc(__clawr_ISOLATED, __Object_info);
     Object_new_value(x, 42);
 
     // mut y = x
@@ -108,22 +108,22 @@ int main() {
     Object_setObjectValue(x, 12);
 
     // print y.objectValue()
-    box* box1 = __oo_make_box(Object_objectValue(y), __integer_box_info);
+    box* box1 = __clawr_make_box(Object_objectValue(y), __integer_box_info);
     print(box1);
     box1 = oo_release(box1);
 
     // print y.value()
-    box* box2 = __oo_make_box(((__Super_vtable*)y->header.is_a.object->vtable)->value(y), __integer_box_info);
+    box* box2 = __clawr_make_box(((__Super_vtable*)y->header.is_a.object->vtable)->value(y), __integer_box_info);
     print(box2);
     box2 = oo_release(box2);
 
     // print x.objectValue()
-    box* box3 = __oo_make_box(Object_objectValue(x), __integer_box_info);
+    box* box3 = __clawr_make_box(Object_objectValue(x), __integer_box_info);
     print(box3);
     box3 = oo_release(box3);
 
     // print x.value()
-    box* box4 = __oo_make_box(((__Super_vtable*)x->header.is_a.object->vtable)->value(x), __integer_box_info);
+    box* box4 = __clawr_make_box(((__Super_vtable*)x->header.is_a.object->vtable)->value(x), __integer_box_info);
     print(box4);
     box4 = oo_release(box4);
 
