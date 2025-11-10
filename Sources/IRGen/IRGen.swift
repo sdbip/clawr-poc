@@ -118,12 +118,14 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .boolean(let b): .literal(b ? "1" : "0")
     case .integer(let i): .literal("\(i)")
     case .real(let r): .literal("\(r)")
-    case .bitfield(let b): .literal("\(b)")
+    case .bitfield(let b): .literal("0x\(String(b, radix: 16))")
     case .identifier(let identifier, type: _): .reference(.name(identifier))
     case .memberLookup(let target): irgen(lookup: target)
     case .dataStructureLiteral(let type, fieldValues: _):
         .call(.name("oo_alloc"), arguments: [.reference(.name("__oo_ISOLATED")), .reference(.name("__\(type.name)_info"))])
     case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")
+    case .binaryOperation(left: let left, operator: .leftShift, right: let right):
+        .call(.name("leftShift"), arguments: [irgen(expression: left), irgen(expression: right)])
     case .binaryOperation(left: let left, operator: let op, right: let right): fatalError("Operators not yet implemented")
     }
 }

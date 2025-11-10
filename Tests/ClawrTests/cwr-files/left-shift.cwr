@@ -1,0 +1,2 @@
+let x = 0x32 << 4
+print x

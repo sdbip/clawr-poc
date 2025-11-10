@@ -102,4 +102,8 @@ static const __oo_data_type __bitfield_box_data_type = {
 };
 static const __oo_type_info __bitfield_box_info = { .data = &__bitfield_box_data_type };
 
+static inline bitfield leftShift(bitfield const self, integer const steps) {
+    return self << steps;
+}
+
 #endif /* OO_STDLIB_H */
