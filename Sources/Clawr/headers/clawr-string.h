@@ -1,11 +1,11 @@
-#ifndef OO_STRING_H
-#define OO_STRING_H
+#ifndef CLAWR_STRING_H
+#define CLAWR_STRING_H
 
 #include <stdarg.h>   // va_list, va_start, va_end
 #include <stdio.h>    // vsnprintf
 #include <stdlib.h>   // malloc, size_t, NULL
-#include "oo-alloc.h"
-#include "oo-runtime.h"
+#include "clawr-alloc.h"
+#include "clawr-runtime.h"
 
 // data string {
 //     length: integer
@@ -73,4 +73,4 @@ static inline void print(__oo_rc_header* const i) {
     s = oo_release(s);
 }
 
-#endif /*.OO_STRING_H */
+#endif /*.CLAWR_STRING_H */

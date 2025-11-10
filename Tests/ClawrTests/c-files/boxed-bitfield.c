@@ -1,5 +1,5 @@
-#include "oo-stdlib.h"
-#include "oo-runtime.h"
+#include "clawr-stdlib.h"
+#include "clawr-runtime.h"
 
 int main() {
     // let bf: bitfield = 0x12

@@ -1,5 +1,5 @@
-#include "oo-stdlib.h"
-#include "oo-runtime.h"
+#include "clawr-stdlib.h"
+#include "clawr-runtime.h"
 
 //        struct Struct { value: integer }
 struct __Struct_data { integer value; };

@@ -1,5 +1,5 @@
-#ifndef OO_RUNTIME_H
-#define OO_RUNTIME_H
+#ifndef CLAWR_RUNTIME_H
+#define CLAWR_RUNTIME_H
 
 #include <stdlib.h>      // malloc, size_t, NULL
 #include <stdint.h>      // uintptr_t, UINTPTR_MAX
@@ -7,7 +7,7 @@
 #include <string.h>      // memcpy
 #include <unistd.h>      // usleep
 #include <stdio.h>       // stderr, fprintf
-#include "oo-alloc.h"
+#include "clawr-alloc.h"
 
 /*
     Implementation of copy-on-write memory handling.
@@ -206,4 +206,4 @@ static inline void* oo_preModify(__oo_rc_header* const header) {
     return newEntity;
 }
 
-#endif /* OO_RUNTIME_H */
+#endif /* CLAWR_RUNTIME_H */

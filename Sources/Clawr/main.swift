@@ -5,8 +5,8 @@ import Codegen
 import IRGen
 
 let headersDirectoryURL = Bundle.module.resourceURL!.appending(path: "headers", directoryHint: .isDirectory)
-guard FileManager.default.fileExists(atPath: headersDirectoryURL.appending(path: "oo-stdlib.h", directoryHint: .notDirectory).path) else {
-    fatalError("oo-stdlib.h not found in resource bundle")
+guard FileManager.default.fileExists(atPath: headersDirectoryURL.appending(path: "clawr-stdlib.h", directoryHint: .notDirectory).path) else {
+    fatalError("clawr-stdlib.h not found in resource bundle")
 }
 
 // azc <path-to-source.az>

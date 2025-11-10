@@ -1,10 +1,10 @@
-#ifndef OO_STDLIB_H
-#define OO_STDLIB_H
+#ifndef CLAWR_STDLIB_H
+#define CLAWR_STDLIB_H
 
 #include <inttypes.h> // PRIx64, uint64_t, int64_t
 #include <math.h>     // fabs
 #include <stdio.h>    // printf
-#include "oo-string.h"
+#include "clawr-string.h"
 
 typedef struct box
 {
@@ -106,4 +106,4 @@ static inline bitfield leftShift(bitfield const self, integer const steps) {
     return self << steps;
 }
 
-#endif /* OO_STDLIB_H */
+#endif /* CLAWR_STDLIB_H */

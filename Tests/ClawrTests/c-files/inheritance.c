@@ -1,5 +1,5 @@
-#include "oo-stdlib.h"
-#include "oo-runtime.h"
+#include "clawr-stdlib.h"
+#include "clawr-runtime.h"
 
 // object abstract Super {
 //     func value() => self.value
@@ -111,17 +111,17 @@ int main() {
     box* box1 = __oo_make_box(Object_objectValue(y), __integer_box_info);
     print(box1);
     box1 = oo_release(box1);
-    
+
     // print y.value()
     box* box2 = __oo_make_box(((__Super_vtable*)y->header.is_a.object->vtable)->value(y), __integer_box_info);
     print(box2);
     box2 = oo_release(box2);
-    
+
     // print x.objectValue()
     box* box3 = __oo_make_box(Object_objectValue(x), __integer_box_info);
     print(box3);
     box3 = oo_release(box3);
-    
+
     // print x.value()
     box* box4 = __oo_make_box(((__Super_vtable*)x->header.is_a.object->vtable)->value(x), __integer_box_info);
     print(box4);

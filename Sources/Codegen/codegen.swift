@@ -4,8 +4,8 @@ public func codegen(ir: [Statement]) -> String {
         #pragma GCC diagnostic ignored "-Wincompatible-function-pointer-types"
         #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
-        #include "oo-stdlib.h"
-        #include "oo-runtime.h"
+        #include "clawr-stdlib.h"
+        #include "clawr-runtime.h"
 
         \(
             ir.map(codegen(statement:))

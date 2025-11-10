@@ -1,5 +1,5 @@
-#ifndef OO_ALLOC_H
-#define OO_ALLOC_H
+#ifndef CLAWR_ALLOC_H
+#define CLAWR_ALLOC_H
 
 #include <stdio.h>    // fprintf
 #include <stdlib.h>   // malloc, size_t, NULL
@@ -14,4 +14,4 @@ static inline void* __oo_alloc(size_t size) {
     return memory;
 }
 
-#endif /*.OO_ALLOC_H */
+#endif /*.CLAWR_ALLOC_H */
