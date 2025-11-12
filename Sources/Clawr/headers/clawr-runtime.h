@@ -7,7 +7,6 @@
 #include <string.h>      // memcpy
 #include <unistd.h>      // usleep
 #include <stdio.h>       // stderr, fprintf
-#include "clawr-alloc.h"
 
 /*
     Implementation of copy-on-write memory handling.
@@ -124,6 +123,16 @@ static inline void* __clawr_trait_vtable(__clawr_rc_header* header, const __claw
         }
     }
     return NULL;
+}
+
+static inline void* __clawr_alloc(size_t size) {
+    void* const memory = malloc(size);
+    if (memory == NULL) {
+        // TODO: Allow user to manage memory?
+        fprintf(stderr, "Out of memory!");
+        exit(EXIT_FAILURE);
+    }
+    return memory;
 }
 
 /// @brief Allocate reference-counted entity in memory

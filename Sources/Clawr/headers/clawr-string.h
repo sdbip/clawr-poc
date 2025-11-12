@@ -4,7 +4,6 @@
 #include <stdarg.h>   // va_list, va_start, va_end
 #include <stdio.h>    // vsnprintf
 #include <stdlib.h>   // malloc, size_t, NULL
-#include "clawr-alloc.h"
 #include "clawr-runtime.h"
 
 // data string {

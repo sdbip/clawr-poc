@@ -1,7 +1,9 @@
 {
     "files.associations": {
         "todo": "markdown",
-        "*.ddl": "sql"
+        "*.ddl": "sql",
+        "clawr-alloc.h": "c",
+        "clawr-runtime.h": "c"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang"
 }
