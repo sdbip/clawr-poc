@@ -8,10 +8,9 @@
 // }
 
 // data: value: integer
-typedef struct { integer value; } __Super_data;
 typedef struct {
     __clawr_rc_header header;
-    __Super_data Super;
+    struct { integer value; } Super;
 } Super;
 typedef struct {
 // func setValue(_ value: integer)
@@ -58,11 +57,10 @@ __clawr_type_info __Super_info = { .object = &__Super_object_type };
 // }
 
 // data: value: integer
-typedef struct { integer value; } __Object_data;
 typedef struct {
     __clawr_rc_header header;
-    __Super_data Super;
-    __Object_data Object;
+    struct { integer value; } Super;
+    struct { integer value; } Object;
 } Object;
 
 // factory: func new(value: integer) => {

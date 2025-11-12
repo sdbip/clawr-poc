@@ -10,12 +10,11 @@
 //     length: integer
 // }
 typedef struct {
-    size_t length;
-    char buffer[];
-} __string_data;
-typedef struct {
     __clawr_rc_header header;
-    __string_data data;
+    struct {
+        size_t length;
+        char buffer[];
+    } string;
 } string;
 
 // trait HasStringRepresentation {
@@ -51,8 +50,8 @@ static inline string* string_format(const char* const format, ...) {
     atomic_init(&s->header.refs, __clawr_ISOLATED | 1);
 
     // Format the string into the buffer
-    vsnprintf(s->data.buffer, length, format, args);
-    s->data.length = length - 1; // Exclude the null terminator
+    vsnprintf(s->string.buffer, length, format, args);
+    s->string.length = length - 1; // Exclude the null terminator
     va_end(args);
     return s;
 }
@@ -68,7 +67,7 @@ static inline void print(__clawr_rc_header* const i) {
     }
 
     string* s = vtable->toString(i);
-    printf("%s\n", s->data.buffer);
+    printf("%s\n", s->string.buffer);
     s = releaseRC(s);
 }
 

@@ -2,10 +2,9 @@
 #include "clawr-runtime.h"
 
 //        data Struct { value: integer }
-typedef struct { integer value; } __Struct_data;
 typedef struct {
     __clawr_rc_header header;
-    __Struct_data Struct;
+    struct { integer value; } Struct;
 } Struct;
 
 //        model Struct: HasStringRepresentation {
