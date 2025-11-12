@@ -82,6 +82,7 @@ public struct Object: Equatable {
     public var pureMethods: [Function]
     public var mutatingMethods: [Function]
     public var fields: [Variable]
+    public var factoryMethods: [Function]
     public var staticMethods: [Function]
     public var staticFields: [Variable]
 
@@ -92,6 +93,7 @@ public struct Object: Equatable {
             pureMethods: [Function] = [],
             mutatingMethods: [Function] = [],
             fields: [Variable] = [],
+            factoryMethods: [Function] = [],
             staticMethods: [Function] = [],
             staticFields: [Variable] = [],
             ) {
@@ -101,6 +103,7 @@ public struct Object: Equatable {
         self.pureMethods = pureMethods
         self.mutatingMethods = mutatingMethods
         self.fields = fields
+        self.factoryMethods = factoryMethods
         self.staticMethods = staticMethods
         self.staticFields = staticFields
     }

@@ -7,6 +7,7 @@ struct ObjectDeclaration {
     var pureMethods: [FunctionDeclaration] = []
     var mutatingMethods: [FunctionDeclaration] = []
     var fields: [VariableDeclaration] = []
+    var factoryMethods: [FunctionDeclaration] = []
     var staticMethods: [FunctionDeclaration] = []
     var staticFields: [VariableDeclaration] = []
 }
@@ -44,6 +45,7 @@ extension ObjectDeclaration: StatementParseable {
 
         var pureMethods: [FunctionDeclaration] = []
         var mutatingMethods: [FunctionDeclaration]? = nil
+        var factoryMethods: [FunctionDeclaration]? = nil
         var staticMethods: [FunctionDeclaration]? = nil
         var staticFields: [VariableDeclaration]? = nil
         var dataFields: [VariableDeclaration]? = nil
@@ -56,6 +58,21 @@ extension ObjectDeclaration: StatementParseable {
         }
 
         while let t = stream.peek(), t.value != "}" {
+            if t.value == "factory" {
+                if factoryMethods != nil { throw ParserError.invalidToken(t) }
+                _ = stream.next()
+                _ = try stream.next().requiring { $0.value == ":" }
+
+                var methods: [FunctionDeclaration] = []
+                while let t = stream.peek(), !sectionEnders.contains(t.value)  {
+                    var method = try FunctionDeclaration(parsing: stream)
+                    if let returnType = method.returnType, returnType.value != nameToken.value { throw ParserError.unresolvedType(returnType.location) }
+                    method.returnType = method.returnType ?? (nameToken.value, location: nameToken.location)
+                    methods.append(method)
+                }
+                factoryMethods = methods
+            }
+
             if t.value == "mutating" {
                 if mutatingMethods != nil { throw ParserError.invalidToken(t) }
                 _ = stream.next()
@@ -119,25 +136,31 @@ extension ObjectDeclaration: StatementParseable {
             pureMethods: pureMethods,
             mutatingMethods: mutatingMethods ?? [],
             fields: dataFields ?? [],
+            factoryMethods: factoryMethods ?? [],
             staticMethods: staticMethods ?? [],
             staticFields: staticFields ?? [],
         )
     }
 
     func resolveObject(in scope: Scope) throws -> Object {
-        return Object(
-            name: name.value,
-            isAbstract: isAbstract,
-            supertype: scope.resolve(typeNamed: supertype),
-            pureMethods: try pureMethods.map { try $0.resolveFunction(in: scope) },
-            mutatingMethods: try mutatingMethods.map { try $0.resolveFunction(in: scope) },
-            fields: try fields.map { try $0.resolveVariable(in: scope) },
-            staticMethods: try staticMethods.map { try $0.resolveFunction(in: scope) },
-            staticFields: try staticFields.map { try $0.resolveVariable(in: scope) },
-        )
+
+        var result = Object(name: name.value, isAbstract: isAbstract, supertype: scope.resolve(typeNamed: supertype))
+        result.fields = try fields.map { try $0.resolveVariable(in: scope) }
+
+        let objectScope = Scope(parent: scope, parameters: [])
+        objectScope.register(type: result)
+
+        result.pureMethods = try pureMethods.map { try $0.resolveFunction(in: objectScope) }
+        result.mutatingMethods = try mutatingMethods.map { try $0.resolveFunction(in: objectScope) }
+        result.factoryMethods = try factoryMethods.map { try $0.resolveFunction(in: objectScope) }
+
+        result.staticFields = try staticFields.map { try $0.resolveVariable(in: scope) }
+        result.staticMethods = try staticMethods.map { try $0.resolveFunction(in: scope) }
+
+        return result
     }
 }
 
 let sectionEnders = [
-    "data", "static", "mutating", "}"
+    "data", "static", "mutating", "factory", "}"
 ]

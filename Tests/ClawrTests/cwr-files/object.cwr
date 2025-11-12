@@ -5,8 +5,8 @@ object O {
 data:
     value: integer
 
-// factory:
-//     func new() => { value: 42 }
+factory:
+    func new() => { value: 42 }
 }
 
 // let o = O.new()

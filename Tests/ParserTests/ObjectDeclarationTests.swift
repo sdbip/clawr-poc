@@ -23,7 +23,7 @@ struct ObjectDeclarationTests {
         }
     }
 
-    @Test(arguments: ["object O {data:data:}", "object S {static:static:}", "object S {mutating:mutating:}"])
+    @Test(arguments: ["object O {data:data:}", "object S {static:static:}", "object S {mutating:mutating:}", "object S {factory:factory:}"])
     func repeated_section(_ source: String) async throws {
         let error = try #require(throws: ParserError.self) { try parse(source)}
         guard case .invalidToken(_) = error else {
@@ -38,6 +38,8 @@ struct ObjectDeclarationTests {
         "object O {data:}",
         "object O {mutating:data:}",
         "object O {static:mutating:}",
+        "object O {static:factory:}",
+        "object O {factory:mutating:}",
         "object O {data:static:}",
     ])
     func empty_sections(source: String) async throws {
@@ -180,6 +182,23 @@ struct ObjectDeclarationTests {
             staticMethods: [
                 Function(name: "method1", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))]),
                 Function(name: "method2", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(43))]),
+            ],
+        ))])
+    }
+
+    @Test
+    func factory_methods() async throws {
+        let source = """
+            object S {
+            factory:
+                func new() => {}
+            }
+            """
+        let ast = try parse(source)
+        #expect(ast == [.objectDeclaration(Object(
+            name: "S",
+            factoryMethods: [
+                Function(name: "new", returnType: .object(Object(name: "S")), parameters: [], body: [.returnStatement(.dataStructureLiteral(.object(Object(name: "S")), fieldValues: [:]))]),
             ],
         ))])
     }

@@ -5,8 +5,8 @@ object abstract Super {
 data:
     value: integer
 
-// factory:
-//     func new(value: integer) => { value: value }
+factory:
+    func new(value: integer) => { value: value }
 }
 
 object Sub: Super {
@@ -17,13 +17,13 @@ object Sub: Super {
 data:
     subValue: integer
 
-// factory:
-//    func init(subValue: integer) => {
-//    //     super.init(value: superValue)
-//        subValue: subValue
-//    }
+factory:
+    func init(subValue: integer) => {
+        // super.new(value: superValue)
+        subValue: subValue
+    }
 }
 
 print 2
-// let x: Sub.init(superValue: 13, subValue: 11)
+// let x: Sub.new(superValue: 13, subValue: 11)
 // print x.superValue() - x.subValue()

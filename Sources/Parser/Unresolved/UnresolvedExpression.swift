@@ -130,13 +130,24 @@ extension UnresolvedExpression {
             return .identifier(v, type: variable.type)
         case .dataStructureLiteral(let literal, location: let location):
             guard let declaredType else { throw ParserError.unresolvedType(location) }
-            guard case .some(.data(let dataType)) = scope.resolve(typeNamed: (declaredType, location)) else { throw ParserError.unresolvedType(location) }
-            let fieldValues = try literal.fieldValues.map { (key, value) in
-                let field = dataType.fields.first { $0.name == key }
-                // TODO: This converts the already resolved type back to String to be resolved again
-                return (key, try value.resolve(in: scope, declaredType: field?.type.name))
+            switch scope.resolve(typeNamed: (declaredType, location)) {
+            case .data(let dataType):
+                let fieldValues = try literal.fieldValues.map { (key, value) in
+                    let field = dataType.fields.first { $0.name == key }
+                    // TODO: This converts the already resolved type back to String to be resolved again
+                    return (key, try value.resolve(in: scope, declaredType: field?.type.name))
+                }
+                return .dataStructureLiteral(.data(dataType), fieldValues: Dictionary(uniqueKeysWithValues: fieldValues))
+            case .object(let objectType):
+                let fieldValues = try literal.fieldValues.map { (key, value) in
+                    let field = objectType.fields.first { $0.name == key }
+                    // TODO: This converts the already resolved type back to String to be resolved again
+                    return (key, try value.resolve(in: scope, declaredType: field?.type.name))
+                }
+                return .dataStructureLiteral(.object(objectType), fieldValues: Dictionary(uniqueKeysWithValues: fieldValues))
+            default:
+                throw ParserError.unresolvedType(location)
             }
-            return .dataStructureLiteral(.data(dataType), fieldValues: Dictionary(uniqueKeysWithValues: fieldValues))
         case .memberLookup(let lookup):
             return .memberLookup(try resolve(lookup: lookup, in: scope))
         case .unaryOperation(operator: let op, expression: let expr, location: let location):
