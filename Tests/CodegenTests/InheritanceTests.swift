@@ -254,7 +254,7 @@ struct InheritanceTests {
                     .assign(
                         .name("x"),
                         value: .call(
-                            .name("oo_preModify"),
+                            .name("isolateRC"),
                             arguments: [
                                 .reference(.name("x"))
                             ]
@@ -293,7 +293,7 @@ struct InheritanceTests {
                     .assign(
                         .name("x"),
                         value: .call(
-                            .name("oo_preModify"),
+                            .name("isolateRC"),
                             arguments: [
                                 .reference(.name("x"))
                             ]

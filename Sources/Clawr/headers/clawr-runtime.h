@@ -157,7 +157,7 @@ static inline void* releaseRC(__clawr_rc_header* const header) {
 /// @brief Copy-on-write action. Call before modifications.
 /// Maintains variable isolation by creating a copy of the entity
 /// — if it has `__clawr_ISOLATED` semantics and there are multipe referents.
-/// Always replace the variable with the return value.
+/// Always replace the variable with the returned value.
 /// @param header the entity to modify
 /// @return the entity itself or a copy if CoW was triggered
 /// @example
@@ -165,11 +165,12 @@ static inline void* releaseRC(__clawr_rc_header* const header) {
 /// ```
 /// MyType* x = allocRC(__MyType_info, __clawr_ISOLATED);
 /// // Initialize x and use it
-/// x = oo_preModify(x);
+/// MyType* y = retainRC(x);
+/// x = isolateRC(x);
 /// // Make isolated changes to x
 /// ```
 /// @endcode
-static inline void* oo_preModify(__clawr_rc_header* const header) {
+static inline void* isolateRC(__clawr_rc_header* const header) {
     if (!header) return NULL;
     // The ISOLATION flag never changes, so data races are irrelevant
     // Access directly instead of through atomic_load()
@@ -188,7 +189,7 @@ static inline void* oo_preModify(__clawr_rc_header* const header) {
         return header;
     } else if (refs & __clawr_COPYING_FLAG) {
         usleep(100);
-        return oo_preModify(header);
+        return isolateRC(header);
     }
 
     // Copy payload for copy semantics with shared ownership

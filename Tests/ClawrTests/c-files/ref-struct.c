@@ -19,7 +19,7 @@ int main() {
     Struct* y = retainRC(x);
 
 //        x.value = 2
-    x = oo_preModify(x);
+    x = isolateRC(x);
     x->Struct.value = 2;
 
 //        print y.value

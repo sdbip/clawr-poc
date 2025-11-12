@@ -100,11 +100,11 @@ int main() {
     Object* y = retainRC(x);
 
     // x.setValue(2)
-    x = oo_preModify(x);
+    x = isolateRC(x);
     ((__Super_vtable*)x->header.is_a.object->vtable)->setValue(x, 2);
 
     // x.setObjectValue(12)
-    x = oo_preModify(x); // Can be removed by optimiser if it can prove that the RC is 1 here
+    x = isolateRC(x); // Can be removed by optimiser if it can prove that the RC is 1 here
     Object_setObjectValue(x, 12);
 
     // print y.objectValue()
