@@ -1,14 +1,12 @@
 # TODO
 
-## Next
-
-- `print` field
+- `object`
+  - factory methods
+  - targeted function calls
+  - `ObjectLiteral` `{super.new()}`
 
 ## Incomplete Features, Bugs & Redesigns
 
-- `object`
-  - factory methods
-  - `ObjectLiteral` `{super.new()}`
 - Functions
   - Function call as `Expression`
   - Varargs
@@ -30,11 +28,17 @@
 - List comprehension
 - `string`
 - `regex`
-- `ternary` (translates to `Optional<boolean>`)
+- `enum ternary { case down = -1, zero = 0, up = 1 }`
+- `enum boolean { case false, true }`
+- `if b {}`, `if !b {}`, `if t {}`, `if !t {}`
+- Conversion t<-> b (t.up <-> b.true, t.down <-> b.false)
 - Read Eval Print Loop
 
 ## Other Thoughts and Ideas
 
 - Read input from `stdin`. Swift has `readLine() -> String?`
   - I suppose `⌃D` is what causes the `nil` case.
-  - Requires `Optional<T>`?
+  - Requires `Optional<T>`, `union`?
+- Executable that returns the AST (unresolved?) for semantic syntax colouring
+  - It'll need the token `FileLocation`s
+  - Will it also need resolved types? Maybe?
