@@ -122,7 +122,7 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .identifier(let identifier, type: _): .reference(.name(identifier))
     case .memberLookup(let target): irgen(lookup: target)
     case .dataStructureLiteral(let type, fieldValues: _):
-        .call(.name("oo_alloc"), arguments: [.reference(.name("__clawr_ISOLATED")), .reference(.name("__\(type.name)_info"))])
+        .call(.name("allocRC"), arguments: [.reference(.name("__\(type.name)_info")), .reference(.name("__clawr_ISOLATED"))])
     case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")
     case .binaryOperation(left: let left, operator: .leftShift, right: let right):
         .call(.name("leftShift"), arguments: [irgen(expression: left), irgen(expression: right)])

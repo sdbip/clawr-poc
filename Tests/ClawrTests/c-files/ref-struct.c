@@ -12,7 +12,7 @@ __clawr_type_info __Struct_info = {.data = &__Struct_data_type};
 
 int main() {
 //        mut x: Struct = { value: 42 }
-    Struct* x = oo_alloc(__clawr_REFERENCE, __Struct_info);
+    Struct* x = allocRC(__Struct_info, __clawr_REFERENCE);
     x->Struct.value = 42;
 
 //        let y = x

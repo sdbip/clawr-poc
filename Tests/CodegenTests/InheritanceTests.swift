@@ -227,10 +227,10 @@ struct InheritanceTests {
                         "x",
                         type: "Object*",
                         initializer: .call(
-                            .name("oo_alloc"),
+                            .name("allocRC"),
                             arguments: [
-                                .reference(.name("__clawr_ISOLATED")),
                                 .reference(.name("__Object_info")),
+                                .reference(.name("__clawr_ISOLATED")),
                             ]
                         )
                     ),

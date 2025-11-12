@@ -93,7 +93,7 @@ __clawr_type_info __Object_info = { .object = &__Object_object_type };
 int main() {
 
     // mut x = Object.new(value: 42)
-    Object* x = oo_alloc(__clawr_ISOLATED, __Object_info);
+    Object* x = allocRC(__Object_info, __clawr_ISOLATED);
     Object_new_value(x, 42);
 
     // mut y = x

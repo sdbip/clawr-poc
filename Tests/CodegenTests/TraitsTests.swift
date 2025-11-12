@@ -124,10 +124,10 @@ struct TraitsTests {
                         "x",
                         type: "Struct*",
                         initializer: .call(
-                            .name("oo_alloc"),
+                            .name("allocRC"),
                             arguments: [
-                                .literal("__clawr_ISOLATED"),
                                 .literal("__Struct_info"),
+                                .literal("__clawr_ISOLATED"),
                             ]
                         )
                     ),

@@ -13,7 +13,7 @@ typedef struct box
 } box;
 
 box* __clawr_make_box(uintptr_t value, __clawr_type_info type) {
-    box* b = oo_alloc(__clawr_ISOLATED, type);
+    box* b = allocRC(type, __clawr_ISOLATED);
     b->boxed = value;
     return b;
 }

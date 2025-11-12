@@ -35,7 +35,7 @@ __clawr_type_info __Struct_info = {
 
 int main() {
     //        let x: Struct = { value: 42 }
-    Struct* x = oo_alloc(__clawr_ISOLATED, __Struct_info);
+    Struct* x = allocRC(__Struct_info, __clawr_ISOLATED);
     x->Struct.value = 42;
 //        print x
     print(x);

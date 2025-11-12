@@ -129,7 +129,7 @@ static inline void* __clawr_trait_vtable(__clawr_rc_header* header, const __claw
 /// @brief Allocate reference-counted entity in memory
 /// @param semantics the semantics, copy or reference, to apply when assigning and modifying the entity
 /// @param typeInfo pointer to an object that represents the entity’s type
-static inline void* oo_alloc(uintptr_t const semantics, __clawr_type_info const typeInfo) {
+static inline void* allocRC(__clawr_type_info const typeInfo, uintptr_t const semantics) {
     __clawr_rc_header* const header = (__clawr_rc_header*)__clawr_alloc(typeInfo.data->size);
     header->is_a = typeInfo;
     atomic_init(&header->refs, semantics | 1);
@@ -163,7 +163,7 @@ static inline void* oo_release(__clawr_rc_header* const header) {
 /// @example
 /// @code
 /// ```
-/// MyType* x = oo_alloc(__clawr_ISOLATED, &__MyType_info);
+/// MyType* x = allocRC(__MyType_info, __clawr_ISOLATED);
 /// // Initialize x and use it
 /// x = oo_preModify(x);
 /// // Make isolated changes to x
