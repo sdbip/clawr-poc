@@ -6,6 +6,7 @@ indirect enum UnresolvedExpression {
     case real(Double, location: FileLocation)
     case bitfield(UInt64, location: FileLocation)
     case identifier(String, location: FileLocation)
+    case functionCall(FunctionCall)
     case dataStructureLiteral(DataStructureLiteral, location: FileLocation)
     case memberLookup(UnresolvedLookupTarget)
     case unaryOperation(operator: UnaryOperator, expression: UnresolvedExpression, location: FileLocation)
@@ -30,6 +31,7 @@ extension UnresolvedExpression {
         case .identifier(_, let l): return l
         case .unaryOperation(_, _, location: let l): return l
         case .binaryOperation(_, _, _, location: let l): return l
+        case .functionCall(let call): return call.target.location
         }
     }
     static func parse(stream: TokenStream) throws -> UnresolvedExpression {
@@ -128,6 +130,18 @@ extension UnresolvedExpression {
         case .identifier(let v, let location):
             guard let variable = scope.variable(forName: v) else { throw ParserError.unknownVariable(v,  location) }
             return .identifier(v, type: variable.type)
+        case .functionCall(let call):
+            let resolvedName = call.resolvedName
+            guard let function = scope.function(forName: resolvedName) else { throw ParserError.unknownFunction(resolvedName, call.target.location) }
+            guard let returnType = scope.resolve(typeNamed: call.returnType) else { throw ParserError.unresolvedType(call.returnType?.location ?? call.target.location)}
+            return try .functionCall(
+                call.target.value,
+                arguments: call.arguments.enumerated().map {
+                    let parameter = function.parameters[$0.offset]
+                    return try $0.element.map { try $0.resolve(in: scope, declaredType: parameter.value.type.name) }
+                },
+                type: returnType)
+
         case .dataStructureLiteral(let literal, location: let location):
             guard let declaredType else { throw ParserError.unresolvedType(location) }
             switch scope.resolve(typeNamed: (declaredType, location)) {

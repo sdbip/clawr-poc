@@ -146,6 +146,7 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .bitfield(let b): .literal("0x\(String(b, radix: 16))")
     case .identifier(let identifier, type: _): .reference(.name(identifier))
     case .memberLookup(let target): irgen(lookup: target)
+    case .functionCall(let target, arguments: let arguments, type: let type): fatalError("Function call not yet implemented")
     case .dataStructureLiteral(let type, fieldValues: _):
         .call(.name("allocRC"), arguments: [.reference(.name("__\(type.name)_info")), .reference(.name("__clawr_ISOLATED"))])
     case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")

@@ -3,6 +3,7 @@ import Lexer
 struct FunctionCall {
     var target: Located<String>
     var arguments: [Labeled<UnresolvedExpression>]
+    var returnType: Located<String>?
 
     var resolvedName: String {
         Function.resolvedName(base: target.value, labels: arguments.map { $0.label })
