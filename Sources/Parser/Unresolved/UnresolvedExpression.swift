@@ -109,7 +109,7 @@ extension UnresolvedExpression {
             }
             throw ParserError.invalidToken(token)
 
-        case let v where token.kind == .identifier:
+        case let v where token.kind == .identifier, let v where v == "self":
             _ = stream.next()
             return .identifier(v, location: token.location)
 

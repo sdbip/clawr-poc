@@ -1,6 +1,6 @@
 object abstract Super {
 
-    func value() => 42 // self.value
+    func value() => self.value
 
 data:
     value: integer
@@ -11,8 +11,7 @@ factory:
 
 object Sub: Super {
 
-    // func subValue() => self.subValue
-    func subValue() => 42
+    func subValue() => self.subValue
 
 data:
     subValue: integer

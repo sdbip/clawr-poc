@@ -1,6 +1,5 @@
 object O {
-    func value() => 42
-    // func value() => self.value
+    func value() => self.value
 
 data:
     value: integer

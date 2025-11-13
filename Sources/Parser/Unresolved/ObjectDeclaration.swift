@@ -152,7 +152,7 @@ extension ObjectDeclaration: StatementParseable {
         var result = Object(name: name.value, isAbstract: isAbstract, supertype: scope.resolve(typeNamed: supertype))
         result.fields = try fields.map { try $0.resolveVariable(in: scope) }
 
-        let objectScope = Scope(parent: scope, parameters: [])
+        let objectScope = Scope(parent: scope, parameters: [Variable(name: "self", semantics: .immutable, type: .object(result))])
         objectScope.register(type: result)
 
         result.pureMethods = try pureMethods.map { try $0.resolveFunction(in: objectScope) }

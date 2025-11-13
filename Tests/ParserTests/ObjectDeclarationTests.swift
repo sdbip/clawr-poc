@@ -146,6 +146,28 @@ struct ObjectDeclarationTests {
     }
 
     @Test
+    func field_lookup() async throws {
+        let source = """
+            object S {
+                func method() => self.answer
+            data:
+                let answer = 42
+            }
+            """
+        let ast = try parse(source)
+        guard case .objectDeclaration(let object) = ast.first else { Issue.record("Expected object declaration in \(ast)"); return }
+        guard case .returnStatement(let expr) = object.pureMethods.first?.body.first else { Issue.record("Expected return statement in \(object.pureMethods.first)"); return }
+        #expect(expr == .memberLookup(.member(
+            .expression(.identifier(
+                "self",
+                type: .object(Object(name: "S", fields: [Variable(name: "answer", semantics: .immutable, type: .builtin(.integer))]))
+            )),
+            member: "answer",
+            type: .builtin(.integer)
+        )))
+    }
+
+    @Test
     func mutating_method() async throws {
         let source = "object S { mutating: func method1() {} }"
         let ast = try parse(source)
