@@ -211,6 +211,37 @@ struct ObjectDeclarationTests {
     }
 
     @Test
+    func static_field_lookup_from_instance_scope() async throws {
+        let source = """
+            object S {
+                func method() => S.answer
+            static:
+                let answer = 42
+            }
+            """
+        let ast = try parse(source)
+        guard case .objectDeclaration(let object) = ast.first else { Issue.record("Expected an object from \(ast)"); return }
+        guard case .returnStatement(let stmt) = object.pureMethods.first?.body.first else { Issue.record("Expected an return statement in \(object.pureMethods.first)"); return }
+        #expect(stmt == .memberLookup(.member(
+            .expression(.identifier(
+                "S",
+                type: .object(Object(
+                    name: "S.static",
+                    fields: [Variable(name: "answer", semantics: .immutable, type: .builtin(.integer))]
+                ))
+            )),
+            member: "answer",
+            type: .builtin(.integer)
+        )))
+
+        #expect(object.pureMethods.count == 1)
+        #expect(object.pureMethods.first?.name == "method")
+        #expect(object.pureMethods.first?.returnType == .builtin(.integer))
+        #expect(object.pureMethods.first?.body.count == 1)
+        #expect(object.pureMethods.first?.parameters.count == 0)
+    }
+
+    @Test
     func supertype() async throws {
         let source = """
             object Super {}
