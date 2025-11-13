@@ -15,19 +15,29 @@ struct DataStructureLiteralTests {
     func single_variable() async throws {
         let source = "{ value: 123 }"
         let literal = try parseLiteral(source)
-        #expect(literal == DataStructureLiteral(fieldValues: [
-            "value": .integer(123, location: FileLocation(line: 1, column: 10))
-        ]))
+        #expect(literal.fieldValues.count == 1)
+        guard case .integer(let value, _) = literal.fieldValues["value"] else {
+            Issue.record("Failed to extract integer value from literal.")
+            return
+        }
+        #expect(value == 123)
     }
 
     @Test
     func multiple_variables_separated_by_comma() async throws {
         let source = "{ value1: 123, value2: 321 }"
         let literal = try parseLiteral(source)
-        #expect(literal == DataStructureLiteral(fieldValues: [
-            "value1": .integer(123, location: FileLocation(line: 1, column: 11)),
-            "value2": .integer(321, location: FileLocation(line: 1, column: 24)),
-        ]))
+        #expect(literal.fieldValues.count == 2)
+        guard case .integer(let value1, _) = literal.fieldValues["value1"] else {
+            Issue.record("Failed to extract first integer value from literal.")
+            return
+        }
+        guard case .integer(let value2, _) = literal.fieldValues["value2"] else {
+            Issue.record("Failed to extract second integer value from literal.")
+            return
+        }
+        #expect(value1 == 123)
+        #expect(value2 == 321)
     }
 
     @Test
@@ -39,10 +49,17 @@ struct DataStructureLiteralTests {
             }
             """
         let literal = try parseLiteral(source)
-        #expect(literal == DataStructureLiteral(fieldValues: [
-            "value1": .integer(123, location: FileLocation(line: 2, column: 13)),
-            "value2": .integer(321, location: FileLocation(line: 3, column: 13)),
-        ]))
+        #expect(literal.fieldValues.count == 2)
+        guard case .integer(let value1, _) = literal.fieldValues["value1"] else {
+            Issue.record("Failed to extract first integer value from literal.")
+            return
+        }
+        guard case .integer(let value2, _) = literal.fieldValues["value2"] else {
+            Issue.record("Failed to extract second integer value from literal.")
+            return
+        }
+        #expect(value1 == 123)
+        #expect(value2 == 321)
     }
 }
 

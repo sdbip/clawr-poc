@@ -1,6 +1,6 @@
 import Lexer
 
-indirect enum UnresolvedExpression: Equatable {
+indirect enum UnresolvedExpression {
     case boolean(Bool, location: FileLocation)
     case integer(Int64, location: FileLocation)
     case real(Double, location: FileLocation)
@@ -12,7 +12,7 @@ indirect enum UnresolvedExpression: Equatable {
     case binaryOperation(left: UnresolvedExpression, operator: BinaryOperator, right: UnresolvedExpression, location: FileLocation)
 }
 
-indirect enum UnresolvedLookupTarget: Equatable {
+indirect enum UnresolvedLookupTarget {
     case expression(UnresolvedExpression)
     case member(UnresolvedLookupTarget, member: String, location: FileLocation)
 }

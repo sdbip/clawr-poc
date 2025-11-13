@@ -1,6 +1,6 @@
 import Lexer
 
-struct DataStructureLiteral: Equatable {
+struct DataStructureLiteral {
     var fieldValues: [String: UnresolvedExpression]
 }
 
