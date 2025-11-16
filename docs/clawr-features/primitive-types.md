@@ -13,13 +13,14 @@ We will of course need primitive types. Here is the proposed set:
 
 ## Ternary Mode
 
-In ternary mode, an `integer` is a large register of base-3 digit (a.k.a. trits). 54 should be sufficient to provide numbers far outranging 64 bits, but 81 might be more architecture-consistent.
+In ternary mode, an `integer` is a large register of base-3 digits (a.k.a. trits). 54 trits should be sufficient to provide numbers far outranging 64 bits, but 81 might be more architecture-consistent.
 
-A `bitfield` (or “tritfield” in ternary mode?) is used differently. The number of positions is of higher relevance, so limiting to 54 might be insufficient.
+A `bitfield` (or “tritfield” in ternary mode?) is used differently. The number of positions is of higher relevance than the number of values per position, so limiting to 54 trits might be insufficient.
 
-There is a proposed standard called ternary27. It is based on IEEE 754 and might be a good fit for `real` types in ternary mode. It is does however only use 27 trits and we would need at least a “double precision” variant (54 trits) to compare to 64 bits IEEE 754. That is not covered by the documentation I found.
+There is a proposed standard called ternary27. It is based on IEEE 754 and might be a good fit for `real` types in ternary mode. It does however only use 27 trits and we would need at least a “double precision” variant (54 trits) to compare to 64 bits IEEE 754. That is not covered by the documentation I found.
 
 The `ternary` type needs only one trit in ternary mode, but two bits in binary.
+
 ### Compatibility
 
 All ternary types should behave as their binary equivalents when not explicitly taking advantage of the ternary range.

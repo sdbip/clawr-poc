@@ -1,6 +1,6 @@
 # Clawr: Coding with Roaring Clarity
 
-![Rawr|150](./rawr.png)
+![Rawr|150](rawr.png)
 
 It started as the “Azeea Language,” or Azlan for short. Aslan, of course, is “the Lion” in the title of C.S. Lewis’ famous book *the Lion, the Witch and the Wardrobe*. The name was at the same time not very unique, and too tied to the company name. I tried discarding the lion concept entirely, instead going with Oolang (mild tea) for a while. But that name was too cute, and the lion kept roaring in the background. So I have brought it back.
 

@@ -1,6 +1,6 @@
 # Getting Started with Clawr-lang
 
-![Clawr|150](./rawr.png)
+![Clawr|150](rawr.png)
 
 Clawr is a new, intuitive programming language designed to help you solve problems efficiently, whether you're building small scripts, exploring data, or designing complex systems. This introduction will guide you through the **core features** of Clawr, starting with the basics of programming and then escalating to advanced modelling and intentful programming.
 

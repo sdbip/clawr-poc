@@ -1,9 +1,9 @@
 # Clawr Compiler
 
-![Rawr!|100](./docs/rawr.png)
+![Rawr!|100](./docs/images/rawr.png)
 RAWR
 
-Clawr is a language with goals of clarity, a modelling focus and easy refactoring. The name is a portmanteau of the word ”clarity,” and a lion’s roar. For more information, see the [documentation](./docs/introduction.md).
+Clawr is a language with goals of clarity, a modelling focus and easy refactoring. The name is a portmanteau of the word ”clarity,” and a lion’s roar. For more information, see the [documentation](./docs/clawr-features/primitive-types.md) [tutorial](./docs/tutorial/introduction.md).
 
 ## Compilation Steps
 
