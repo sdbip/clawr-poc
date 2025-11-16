@@ -1,9 +1,12 @@
 # Clawr Compiler
 
-![Rawr!|100](./docs/images/rawr.png)
-RAWR
+![Rawr!|150](./docs/images/rawr.png)
 
-Clawr is a language with goals of clarity, a modelling focus and easy refactoring. The name is a portmanteau of the word ”clarity,” and a lion’s roar. For more information, see the [documentation](./docs/clawr-features/primitive-types.md) [tutorial](./docs/tutorial/introduction.md).
+> [!quote]
+> Let us change our traditional attitude to the construction of programs: Instead of imagining that our main task is to instruct a computer what to do, let us concentrate rather on explaining to human beings what we want a computer to do.
+> — Donald Knuth
+
+Clawr is a language with goals of clarity, a modelling focus and easy refactoring. The name is a portmanteau of the word ”clarity,” and a lion’s roar. For more information, see the [documentation](./docs/index.md).
 
 ## Compilation Steps
 
@@ -15,7 +18,7 @@ There is a stereotypical design pattern for compilers. Being inexperienced in co
 4. **Codegen**: Te IR is converted to C code which can be fed to a C compiler to generate the binaries that are the actual program.
 5. **Final Compilation and Linking**: The C code is fed to the `clang` compiler which generates binaries that can actually be executed by the OS and hardware.
 
-In the future, the codegen output should probably not be C. Maybe the IR too needs to be revised. In its current form it is essentially an AST for C code. The compiler should be capable of generating binaries for various architectures. Maybe even (balanced) ternary machine code!
+In the future, the codegen output should probably not be C. Maybe the IR too needs to be revised. In its current form it is essentially an AST for C code. The compiler should be capable of generating binaries for various architectures. Maybe even (balanced) ternary machine code! I’m hoping for the eventual formation of a community that will take the language to much greater heights than I can do myself.
 
 ## CLang
 

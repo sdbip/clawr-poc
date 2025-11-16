@@ -1,6 +1,7 @@
 # Primitive Types
 
-We will of course need primitive types. Here is the proposed set:
+![RAWR|150](../images/rawr.png)
+Every language needs primitive types. Here is the proposed set for Clawr:
 
 - `integer`: a 64 bit signed integer.
 - `bitfield`: a 64 bit register of bits/flags.

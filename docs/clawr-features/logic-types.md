@@ -5,7 +5,12 @@ Clawr has two logic systems: *Boolean algebra* which is prevalent in most other 
 
 ```clawr
 enum boolean { false = 0, true = 1 }
-enum ternary { false = -1, zero = 0, true = 1 }
+enum ternary {
+  down = -1, zero = 0, up = 1
+static:
+  let false = down
+  let true = up
+}
 
 let false = boolean.false
 let true = boolean.true
@@ -68,7 +73,7 @@ Ternary logic can also support AND/OR operators. AND will return the smallest of
 
 ## Fields  (`bitfield`/`tritfield`)
 
-The `bitfield` is a full register worth of truth-values. On “normal” binary architectures these are bits: 1 for true, 0 for false. In ternary mode they are trits: 1 for true, -1 for false. The zero (0) state is unused. If you want access to the full range of ternary truth, you can use a `tritfield` instead, but that will also mean sacrificing compatibility with binary architectures.
+The `bitfield` is a full register worth of truth-values. On “normal” binary architectures these are bits: 1 for true, 0 for false. In ternary mode they are trits: +1 for true, -1 for false; the zero (0) state is unused. If you want access to the full range of ternary truth, you can use a `tritfield` instead, but that will also mean sacrificing compatibility with binary architectures.
 
 The bitwise operators  (`&`, `|`, `^`, `~`) operate on each bit (or trit) independently. On binary architectures this works as you would expect if you have prior experience of bitwise logic. On ternary, the aim is to maintain full compatibility. That is: for true/false values, the operators will work exactly the same. The only differences should be that ternary false is implemented as -1 instead of 0.
 
