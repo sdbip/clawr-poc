@@ -216,7 +216,7 @@ struct ObjectDeclarationTests {
         #expect(stmt == .memberLookup(.member(
             .expression(.identifier(
                 "S",
-                type: .object(Object(
+                type: .companionObject(CompanionObject(
                     name: "S.static",
                     fields: [Variable(name: "answer", semantics: .immutable, type: .builtin(.integer))]
                 ))
@@ -247,7 +247,7 @@ struct ObjectDeclarationTests {
         #expect(stmt == .memberLookup(.member(
             .expression(.identifier(
                 "S",
-                type: .object(Object(
+                type: .companionObject(CompanionObject(
                     name: "S.static",
                     fields: [Variable(name: "answer", semantics: .immutable, type: .builtin(.integer))]
                 ))

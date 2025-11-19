@@ -196,6 +196,7 @@ extension ResolvedType {
         case .builtin(_): false
         case .data(_): true
         case .object(_): true
+        case .companionObject(_): fatalError("Cannot look up a companion object")
         }
     }
 

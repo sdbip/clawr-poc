@@ -44,6 +44,10 @@ public class Scope {
         types[type.name] = .object(type)
     }
 
+    public func register(type: CompanionObject) {
+        types[type.name] = .companionObject(type)
+    }
+
     func resolve(typeNamed name: Located<String>?) -> ResolvedType? {
         guard let resolved = name.flatMap({ BuiltinType(rawValue: $0.value) }).map({ ResolvedType.builtin($0) })
             ?? name.flatMap({ self.type(forName: $0.value) })

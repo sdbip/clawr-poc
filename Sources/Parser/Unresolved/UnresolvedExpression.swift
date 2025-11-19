@@ -186,6 +186,9 @@ extension UnresolvedExpression {
             case .object(let object):
                 guard let field = object.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
                 return .member(parent, member: member, type: field.type)
+            case .companionObject(let object):
+                guard let field = object.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
+                return .member(parent, member: member, type: field.type)
             default:
                 throw ParserError.unresolvedType(location)
             }

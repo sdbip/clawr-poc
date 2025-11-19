@@ -12,12 +12,14 @@ public enum ResolvedType: Equatable {
     case builtin(BuiltinType)
     case data(DataStructure)
     case object(Object)
+    case companionObject(CompanionObject)
 
     public var name: String {
         switch self {
         case .builtin(let t): t.rawValue
         case .data(let d): d.name
         case .object(let o): o.name
+        case .companionObject(let o): o.name
         }
     }
 }
@@ -106,5 +108,17 @@ public struct Object: Equatable {
         self.factoryMethods = factoryMethods
         self.staticMethods = staticMethods
         self.staticFields = staticFields
+    }
+}
+
+public struct CompanionObject: Equatable {
+    public var name: String
+    public var fields: [Variable]
+    public var methods: [Function]
+
+    public init(name: String, fields: [Variable] = [], methods: [Function] = []) {
+        self.name = name
+        self.fields = fields
+        self.methods = methods
     }
 }

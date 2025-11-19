@@ -144,10 +144,10 @@ extension ObjectDeclaration: StatementParseable {
 
     func resolveObject(in scope: Scope) throws -> Object {
 
-        var companionObject = Object(name: "\(name.value).static")
+        var companionObject = CompanionObject(name: "\(name.value).static")
         companionObject.fields = try staticFields.map { try $0.resolveVariable(in: scope) }
         scope.register(type: companionObject)
-        scope.register(variable: Variable(name: name.value, semantics: .immutable, type: .object(companionObject)))
+        scope.register(variable: Variable(name: name.value, semantics: .immutable, type: .companionObject(companionObject)))
 
         var result = Object(name: name.value, isAbstract: isAbstract, supertype: scope.resolve(typeNamed: supertype))
         result.fields = try fields.map { try $0.resolveVariable(in: scope) }
