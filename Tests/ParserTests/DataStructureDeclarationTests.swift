@@ -149,4 +149,20 @@ struct DataStructureDeclarationTests {
             ])
         ))])
     }
+
+    @Test
+    func static_field_lookup() async throws {
+        let source = """
+            data S { static: let answer = 42 }
+            let a = S.answer
+            """
+        let ast = try parse(source)
+        guard case .variableDeclaration(let variable, initializer: let initializer) = ast.last else { Issue.record("Expected a variable declaration from \(ast)"); return }
+        guard case .memberLookup(.member(.expression(.identifier(let identifier, type: let identifierType)), member: let member, _)) = initializer else { Issue.record("Expected member-lookup from \(initializer)"); return }
+        guard case .companionObject(let data) = identifierType else { Issue.record("Expected companion-object reference, was: \(identifierType)"); return }
+        #expect(variable.type == .builtin(.integer))
+        #expect(identifier == "S")
+        #expect(data.name == "S.static")
+        #expect(member == "answer")
+    }
 }
