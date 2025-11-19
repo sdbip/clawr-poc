@@ -70,10 +70,12 @@ public struct Function: Equatable {
 public struct DataStructure: Equatable {
     public var name: String
     public var fields: [Variable]
+    public var companion: CompanionObject?
 
-    public init(name: String, fields: [Variable]) {
+    public init(name: String, fields: [Variable], companion: CompanionObject? = nil) {
         self.name = name
         self.fields = fields
+        self.companion = companion
     }
 }
 

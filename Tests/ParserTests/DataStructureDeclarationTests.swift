@@ -137,4 +137,16 @@ struct DataStructureDeclarationTests {
             ]
         ))])
     }
+
+    @Test
+    func static_field() async throws {
+        let ast = try parse("data S { static: let x = 43 }")
+        #expect(ast == [.dataStructureDeclaration(DataStructure(
+            name: "S",
+            fields: [],
+            companion: CompanionObject(name: "S.static", fields: [
+                Variable(name: "x", semantics: .immutable, type: .builtin(.integer)),
+            ])
+        ))])
+    }
 }
