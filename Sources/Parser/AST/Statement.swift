@@ -47,6 +47,7 @@ public struct Variable: Equatable {
 
 public struct Function: Equatable {
     public var name: String
+    public var isPure: Bool
     public var returnType: ResolvedType?
     public var parameters: [Labeled<Variable>]
     public var body: [Statement]
@@ -55,8 +56,9 @@ public struct Function: Equatable {
         return Self.resolvedName(base: name, labels: parameters.map { $0.label })
     }
 
-    public init(name: String, returnType: ResolvedType?, parameters: [Labeled<Variable>], body: [Statement]) {
+    public init(name: String, isPure: Bool, returnType: ResolvedType?, parameters: [Labeled<Variable>], body: [Statement]) {
         self.name = name
+        self.isPure = isPure
         self.returnType = returnType
         self.parameters = parameters
         self.body = body
@@ -91,8 +93,7 @@ public class Object {
     public var name: String
     public var isAbstract: Bool
     public var supertype: Indirect<ResolvedType>?
-    public var pureMethods: [Function]
-    public var mutatingMethods: [Function]
+    public var methods: [Function]
     public var fields: [Variable]
     public var factoryMethods: [Function]
     public var companion: CompanionObject?
@@ -101,8 +102,7 @@ public class Object {
             name: String,
             isAbstract: Bool = false,
             supertype: ResolvedType? = nil,
-            pureMethods: [Function] = [],
-            mutatingMethods: [Function] = [],
+            methods: [Function] = [],
             fields: [Variable] = [],
             factoryMethods: [Function] = [],
             companion: CompanionObject? = nil,
@@ -110,8 +110,7 @@ public class Object {
         self.name = name
         self.isAbstract = isAbstract
         self.supertype = supertype.map { .value($0) }
-        self.pureMethods = pureMethods
-        self.mutatingMethods = mutatingMethods
+        self.methods = methods
         self.fields = fields
         self.factoryMethods = factoryMethods
         self.companion = companion
@@ -123,8 +122,7 @@ extension Object: Equatable {
         return lhs.name == rhs.name &&
             lhs.isAbstract == rhs.isAbstract &&
             lhs.supertype == rhs.supertype &&
-            lhs.pureMethods == rhs.pureMethods &&
-            lhs.mutatingMethods == rhs.mutatingMethods &&
+            lhs.methods == rhs.methods &&
             lhs.fields == rhs.fields &&
             lhs.factoryMethods == rhs.factoryMethods &&
             lhs.companion == rhs.companion

@@ -43,7 +43,7 @@ struct FunctionCallTests {
             """
         let ast = try parse(source)
         #expect(ast == [
-            .functionDeclaration(Function(name: "f", returnType: nil, parameters: [], body: [])),
+            .functionDeclaration(Function(name: "f", isPure: false, returnType: nil, parameters: [], body: [])),
             .functionCall("f", arguments: []),
         ])
     }

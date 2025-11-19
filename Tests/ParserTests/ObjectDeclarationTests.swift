@@ -113,7 +113,7 @@ struct ObjectDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.objectDeclaration(Object(
             name: "S",
-            pureMethods: [Function(name: "method", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))])],
+            methods: [Function(name: "method", isPure: true, returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))])],
         ))])
     }
 
@@ -128,9 +128,9 @@ struct ObjectDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.objectDeclaration(Object(
             name: "S",
-            pureMethods: [
-                Function(name: "method1", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))]),
-                Function(name: "method2", returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(43))]),
+            methods: [
+                Function(name: "method1", isPure: true, returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))]),
+                Function(name: "method2", isPure: true, returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(43))]),
             ],
         ))])
     }
@@ -146,7 +146,8 @@ struct ObjectDeclarationTests {
             """
         let ast = try parse(source)
         guard case .objectDeclaration(let object) = ast.first else { Issue.record("Expected object declaration in \(ast)"); return }
-        guard case .returnStatement(let expr) = object.pureMethods.first?.body.first else { Issue.record("Expected return statement in \(object.pureMethods.first)"); return }
+        guard case .returnStatement(let expr) = object.methods.first?.body.first else { Issue.record("Expected return statement in \(object.methods.first)"); return }
+        #expect(object.methods.first?.isPure == true)
         #expect(expr == .memberLookup(.member(
             .expression(.identifier(
                 "self",
@@ -163,8 +164,8 @@ struct ObjectDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.objectDeclaration(Object(
             name: "S",
-            mutatingMethods: [
-                Function(name: "method1", returnType: nil, parameters: [], body: []),
+            methods: [
+                Function(name: "method1", isPure: false, returnType: nil, parameters: [], body: []),
             ],
         ))])
     }
@@ -178,6 +179,7 @@ struct ObjectDeclarationTests {
         #expect(object.factoryMethods == [
             Function(
                 name: "new",
+                isPure: false,
                 returnType: .object(object),
                 parameters: [],
                 body: [.returnStatement(.dataStructureLiteral(.object(object), fieldValues: [:]))]
@@ -206,6 +208,7 @@ struct ObjectDeclarationTests {
         guard case .objectDeclaration(let object) = ast.first else { Issue.record("Expected an object from \(ast)"); return }
         guard let companion = object.companion else { Issue.record("Expected a companion object from \(object)"); return }
         guard case .returnStatement(let stmt) = object.companion?.methods.first?.body.first else { Issue.record("Expected an return statement in \(object.companion?.methods.first)"); return }
+        #expect(companion.methods.first?.isPure == false)
         #expect(stmt == .memberLookup(.member(
             .expression(.identifier(
                 "S",
@@ -233,7 +236,7 @@ struct ObjectDeclarationTests {
             """
         let ast = try parse(source)
         guard case .objectDeclaration(let object) = ast.first else { Issue.record("Expected an object from \(ast)"); return }
-        guard case .returnStatement(let stmt) = object.pureMethods.first?.body.first else { Issue.record("Expected an return statement in \(object.pureMethods.first)"); return }
+        guard case .returnStatement(let stmt) = object.methods.first?.body.first else { Issue.record("Expected an return statement in \(object.methods.first)"); return }
         #expect(stmt == .memberLookup(.member(
             .expression(.identifier(
                 "S",
@@ -246,11 +249,12 @@ struct ObjectDeclarationTests {
             type: .builtin(.integer)
         )))
 
-        #expect(object.pureMethods.count == 1)
-        #expect(object.pureMethods.first?.name == "method")
-        #expect(object.pureMethods.first?.returnType == .builtin(.integer))
-        #expect(object.pureMethods.first?.body.count == 1)
-        #expect(object.pureMethods.first?.parameters.count == 0)
+        #expect(object.methods.count == 1)
+        #expect(object.methods.first?.name == "method")
+        #expect(object.methods.first?.isPure == true)
+        #expect(object.methods.first?.returnType == .builtin(.integer))
+        #expect(object.methods.first?.body.count == 1)
+        #expect(object.methods.first?.parameters.count == 0)
     }
 
     @Test

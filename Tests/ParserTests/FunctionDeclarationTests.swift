@@ -31,6 +31,7 @@ struct FunctionDeclarationTests {
         let ast = try parse("func f() {}")
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: nil,
             parameters: [],
             body: []
@@ -41,6 +42,7 @@ struct FunctionDeclarationTests {
         let ast = try parse("func f() -> integer {}")
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: .builtin(.integer),
             parameters: [],
             body: []
@@ -52,6 +54,7 @@ struct FunctionDeclarationTests {
         let ast = try parse("func f(x: integer) {}")
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: nil,
             parameters: [.labeled(
                 Variable(
@@ -70,6 +73,7 @@ struct FunctionDeclarationTests {
         let ast = try parse("func f(x y: integer) {}")
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: nil,
             parameters: [.labeled(
                 Variable(
@@ -88,6 +92,7 @@ struct FunctionDeclarationTests {
         let ast = try parse("func f(_ x: integer) {}")
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: nil,
             parameters: [.unlabeled(
                 Variable(
@@ -105,6 +110,7 @@ struct FunctionDeclarationTests {
         let ast = try parse("func f(x: integer, y: bitfield) {}")
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: nil,
             parameters: [
                 .labeled(
@@ -138,6 +144,7 @@ struct FunctionDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: nil,
             parameters: [],
             body: [
@@ -158,6 +165,7 @@ struct FunctionDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.functionDeclaration(Function(
             name: "f",
+            isPure: false,
             returnType: .builtin(.integer),
             parameters: [],
             body: [.returnStatement(.integer(1))]
@@ -170,6 +178,7 @@ struct FunctionDeclarationTests {
         let ast = try parse(source)
         #expect(ast == [.functionDeclaration(Function(
             name: "identity",
+            isPure: false,
             returnType: .builtin(.integer),
             parameters: [.labeled(
                 Variable(

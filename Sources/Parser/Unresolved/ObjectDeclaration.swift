@@ -4,8 +4,7 @@ struct ObjectDeclaration {
     var name: Located<String>
     var isAbstract: Bool
     var supertype: Located<String>?
-    var pureMethods: [FunctionDeclaration] = []
-    var mutatingMethods: [FunctionDeclaration] = []
+    var methods: [FunctionDeclaration] = []
     var fields: [VariableDeclaration] = []
     var factoryMethods: [FunctionDeclaration] = []
     var staticSection: StaticSection?
@@ -51,7 +50,8 @@ extension ObjectDeclaration: StatementParseable {
         _ = try stream.next().requiring { $0.value == "{" }
 
         while let t = stream.peek(), !sectionEnders.contains(t.value) {
-            let method = try FunctionDeclaration(parsing: stream)
+            var method = try FunctionDeclaration(parsing: stream)
+            method.isPure = true
             pureMethods.append(method)
         }
 
@@ -126,12 +126,13 @@ extension ObjectDeclaration: StatementParseable {
         }
         _ = try stream.next().requiring { $0.value == "}" }
 
+        pureMethods.append(contentsOf: mutatingMethods ?? [])
+
         self.init(
             name: (nameToken.value, location: nameToken.location),
             isAbstract: isAbstract,
             supertype: supertype,
-            pureMethods: pureMethods,
-            mutatingMethods: mutatingMethods ?? [],
+            methods: pureMethods ?? [],
             fields: dataFields ?? [],
             factoryMethods: factoryMethods ?? [],
             staticSection: staticSection,
@@ -156,8 +157,7 @@ extension ObjectDeclaration: StatementParseable {
         let objectScope = Scope(parent: scope, parameters: [Variable(name: "self", semantics: .immutable, type: .object(result))])
         objectScope.register(type: result)
 
-        result.pureMethods = try pureMethods.map { try $0.resolveFunction(in: objectScope) }
-        result.mutatingMethods = try mutatingMethods.map { try $0.resolveFunction(in: objectScope) }
+        result.methods = try methods.map { try $0.resolveFunction(in: objectScope) }
         result.factoryMethods = try factoryMethods.map { try $0.resolveFunction(in: objectScope) }
 
         return result

@@ -2,6 +2,7 @@ import Lexer
 
 struct FunctionDeclaration {
     var name: Located<String>
+    var isPure: Bool
     var parameters: [Labeled<VariableDeclaration>]
     var body: FunctionBody
     var returnType: Located<String>?
@@ -58,7 +59,7 @@ extension FunctionDeclaration: StatementParseable {
             _ = try stream.next().requiring { $0.value == "}" }
         }
 
-        self.init(name: (nameToken.value, nameToken.location), parameters: parameters, body: body, returnType: returnType)
+        self.init(name: (nameToken.value, nameToken.location), isPure: false, parameters: parameters, body: body, returnType: returnType)
     }
 
     func resolveFunction(in scope: Scope) throws -> Function {
@@ -70,6 +71,7 @@ extension FunctionDeclaration: StatementParseable {
 
         return Function(
             name: name.value,
+            isPure: isPure,
             returnType: resolvedReturnType,
             parameters: parameters,
             body: bodyStatements
