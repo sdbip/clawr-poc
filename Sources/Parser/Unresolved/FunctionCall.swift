@@ -10,6 +10,11 @@ struct FunctionCall {
     }
 }
 
+struct MethodCall {
+    var target: UnresolvedExpression
+    var functionCall: FunctionCall
+}
+
 extension FunctionCall: StatementParseable {
     static func isNext(in stream: TokenStream) -> Bool {
         return true

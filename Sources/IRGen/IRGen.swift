@@ -200,7 +200,8 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
                 isPointer: false
             ))
         }
-    case .functionCall(let target, arguments: let arguments, type: let type): fatalError("Function call not yet implemented")
+    case .functionCall(_, arguments: _, type: _): fatalError("Function call not yet implemented")
+    case .methodCall(_, target: _, arguments: _, type: _): fatalError("Methos call not yet implemented")
     case .dataStructureLiteral(let type, fieldValues: _):
         return .call(.name("allocRC"), arguments: [.reference(.name("__\(type.name)_info")), .reference(.name("__clawr_ISOLATED"))])
     case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")

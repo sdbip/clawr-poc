@@ -5,6 +5,7 @@ public indirect enum Expression: Equatable {
     case bitfield(UInt64)
     case identifier(String, type: ResolvedType)
     case functionCall(String, arguments: [Labeled<Expression>], type: ResolvedType)
+    case methodCall(String, target: Expression, arguments: [Labeled<Expression>], type: ResolvedType)
     case dataStructureLiteral(ResolvedType, fieldValues: [String: Expression])
     case memberLookup(Expression, member: String, type: ResolvedType)
     case unaryOperation(operator: UnaryOperator, expression: Expression)
@@ -32,6 +33,7 @@ extension Expression {
         case .bitfield(_): .builtin(.bitfield)
         case .identifier(_, type: let t): t
         case .functionCall(_, _, type: let t): t
+        case .methodCall(_, _, _, type: let t): t
         case .dataStructureLiteral(let t, fieldValues: _): t
         case .memberLookup(let target): target.type
         case .unaryOperation(operator: _, expression: let ex): ex.type

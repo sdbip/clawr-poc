@@ -48,6 +48,26 @@ struct FunctionCallTests {
         ])
     }
 
+    @Test("Method call as expression")
+    func static_method_expression() async throws {
+        let source = """
+            data S { static: pure f() => 42 }
+            print S.f()
+            """
+        let ast = try parse(source)
+        guard case .printStatement(let expr) = ast.last else { Issue.record("Expected print statement, got: \(ast)"); return }
+        guard case .methodCall(let function, target: .identifier(let target, type: let targetType), arguments: let arguments, type: let returnType) = expr else { Issue.record("Expected method call in print statement, got: \(expr)"); return }
+
+        #expect(function == "f")
+        #expect(target == "S")
+        #expect(targetType == .companionObject(CompanionObject(
+            name: "S_static",
+            methods: [Function(name: "f", isPure: true, returnType: .builtin(.integer), parameters: [], body: [.returnStatement(.integer(42))])]
+        )))
+        #expect(arguments.isEmpty)
+        #expect(returnType == .builtin(.integer))
+    }
+
     @Test(
         "Resolves function name",
         arguments: [

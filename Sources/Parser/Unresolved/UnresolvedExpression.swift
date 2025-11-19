@@ -7,6 +7,7 @@ indirect enum UnresolvedExpression {
     case bitfield(UInt64, location: FileLocation)
     case identifier(String, location: FileLocation)
     case functionCall(FunctionCall)
+    case methodCall(MethodCall)
     case dataStructureLiteral(DataStructureLiteral, location: FileLocation)
     case memberLookup(UnresolvedExpression, member: String, location: FileLocation)
     case unaryOperation(operator: UnaryOperator, expression: UnresolvedExpression, location: FileLocation)
@@ -22,6 +23,7 @@ extension UnresolvedExpression {
         case .real(_, let l): return l
         case .dataStructureLiteral(_, let l): return l
         case .memberLookup(_, _, location: let l): return l
+        case .methodCall(let call): return call.functionCall.function.location
         case .identifier(_, let l): return l
         case .unaryOperation(_, _, location: let l): return l
         case .binaryOperation(_, _, _, location: let l): return l
@@ -36,6 +38,38 @@ extension UnresolvedExpression {
             if stream.peek()?.value == "." {
                 _ = stream.next()
                 let memberToken = try stream.next().requiring { $0.kind == .identifier }
+                if stream.peek()?.value == "(" {
+                    _ = stream.next()
+                    var arguments: [Labeled<UnresolvedExpression>] = []
+                    while stream.peek()?.value != ")" {
+                        let clone = stream.clone()
+                        _ = clone.next()
+                        if clone.peek()?.value == ":" {
+                            let label = try stream.next().requiring { $0.kind == .identifier }.value
+                            _ = stream.next() // consume ':'
+                            let expression = try UnresolvedExpression.parse(stream: stream)
+                            arguments.append(.labeled(expression, label: label))
+                        } else {
+                            let expression = try UnresolvedExpression.parse(stream: stream)
+                            arguments.append(.unlabeled(expression))
+                        }
+
+                        if stream.peek()?.value == "," {
+                            _ = stream.next()
+                        } else {
+                            break
+                        }
+                    }
+                    _ = try stream.next().requiring { $0.value == ")" }
+                    return try lookup(current: .methodCall(MethodCall(
+                        target: current,
+                        functionCall: FunctionCall(
+                            function: (memberToken.value, location: memberToken.location),
+                            arguments: arguments,
+                            returnType: nil)
+                    )))
+                }
+
                 return try lookup(current: .memberLookup(
                     current,
                     member: memberToken.value,
@@ -124,6 +158,23 @@ extension UnresolvedExpression {
         case .identifier(let v, let location):
             guard let variable = scope.variable(forName: v) else { throw ParserError.unknownVariable(v,  location) }
             return .identifier(v, type: variable.type)
+        case .methodCall(let call):
+            let target = try call.target.resolve(in: scope, declaredType: nil)
+            let resolvedName = call.functionCall.resolvedName
+            switch target.type {
+            case .companionObject(let object):
+                guard let function = object.methods.first(where: { $0.resolutionName == resolvedName }) else { throw ParserError.unknownFunction(resolvedName, call.functionCall.function.location) }
+                guard let returnType = function.returnType else { throw ParserError.unresolvedType(call.functionCall.returnType?.location ?? call.functionCall.function.location)}
+                return try .methodCall(
+                    call.functionCall.function.value,
+                    target: call.target.resolve(in: scope, declaredType: nil),
+                    arguments: call.functionCall.arguments.enumerated().map {
+                        let parameter = function.parameters[$0.offset]
+                        return try $0.element.map { try $0.resolve(in: scope, declaredType: parameter.value.type.name) }
+                    },
+                    type: returnType)
+            default: throw ParserError.unresolvedType(call.target.location)
+            }
         case .functionCall(let call):
             let resolvedName = call.resolvedName
             guard let function = scope.function(forName: resolvedName) else { throw ParserError.unknownFunction(resolvedName, call.function.location) }
