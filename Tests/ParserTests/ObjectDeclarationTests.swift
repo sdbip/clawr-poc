@@ -148,14 +148,14 @@ struct ObjectDeclarationTests {
         guard case .objectDeclaration(let object) = ast.first else { Issue.record("Expected object declaration in \(ast)"); return }
         guard case .returnStatement(let expr) = object.methods.first?.body.first else { Issue.record("Expected return statement in \(object.methods.first)"); return }
         #expect(object.methods.first?.isPure == true)
-        #expect(expr == .memberLookup(.member(
-            .expression(.identifier(
+        #expect(expr == .memberLookup(
+            .identifier(
                 "self",
                 type: .object(object)
-            )),
+            ),
             member: "answer",
             type: .builtin(.integer)
-        )))
+        ))
     }
 
     @Test
@@ -209,14 +209,14 @@ struct ObjectDeclarationTests {
         guard let companion = object.companion else { Issue.record("Expected a companion object from \(object)"); return }
         guard case .returnStatement(let stmt) = object.companion?.methods.first?.body.first else { Issue.record("Expected an return statement in \(object.companion?.methods.first)"); return }
         #expect(companion.methods.first?.isPure == false)
-        #expect(stmt == .memberLookup(.member(
-            .expression(.identifier(
+        #expect(stmt == .memberLookup(
+            .identifier(
                 "S",
                 type: .companionObject(companion)
-            )),
+            ),
             member: "answer",
             type: .builtin(.integer)
-        )))
+        ))
 
         #expect(object.companion?.methods.count == 1)
         #expect(object.companion?.methods.first?.name == "method")
@@ -237,17 +237,17 @@ struct ObjectDeclarationTests {
         let ast = try parse(source)
         guard case .objectDeclaration(let object) = ast.first else { Issue.record("Expected an object from \(ast)"); return }
         guard case .returnStatement(let stmt) = object.methods.first?.body.first else { Issue.record("Expected an return statement in \(object.methods.first)"); return }
-        #expect(stmt == .memberLookup(.member(
-            .expression(.identifier(
+        #expect(stmt == .memberLookup(
+            .identifier(
                 "S",
                 type: .companionObject(CompanionObject(
                     name: "S_static",
                     fields: [Variable(name: "answer", semantics: .immutable, type: .builtin(.integer), initialValue: .integer(42))]
                 ))
-            )),
+            ),
             member: "answer",
             type: .builtin(.integer)
-        )))
+        ))
 
         #expect(object.methods.count == 1)
         #expect(object.methods.first?.name == "method")

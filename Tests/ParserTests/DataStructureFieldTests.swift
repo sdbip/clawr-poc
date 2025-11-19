@@ -17,16 +17,16 @@ struct DataStructureFieldTests {
             Issue.record("Expected variable declaration: \(yAssignment)")
             return
         }
-        #expect(decl.initialValue == .memberLookup(.member(
-            .expression(.identifier(
+        #expect(decl.initialValue == .memberLookup(
+            .identifier(
                 "x",
                 type: .data(.init(name: "X", fields: [
                     Variable(name: "value", semantics: .isolated, type: .builtin(.integer), initialValue: nil)
                 ]))
-            )),
+            ),
             member: "value",
             type: .builtin(.integer)
-        )))
+        ))
     }
 
     @Test("Lookup inner")
@@ -46,15 +46,13 @@ struct DataStructureFieldTests {
             return
         }
         #expect(decl.initialValue == .memberLookup(
-            .member(
-                .expression(.memberLookup(.member(
-                    .expression(.identifier("x", type: .data(outie))),
-                    member: "innie",
-                    type: .data(innie)
-                ))),
-                member: "value",
-                type: .builtin(.integer)
-            )
+            .memberLookup(
+                .identifier("x", type: .data(outie)),
+                member: "innie",
+                type: .data(innie)
+            ),
+            member: "value",
+            type: .builtin(.integer)
         ))
     }
 }

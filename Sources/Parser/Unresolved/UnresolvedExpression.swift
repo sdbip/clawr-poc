@@ -8,26 +8,20 @@ indirect enum UnresolvedExpression {
     case identifier(String, location: FileLocation)
     case functionCall(FunctionCall)
     case dataStructureLiteral(DataStructureLiteral, location: FileLocation)
-    case memberLookup(UnresolvedLookupTarget)
+    case memberLookup(UnresolvedExpression, member: String, location: FileLocation)
     case unaryOperation(operator: UnaryOperator, expression: UnresolvedExpression, location: FileLocation)
     case binaryOperation(left: UnresolvedExpression, operator: BinaryOperator, right: UnresolvedExpression, location: FileLocation)
-}
-
-indirect enum UnresolvedLookupTarget {
-    case expression(UnresolvedExpression)
-    case member(UnresolvedLookupTarget, member: String, location: FileLocation)
 }
 
 extension UnresolvedExpression {
     var location: FileLocation {
         switch self {
-        case .memberLookup(.expression(let e)): return e.location
         case .boolean(_, let l): return l
         case .integer(_, let l): return l
         case .bitfield(_, let l): return l
         case .real(_, let l): return l
         case .dataStructureLiteral(_, let l): return l
-        case .memberLookup(.member(_, _, location: let l)): return l
+        case .memberLookup(_, member: _, location: let l): return l
         case .identifier(_, let l): return l
         case .unaryOperation(_, _, location: let l): return l
         case .binaryOperation(_, _, _, location: let l): return l
@@ -42,11 +36,11 @@ extension UnresolvedExpression {
             if stream.peek()?.value == "." {
                 _ = stream.next()
                 let memberToken = try stream.next().requiring { $0.kind == .identifier }
-                return try lookup(current: .memberLookup(.member(
-                    .expression(current),
+                return try lookup(current: .memberLookup(
+                    current,
                     member: memberToken.value,
                     location: memberToken.location
-                )))
+                ))
             }
 
             return current
@@ -162,36 +156,27 @@ extension UnresolvedExpression {
             default:
                 throw ParserError.unresolvedType(location)
             }
-        case .memberLookup(let lookup):
-            return .memberLookup(try resolve(lookup: lookup, in: scope))
+        case .memberLookup(let target, member: let member, location: let location):
+            let parent = try target.resolve(in: scope, declaredType: nil)
+            switch parent.type {
+            case .data(let data):
+                guard let field = data.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
+                return .memberLookup(parent, member: member, type: field.type)
+            case .object(let object):
+                guard let field = object.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
+                return .memberLookup(parent, member: member, type: field.type)
+            case .companionObject(let object):
+                guard let field = object.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
+                return .memberLookup(parent, member: member, type: field.type)
+            default:
+                throw ParserError.unresolvedType(location)
+            }
         case .unaryOperation(operator: let op, expression: let expr, location: let location):
             // TODO: Check that the resolved type supports ~x
             return try .unaryOperation(operator: op, expression: expr.resolve(in: scope, declaredType: declaredType))
         case .binaryOperation(left: let left, operator: let op, right: let right, location: let location):
             // TODO: Check that the resolved type supports x << n
             return try .binaryOperation(left: left.resolve(in: scope, declaredType: declaredType), operator: op, right: right.resolve(in: scope, declaredType: nil))
-        }
-    }
-
-    private func resolve(lookup: UnresolvedLookupTarget, in scope: Scope) throws -> LookupTarget {
-        switch lookup {
-        case .expression(let expression):
-            return .expression(try expression.resolve(in: scope, declaredType: nil))
-        case .member(let target, member: let member, location: let location):
-            let parent = try resolve(lookup: target, in: scope)
-            switch parent.type {
-            case .data(let data):
-                guard let field = data.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
-                return .member(parent, member: member, type: field.type)
-            case .object(let object):
-                guard let field = object.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
-                return .member(parent, member: member, type: field.type)
-            case .companionObject(let object):
-                guard let field = object.fields.first(where: { $0.name == member }) else { throw ParserError.unknownVariable(member, location) }
-                return .member(parent, member: member, type: field.type)
-            default:
-                throw ParserError.unresolvedType(location)
-            }
         }
     }
 }

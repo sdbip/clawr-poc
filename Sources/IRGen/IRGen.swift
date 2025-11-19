@@ -182,25 +182,11 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
         } else {
             return .reference(.name(identifier))
         }
-    case .memberLookup(let target): return irgen(lookup: target)
-    case .functionCall(let target, arguments: let arguments, type: let type): fatalError("Function call not yet implemented")
-    case .dataStructureLiteral(let type, fieldValues: _):
-        return .call(.name("allocRC"), arguments: [.reference(.name("__\(type.name)_info")), .reference(.name("__clawr_ISOLATED"))])
-    case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")
-    case .binaryOperation(left: let left, operator: .leftShift, right: let right):
-        return .call(.name("leftShift"), arguments: [irgen(expression: left), irgen(expression: right)])
-    case .binaryOperation(left: let left, operator: let op, right: let right): fatalError("Operators not yet implemented")
-    }
-}
-
-func irgen(lookup: LookupTarget) -> Codegen.Expression {
-    switch lookup {
-    case .expression(let expression): return irgen(expression: expression)
-    case .member(let target, member: let member, type: _):
+    case .memberLookup(let target, member: let member, type: _):
         if target.type.isPointer {
             return .reference(.field(
                 target: .reference(.field(
-                    target: irgen(lookup: target),
+                    target: irgen(expression: target),
                     name: target.type.name,
                     isPointer: true
                 )),
@@ -209,11 +195,18 @@ func irgen(lookup: LookupTarget) -> Codegen.Expression {
             ))
         } else {
             return .reference(.field(
-                target: irgen(lookup: target),
+                target: irgen(expression: target),
                 name: member,
                 isPointer: false
             ))
         }
+    case .functionCall(let target, arguments: let arguments, type: let type): fatalError("Function call not yet implemented")
+    case .dataStructureLiteral(let type, fieldValues: _):
+        return .call(.name("allocRC"), arguments: [.reference(.name("__\(type.name)_info")), .reference(.name("__clawr_ISOLATED"))])
+    case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")
+    case .binaryOperation(left: let left, operator: .leftShift, right: let right):
+        return .call(.name("leftShift"), arguments: [irgen(expression: left), irgen(expression: right)])
+    case .binaryOperation(left: let left, operator: let op, right: let right): fatalError("Operators not yet implemented")
     }
 }
 

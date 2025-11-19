@@ -159,7 +159,7 @@ struct DataStructureDeclarationTests {
             """
         let ast = try parse(source)
         guard case .variableDeclaration(let variable) = ast.last else { Issue.record("Expected a variable declaration from \(ast)"); return }
-        guard case .memberLookup(.member(.expression(.identifier(let identifier, type: let identifierType)), member: let member, _)) = variable.initialValue else { Issue.record("Expected member-lookup from \(variable.initialValue)"); return }
+        guard case .memberLookup(.identifier(let identifier, type: let identifierType), member: let member, _) = variable.initialValue else { Issue.record("Expected member-lookup from \(variable.initialValue)"); return }
         guard case .companionObject(let data) = identifierType else { Issue.record("Expected companion-object reference, was: \(identifierType)"); return }
         #expect(variable.type == .builtin(.integer))
         #expect(identifier == "S")

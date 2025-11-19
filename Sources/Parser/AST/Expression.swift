@@ -6,7 +6,7 @@ public indirect enum Expression: Equatable {
     case identifier(String, type: ResolvedType)
     case functionCall(String, arguments: [Labeled<Expression>], type: ResolvedType)
     case dataStructureLiteral(ResolvedType, fieldValues: [String: Expression])
-    case memberLookup(LookupTarget)
+    case memberLookup(Expression, member: String, type: ResolvedType)
     case unaryOperation(operator: UnaryOperator, expression: Expression)
     case binaryOperation(left: Expression, operator: BinaryOperator, right: Expression)
 }
@@ -21,20 +21,6 @@ public enum BinaryOperator: Equatable {
     case addition
     case subtraction
     case multiplication
-}
-
-public indirect enum LookupTarget: Equatable {
-    case expression(Expression)
-    case member(LookupTarget, member: String, type: ResolvedType)
-}
-
-public extension LookupTarget {
-    var type: ResolvedType {
-        switch self {
-        case .member(_, member: _, type: let type): type
-        case .expression(let expr): expr.type
-        }
-    }
 }
 
 extension Expression {
