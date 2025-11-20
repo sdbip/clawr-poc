@@ -2,19 +2,20 @@ import Parser
 import Codegen
 
 public func irgen(ast: [Parser.Statement]) -> [Codegen.Statement] {
-    var functions = irgen(statements: ast.filter {
+    let statements = irgen(statements: ast)
+    var functions = statements.filter {
         switch $0 {
-        case .functionDeclaration(_): true
+        case .function(_): true
         default: false
         }
-    })
+    }
 
-    let nonFunctions = irgen(statements: ast.filter {
+    let nonFunctions = statements.filter {
         switch $0 {
-        case .functionDeclaration(_): false
+        case .function(_): false
         default: true
         }
-    })
+    }
 
     functions.append(.function(
         "main",
@@ -65,6 +66,26 @@ public func irgen(statement: Parser.Statement) -> [Codegen.Statement] {
                     NamedValue(name: $0.name, value: irgen(expression: $0.initialValue ?? .integer(0)))
                 })
             ))
+
+            for method in companion.methods {
+                result.append(.function(
+                    "\(companion.name)_$$_\(method.name)\(method.parameters.map { "_\($0.label ?? "")" }.joined())",
+                    returns: method.returnType?.irName ?? "void",
+                    parameters: method.parameters.map {
+                        Field(type: .simple($0.value.type.irName), name: $0.value.name)
+                    },
+                    body: method.body.map {
+                        switch $0 {
+                        case .variableDeclaration(let variable):
+                            return .variable(variable.name, type: variable.type.irName, initializer: irgen(expression: variable.initialValue ?? .integer(0)))
+                        case .returnStatement(let expr):
+                            return .return(irgen(expression: expr))
+                        default:
+                            fatalError("Unable to codify \($0)")
+                        }
+                    }
+                ))
+            }
         }
 
         result.append(.structDeclaration(
@@ -169,7 +190,16 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
             ))
         }
     case .functionCall(_, arguments: _, type: _): fatalError("Function call not yet implemented")
-    case .methodCall(_, target: _, arguments: _, type: _): fatalError("Methos call not yet implemented")
+    case .methodCall(let name, target: let target, arguments: let arguments, _):
+        switch target.type {
+        case .companionObject(let object):
+            return .call(
+                .name("\(object.name)_$$_\(name)\(arguments.map { "_\($0.label ?? "")" }.joined())"),
+                arguments: arguments.map { irgen(expression: $0.value) }
+            )
+        //case .object(let object):
+        default: fatalError("Calling methods from \(target.type) in unsupported")
+        }
     case .dataStructureLiteral(let type, fieldValues: _):
         return .call(.name("allocRC"), arguments: [.reference(.name("__\(type.name)_info")), .reference(.name("__clawr_ISOLATED"))])
     case .unaryOperation(operator: let op, expression: let expression): fatalError("Operators not yet implemented")
