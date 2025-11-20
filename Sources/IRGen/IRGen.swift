@@ -27,122 +27,124 @@ public func irgen(ast: [Parser.Statement]) -> [Codegen.Statement] {
 }
 
 public func irgen(statements: [Parser.Statement]) -> [Codegen.Statement] {
+    return statements.flatMap(irgen(statement:))
+}
+
+public func irgen(statement: Parser.Statement) -> [Codegen.Statement] {
     var result: [Codegen.Statement] = []
-    for statement in statements {
-        switch statement {
-        case .variableDeclaration(let variable):
-            result.append(.variable(variable.name, type: variable.type.irName, initializer: variable.initialValue.map(irgen(expression:)) ?? .literal("NULL")))
-            if let initializer = variable.initialValue {
-                let assignments = irgen(assigned: initializer, to: .name(variable.name))
-                result.append(contentsOf: assignments)
-            }
-        case .objectDeclaration(let object):
-            if let companion = object.companion {
-                result.append(.structDeclaration(
-                    "__\(object.name)_static",
-                    fields: companion.fields.map {
-                        Field(type: .simple($0.type.irName), name: $0.name)
-                    }
-                ))
-                result.append(.variable(
-                    companion.name,
-                    type: "__\(object.name)_static",
-                    initializer: .structInitializer(companion.fields.map {
-                        NamedValue(name: $0.name, value: irgen(expression: $0.initialValue ?? .integer(0)))
-                    })
-                ))
-            }
 
-            result.append(.structDeclaration(
-                "__\(object.name)_data",
-                fields: object.fields.map {
-                    Field(type: .simple($0.type.irName), name: $0.name)
-                }
-            ))
-            result.append(.structDeclaration(
-                object.name,
-                fields: [
-                    Field(type: .simple("__clawr_rc_header"), name: "header"),
-                    Field(type: .simple("__\(object.name)_data"), name: object.name),
-                ]
-            ))
-            result.append(.variable(
-                "__\(object.name)_object_type",
-                type: "__clawr_object_type",
-                initializer: .structInitializer([
-                    NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name(object.name))]))
-                ])
-            ))
-            result.append(.variable(
-                "__\(object.name)_info",
-                type: "__clawr_type_info",
-                initializer: .structInitializer([
-                    NamedValue(name: "object", value: .reference(.address(of: .name("__\(object.name)_object_type"))))
-                ])
-            ))
-        case .dataStructureDeclaration(let dataStructure):
-            if let companion = dataStructure.companion {
-                result.append(.structDeclaration(
-                    "__\(dataStructure.name)_static",
-                    fields: companion.fields.map {
-                        Field(type: .simple($0.type.irName), name: $0.name)
-                    }
-                ))
-                result.append(.variable(
-                    companion.name,
-                    type: "__\(dataStructure.name)_static",
-                    initializer: .structInitializer(companion.fields.map {
-                        NamedValue(name: $0.name, value: irgen(expression: $0.initialValue ?? .integer(0)))
-                    })
-                ))
-            }
-
-            result.append(.structDeclaration(
-                "__\(dataStructure.name)_data",
-                fields: dataStructure.fields.map {
-                    Field(type: .simple($0.type.irName), name: $0.name)
-                }
-            ))
-            result.append(.structDeclaration(
-                dataStructure.name,
-                fields: [
-                    Field(type: .simple("__clawr_rc_header"), name: "header"),
-                    Field(type: .simple("__\(dataStructure.name)_data"), name: dataStructure.name),
-                ]
-            ))
-            result.append(.variable(
-                "__\(dataStructure.name)_data_type",
-                type: "__clawr_data_type",
-                initializer: .structInitializer([
-                    NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name(dataStructure.name))]))
-                ])
-            ))
-            result.append(.variable(
-                "__\(dataStructure.name)_info",
-                type: "__clawr_type_info",
-                initializer: .structInitializer([
-                    NamedValue(name: "data", value: .reference(.address(of: .name("__\(dataStructure.name)_data_type"))))
-                ])
-            ))
-        case .functionDeclaration(let function):
-            result.append(.function(
-                resolvedFunctionName(function),
-                returns: function.returnType?.name ?? "void",
-                parameters: function.parameters.map { Field(type: .simple($0.value.type.irName), name: $0.value.name) },
-                body: irgen(statements: function.body)
-            ))
-        case .functionCall(let name, arguments: let arguments):
-            result.append(.call(
-                .name(resolvedFunctionName(name, labels: arguments.map { $0.label })),
-                arguments: arguments.map { irgen(expression: $0.value) }
-            ))
-        case .printStatement(let expression):
-            result.append(.call(.name("print"), arguments: [toString(expression: expression)]))
-        case .returnStatement(let expression):
-            result.append(.return(irgen(expression: expression)))
+    switch statement {
+    case .variableDeclaration(let variable):
+        result.append(.variable(variable.name, type: variable.type.irName, initializer: variable.initialValue.map(irgen(expression:)) ?? .literal("NULL")))
+        if let initializer = variable.initialValue {
+            let assignments = irgen(assigned: initializer, to: .name(variable.name))
+            result.append(contentsOf: assignments)
         }
-    }
+    case .objectDeclaration(let object):
+        if let companion = object.companion {
+            result.append(.structDeclaration(
+                "__\(object.name)_static",
+                fields: companion.fields.map {
+                    Field(type: .simple($0.type.irName), name: $0.name)
+                }
+            ))
+            result.append(.variable(
+                companion.name,
+                type: "__\(object.name)_static",
+                initializer: .structInitializer(companion.fields.map {
+                    NamedValue(name: $0.name, value: irgen(expression: $0.initialValue ?? .integer(0)))
+                })
+            ))
+        }
 
+        result.append(.structDeclaration(
+            "__\(object.name)_data",
+            fields: object.fields.map {
+                Field(type: .simple($0.type.irName), name: $0.name)
+            }
+        ))
+        result.append(.structDeclaration(
+            object.name,
+            fields: [
+                Field(type: .simple("__clawr_rc_header"), name: "header"),
+                Field(type: .simple("__\(object.name)_data"), name: object.name),
+            ]
+        ))
+        result.append(.variable(
+            "__\(object.name)_object_type",
+            type: "__clawr_object_type",
+            initializer: .structInitializer([
+                NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name(object.name))]))
+            ])
+        ))
+        result.append(.variable(
+            "__\(object.name)_info",
+            type: "__clawr_type_info",
+            initializer: .structInitializer([
+                NamedValue(name: "object", value: .reference(.address(of: .name("__\(object.name)_object_type"))))
+            ])
+        ))
+    case .dataStructureDeclaration(let dataStructure):
+        if let companion = dataStructure.companion {
+            result.append(.structDeclaration(
+                "__\(dataStructure.name)_static",
+                fields: companion.fields.map {
+                    Field(type: .simple($0.type.irName), name: $0.name)
+                }
+            ))
+            result.append(.variable(
+                companion.name,
+                type: "__\(dataStructure.name)_static",
+                initializer: .structInitializer(companion.fields.map {
+                    NamedValue(name: $0.name, value: irgen(expression: $0.initialValue ?? .integer(0)))
+                })
+            ))
+        }
+
+        result.append(.structDeclaration(
+            "__\(dataStructure.name)_data",
+            fields: dataStructure.fields.map {
+                Field(type: .simple($0.type.irName), name: $0.name)
+            }
+        ))
+        result.append(.structDeclaration(
+            dataStructure.name,
+            fields: [
+                Field(type: .simple("__clawr_rc_header"), name: "header"),
+                Field(type: .simple("__\(dataStructure.name)_data"), name: dataStructure.name),
+            ]
+        ))
+        result.append(.variable(
+            "__\(dataStructure.name)_data_type",
+            type: "__clawr_data_type",
+            initializer: .structInitializer([
+                NamedValue(name: "size", value: .call(.name("sizeof"), arguments: [.reference(.name(dataStructure.name))]))
+            ])
+        ))
+        result.append(.variable(
+            "__\(dataStructure.name)_info",
+            type: "__clawr_type_info",
+            initializer: .structInitializer([
+                NamedValue(name: "data", value: .reference(.address(of: .name("__\(dataStructure.name)_data_type"))))
+            ])
+        ))
+    case .functionDeclaration(let function):
+        result.append(.function(
+            resolvedFunctionName(function),
+            returns: function.returnType?.name ?? "void",
+            parameters: function.parameters.map { Field(type: .simple($0.value.type.irName), name: $0.value.name) },
+            body: irgen(statements: function.body)
+        ))
+    case .functionCall(let name, arguments: let arguments):
+        result.append(.call(
+            .name(resolvedFunctionName(name, labels: arguments.map { $0.label })),
+            arguments: arguments.map { irgen(expression: $0.value) }
+        ))
+    case .printStatement(let expression):
+        result.append(.call(.name("print"), arguments: [toString(expression: expression)]))
+    case .returnStatement(let expression):
+        result.append(.return(irgen(expression: expression)))
+    }
     return result
 }
 
