@@ -16,14 +16,14 @@ The expression $a \times b$ (“a AND b“) is true if (and only if) **both oper
 | $1$ | $1$ | $1$          | $1$     |
 
 > [!note] Boolean algebra and arithmetics
-> AND can be thought of as multiplication in standard arithmetics (which is why the $\times$ symbol—or `*` in programming—is often used). When using the symbols $1$ and $0$ for true and false, it is a perfect match. Multiplication with $0$ always results in $0$.
+> AND can be thought of as multiplication in standard arithmetics (which is why the $\times$ symbol is often used). When using the symbols $1$ and $0$ for true and false, it is a perfect match. Multiplication with $0$ always results in $0$.
 >
 > OR is similar to *capped* addition (and uses the $+$ symbol). “Capped” here means that with ordinary numbers $1 + 1 = 2$, which cannot be represented by a Boolean value, so it returns the maximum value, $1$, instead.
 
 > [!note] Set-like symbols
 > In treatises on mathematics, the symbols $\land$ (for AND) and $\lor$ (for OR) are often used. This is presumably meant to trigger an association with the set symbols $\cup$ (union) and $\cap$ (intersection).
 >
-> If you have two sets: $A$ with predicate $a$, and $B$ with predicate $b$—that is elements belong to $A$ if they fulfil $a$, and to $B$ if they fulfil $b$—then the union of the sets—all elements in either $a$ OR $b$—are $A \cup B$ with predicate $a \lor b$. And the intersection—elements that belong to both sets—are $A \cap B$ with predicate $a \land b$.
+> If you have two sets: $A$ with predicate $a$, and $B$ with predicate $b$—that is elements belong to $A$ if they fulfil $a$, and to $B$ if they fulfil $b$—then the union of the sets—all elements in either $A$ OR $B$—are $A \cup B$ with predicate $a \lor b$. And the intersection—elements that belong to both sets—are $A \cap B$ with predicate $a \land b$.
 >
 >To illustrate, let’s say we have four items. They each have a blue property that can be true (+) or false (–), and a similar red property. Let’s say $a$ is the blue property and $b$ is the red one. Then the blue set is $A$ and the red set is $B$. And we can illustrate the four items in the following image:
 >
@@ -31,7 +31,7 @@ The expression $a \times b$ (“a AND b“) is true if (and only if) **both oper
 >
 > For the three items in the union set ($A \cup B$) blue OR red ($a \lor b$) is true (+). For the single item in the intersection set ($A \cap B$), blue AND red ($a \land b$) are both true.
 >
-> The symbols are paired by resemblance. One is pointed and one is rounded, but both are oriented in te same direction. One could even say that AND *means* “intersection,” and OR *means* “union,” but now I might be going to far?
+> The symbols are paired by resemblance. One is pointed and one is rounded, but both are oriented in the same direction. One could even say that AND *means* “intersection,” and OR *means* “union,” but now I might be going to far?
 
 There is a total of 16 different binary operations on binary input values. Most of these are not important. All of them can be constructed from the three basic operators described above.
 

@@ -14,14 +14,23 @@ CONS (or “consensus”) outputs 0 unless all inputs agree. If they do agree, t
 
 $$\mathrm{CONS} = \begin{bmatrix} - & 0 & 0 \\\ 0 & 0 & 0 \\\ 0 & 0 & +\end{bmatrix}$$
 
-If we want to define CONS using the SEL function, we will need three unary functions, one for each of the rows in the matrix. Let’s by the way call the input that selects the row in the above matrix $a$, and the input that selects the column $b$.
+If we want to define CONS using the SEL function, we will need three unary functions, one for each of the rows in the K-map. Let’s by the way call the input that selects the row in the above K-map $a$, and the input that selects the column $b$.
 
 From [Basic Ternary Algebra](ternary-algebra.md), we have `is_plus0(b) = max(b, 0) = [0 0 +]`, `is_minus0(b) = max(¬b, 0) = [+ 0 0]`. The former perfectly matches the $a$ = `+` row, and if we negate the latter, it matches the $a$ = `-` row. [De Morgan’s theorem](https://en.wikipedia.org/wiki/De_Morgan%27s_laws) teaches us that negating everything maintains truth, so `¬max(¬b, 0)` can be simplified to `min(b, 0)`.
 
 > [!done] So we can define CONS:
 > $a \boxtimes b \coloneqq \mathsf{SEL} (a, \min(b, 0), 0, \max(b, 0))$.
 
-The ANY operator (a.k.a. “accept anything” or “gullibility”) could be described as a CONS witha reduced need for verification. When one of the inputs is uncertain, the output will be whatever the other input says.
+If you think figuring out the rows from basic unary operators is hard, you can use the `SEL` function to define them too:
+
+`[- 0 0] = SEL(b, -, 0, 0)`
+`[0 0 0] = SEL(b, 0, 0, 0) = 0`
+`[0 0 +] = SEL(b, 0, 0, +)`
+
+> [!done] So we can define CONS usint only `SEL`:
+> $a \boxtimes b \coloneqq \mathsf{SEL} (a, \mathsf{SEL} (b, -, 0, 0), 0, \mathsf{SEL} (b, 0, 0, +))$.
+
+The ANY operator (a.k.a. “accept anything” or “gullibility”) could be described as a CONS with a reduced need for verification. When either one of the inputs is uncertain, the output will replicate the other input.
 
 $$\mathrm{ANY} = \begin{bmatrix} - & - & 0 \\\ - & 0 & + \\\ 0 & + & +\end{bmatrix}$$
 
