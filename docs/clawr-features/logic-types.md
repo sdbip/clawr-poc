@@ -102,3 +102,35 @@ $$\mathrm{SUM} = \begin{bmatrix}
   - & 0 & + \\\ 
   0 & + & - 
 \end{bmatrix}$$
+
+$$\mathrm{NSUM} = \begin{bmatrix} 
+  - & + & 0 \\\ 
+  + & 0 & - \\\ 
+  0 & - & + 
+\end{bmatrix}$$
+
+$$\mathrm{NSUM}(\mathrm{SUM}(a, b), b) = \begin{bmatrix} 
+  - & 0 & + \\\ 
+  - & 0 & + \\\ 
+  - & 0 & + 
+\end{bmatrix}$$
+
+$$a = \begin{bmatrix} 
+  - & 0 & +
+\end{bmatrix}$$
+$$\mathrm{SUM}(a, b) = \begin{bmatrix} 
+  + & - & 0 \\\ 
+  - & 0 & + \\\ 
+  0 & + & - 
+\end{bmatrix}$$
+$$\mathrm{SUB} = \begin{bmatrix} 
+  0 & - & + \\\ 
+  + & 0 & - \\\ 
+  - & + & 0 
+\end{bmatrix}$$
+
+$$(a \ \mathrm{SUM} \ b) \ \mathrm{SUB} \ b = \begin{bmatrix} 
+  - & - & - \\\ 
+  0 & 0 & 0 \\\ 
+  + & + & + 
+\end{bmatrix} = a$$
