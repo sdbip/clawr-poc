@@ -17,7 +17,9 @@ struct MethodCall {
 
 extension FunctionCall: StatementParseable {
     static func isNext(in stream: TokenStream) -> Bool {
-        return true
+        let clone = stream.clone()
+        _ = clone.next()
+        return clone.peek()?.value == "("
     }
 
     var asStatement: UnresolvedStatement {
@@ -27,14 +29,14 @@ extension FunctionCall: StatementParseable {
     init(parsing stream: TokenStream) throws {
         let nameToken = try stream.next().requiring { $0.kind == .identifier }
         let name = nameToken.value
-        let arguments = try Self.parseArguments(in: stream)
+        let arguments = try Self.arguments(in: stream)
         self.init(function: (name, location: nameToken.location), arguments: arguments)
     }
 
-    static func parseArguments(in stream: TokenStream) throws -> [Labeled<UnresolvedExpression>] {
-        _ = try stream.next().requiring { $0.value == "(" }
-
+    private static func arguments(in stream: TokenStream) throws -> [Labeled<UnresolvedExpression>] {
         var arguments: [Labeled<UnresolvedExpression>] = []
+
+        _ = try stream.next().requiring { $0.value == "(" }
         while stream.peek()?.value != ")" {
             let clone = stream.clone()
             _ = clone.next()

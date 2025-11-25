@@ -36,20 +36,16 @@ extension UnresolvedExpression {
         return try lookup(current: expression)
 
         func lookup(current: UnresolvedExpression) throws -> UnresolvedExpression {
-            if stream.peek()?.value == "." {
-                _ = stream.next()
-                let memberToken = try stream.next().requiring { $0.kind == .identifier }
-                if stream.peek()?.value == "(" {
-                    let arguments = try FunctionCall.parseArguments(in: stream)
-                    return try lookup(current: .methodCall(MethodCall(
-                        target: current,
-                        functionCall: FunctionCall(
-                            function: (memberToken.value, location: memberToken.location),
-                            arguments: arguments,
-                            returnType: nil)
-                    )))
-                }
+            guard stream.peek()?.value == "." else { return current }
+            _ = stream.next()
 
+            if FunctionCall.isNext(in: stream) {
+                return try lookup(current: .methodCall(MethodCall(
+                    target: current,
+                    functionCall: FunctionCall(parsing: stream)
+                )))
+            } else {
+                let memberToken = try stream.next().requiring { $0.kind == .identifier }
                 return try lookup(current: .memberLookup(
                     current,
                     member: memberToken.value,
@@ -57,7 +53,6 @@ extension UnresolvedExpression {
                 ))
             }
 
-            return current
         }
     }
 
