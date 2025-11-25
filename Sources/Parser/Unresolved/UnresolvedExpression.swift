@@ -30,6 +30,7 @@ extension UnresolvedExpression {
         case .functionCall(let call): return call.function.location
         }
     }
+
     static func parse(stream: TokenStream) throws -> UnresolvedExpression {
         let expression = try expression(parsing: stream)
         return try lookup(current: expression)
@@ -84,12 +85,11 @@ extension UnresolvedExpression {
     static func expression(parsing stream: TokenStream, precedence p: Int = 0) throws -> UnresolvedExpression {
         var left = try prefixExpression(parsing: stream)
 
-        while let token = stream.peek(), let op = binaryOperator(for: token.value) {
-            let currentPrecedence = precedence(of: op)
-            if currentPrecedence < p { break }
+        while let token = stream.peek(), let op = BinaryOperator(rawValue: token.value) {
+            if op.precedence < p { break }
 
-            _ = stream.next() // consume operator
-            let right = try expression(parsing: stream, precedence: currentPrecedence + 1)
+            _ = stream.next()
+            let right = try expression(parsing: stream, precedence: op.precedence + 1)
             left = .binaryOperation(left: left, operator: op, right: right, location: token.location)
         }
 
@@ -230,21 +230,6 @@ extension UnresolvedExpression {
             return try .binaryOperation(left: left.resolve(in: scope, declaredType: declaredType), operator: op, right: right.resolve(in: scope, declaredType: nil))
         }
     }
-}
-
-private func binaryOperator(for token: String) -> BinaryOperator? {
-    switch token {
-    case "<<": .leftShift
-    case ">>": .rightShift
-    case "+": .addition
-    case "-": .subtraction
-    case "*": .multiplication
-    default: nil
-    }
-}
-
-private func precedence(of op: BinaryOperator) -> Int {
-    return op == .multiplication ? 1 : 0
 }
 
 private func prefixOperator(for token: String) -> UnaryOperator? {

@@ -16,12 +16,16 @@ public enum UnaryOperator: Equatable {
     case bitfieldNegation
 }
 
-public enum BinaryOperator: Equatable {
-    case leftShift
-    case rightShift
-    case addition
-    case subtraction
-    case multiplication
+public enum BinaryOperator: String {
+    case leftShift      = "<<"
+    case rightShift     = ">>"
+    case addition       = "+"
+    case subtraction    = "-"
+    case multiplication = "*"
+
+    var precedence: Int {
+        return self == .multiplication ? 1 : 0
+    }
 }
 
 extension Expression {
