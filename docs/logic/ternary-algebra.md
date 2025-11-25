@@ -6,47 +6,45 @@ The most obvious extension to Boolean binary is to add a single extra state, an 
 
 There are also other notations. In Clawr, the `ternary` type is an `enum` with the three possible values `up` (true), `down` (false) and `zero`. To abbreviate those as single characters, we could use `U`, `D` and `0` respectively (and that’s how we represent ternary digits in a `tritfield`). For this document, the symbols `-`, `+` are probably the most illustrative. They are also the most often used in other literature.
 
-The basic binary operations can be translated to ternary. As we remember, in [binary](boolean-algebra.md):
+Basic dyadic (two inputs) logic operations can be translated to ternary. As we remember, in [Boolean algebra](boolean-algebra.md):
 
-| $a$ | $b$ | $a \times b$ | $a + b$ | $a ≠ b$ |
-| --- | --- | ------------ | ------- | ------- |
-| $0$ | $0$ | $0$          | $0$     | $0$     |
-| $0$ | $1$ | $0$          | $1$     | $1$     |
-| $1$ | $0$ | $0$          | $1$     | $1$     |
-| $1$ | $1$ | $1$          | $1$     | $0$     |
+| $a$ | $b$ | $a \ \mathsf{AND} \ b$ | $a \ \mathsf{OR} \ b$ | $a \ \mathsf{XOR} \ b$ | $a \ \mathsf{IMPL} \ b$ |
+| :-: | :-: | :--------------------: | :-------------------: | :--------------------: | :---------------------: |
+|  F  |  F  |           F            |           F           |           F            |            T            |
+|  F  |  T  |           F            |           T           |           T            |            T            |
+|  T  |  F  |           F            |           T           |           T            |            F            |
+|  T  |  T  |           T            |           T           |           F            |            T            |
 
-Therefore, ternary should work the same (except now the symbols are different):
+In ternary we use `+` to denote true and `-` to denote false (otherwise the table is identical):
 
-| $a$ | $b$ | $a \times b$ | $a + b$ | $a ≠ b$ |
-| --- | --- | ------------ | ------- | ------- |
-| `-` | `-` | `-`          | `-`     | `-`     |
-| `-` | `+` | `-`          | `+`     | `+`     |
-| `+` | `-` | `-`          | `+`     | `+`     |
-| `+` | `+` | `+`          | `+`     | `-`     |
+| $a$ | $b$ | $a \ \mathsf{AND} \ b$ | $a \ \mathsf{OR} \ b$ | $a \ \mathsf{XOR} \ b$ |
+| :-: | :-: | :--------------------: | :-------------------: | :--------------------: |
+| `-` | `-` |          `-`           |          `-`          |          `-`           |
+| `-` | `+` |          `-`           |          `+`          |          `+`           |
+| `+` | `-` |          `-`           |          `+`          |          `+`           |
+| `+` | `+` |          `+`           |          `+`          |          `-`           |
 
 However, this is not the entire truth-table. We have not considered the unknown state. How should the table expand to include `0`-valued inputs?
 
-If we think of AND as yielding the minimum of two inputs, and OR as yielding the maximum, [^competition] we can describe both ternary and binary logic correctly, and that is how those operators are usually interpreted. XOR, however, does not have explicit consensus.
+If we think of AND as yielding the minimum of two inputs, and OR as yielding the maximum, [^competition] we can describe both ternary and binary logic correctly, and that is how those operators are usually interpreted.
 
-[^competition]: There are several competing ternary logics. This document adopts the Gödel-style interpretation, where AND is the minimum and OR is the maximum.
+[^competition]: There are several competing ternary logics in history. The ones that use a numerical representations where false < true typically interpret AND as MIN and OR as MAX.
 
-XOR, in Boolean algebra, means “exclusive or.” It is true when exactly one of the inputs is true (or when the inputs differ). It is a very important operator in Boolean algebra, but it has no obvious translation into ternary logic.
-
-We could define it using multiplication: $a \oplus b = -(a \cdot b)$. If false is $-1$ and true is $+1$, $-(a \cdot b)$ yields the above table exactly, and using it on ternary architectures would yield the exact same behaviour as on binary.
+XOR does not have explicit consensus, but there is a natural way to define it: $a \ \mathsf{XOR} \ b = (¬a \times b) + (a \times ¬b)$. If we use the max/min definitions for AND/OR we get $\mathsf{XOR}(a, b) = \max(\min(¬a, b), \min(a, ¬b))$.
 
 If we accept these definitions, the extended table will look like this.
 
-| $a$ | $b$ | $a \times b$ | $a + b$ | $a ≠ b$ |
-| --- | --- | ------------ | ------- | ------- |
-| `-` | `-` | `-`          | `-`     | `-`     |
-| `-` | `0` | `-`          | `0`     | `0`     |
-| `-` | `+` | `-`          | `+`     | `+`     |
-| `0` | `-` | `-`          | `0`     | `0`     |
-| `0` | `0` | `0`          | `0`     | `0`     |
-| `0` | `+` | `0`          | `+`     | `0`     |
-| `+` | `-` | `-`          | `+`     | `+`     |
-| `+` | `0` | `0`          | `+`     | `0`     |
-| `+` | `+` | `+`          | `+`     | `-`     |
+| $a$ | $b$ | $a \ \mathsf{AND} \ b$ | $a \ \mathsf{OR} \ b$ | $a \ \mathsf{XOR} \ b$ |
+| :-: | :-: | :--------------------: | :-------------------: | :--------------------: |
+| `-` | `-` |          `-`           |          `-`          |          `-`           |
+| `-` | `0` |          `-`           |          `0`          |          `0`           |
+| `-` | `+` |          `-`           |          `+`          |          `+`           |
+| `0` | `-` |          `-`           |          `0`          |          `0`           |
+| `0` | `0` |          `0`           |          `0`          |          `0`           |
+| `0` | `+` |          `0`           |          `+`          |          `0`           |
+| `+` | `-` |          `-`           |          `+`          |          `+`           |
+| `+` | `0` |          `0`           |          `+`          |          `0`           |
+| `+` | `+` |          `+`           |          `+`          |          `-`           |
 
 This is however not the complete story. Boolean algebra has $2^2 = 4$ monadic operators (single input) and $2^{2^2} = 16$ dyadic operators (two inputs). All possible operators can be defined from AND/OR and NOT. Ternary logic controls a much larger algebra.
 
