@@ -93,8 +93,6 @@ extension DataStructure: Equatable {
 
 public class Object {
     public var name: String
-    public var isAbstract: Bool
-    public var supertype: Indirect<ResolvedType>?
     public var methods: [Function]
     public var fields: [Variable]
     public var factoryMethods: [Function]
@@ -102,16 +100,12 @@ public class Object {
 
     public init(
             name: String,
-            isAbstract: Bool = false,
-            supertype: ResolvedType? = nil,
             methods: [Function] = [],
             fields: [Variable] = [],
             factoryMethods: [Function] = [],
             companion: CompanionObject? = nil,
             ) {
         self.name = name
-        self.isAbstract = isAbstract
-        self.supertype = supertype.map { .value($0) }
         self.methods = methods
         self.fields = fields
         self.factoryMethods = factoryMethods
@@ -122,8 +116,6 @@ public class Object {
 extension Object: Equatable {
     public static func == (lhs: Object, rhs: Object) -> Bool {
         return lhs.name == rhs.name &&
-            lhs.isAbstract == rhs.isAbstract &&
-            lhs.supertype == rhs.supertype &&
             lhs.methods == rhs.methods &&
             lhs.fields == rhs.fields &&
             lhs.factoryMethods == rhs.factoryMethods &&

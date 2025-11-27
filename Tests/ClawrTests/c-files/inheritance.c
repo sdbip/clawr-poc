@@ -1,6 +1,8 @@
 #include "clawr-stdlib.h"
 #include "clawr-runtime.h"
 
+/// This is an illustration of how inheritance might be implemented in C
+
 // object abstract Super {
 //     func value() => self.value
 //     mutating: func setValue(_ value: integer) { self.value = value }

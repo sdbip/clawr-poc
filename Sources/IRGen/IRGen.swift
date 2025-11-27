@@ -105,17 +105,13 @@ public func irgen(statement: Parser.Statement) -> [Codegen.Statement] {
         }
 
         result.append(.structDeclaration(
-            "__\(dataStructure.name)_data",
-            fields: dataStructure.fields.map {
-                Field(type: .simple($0.type.irName), name: $0.name)
-            }
-        ))
-        result.append(.structDeclaration(
             dataStructure.name,
             fields: [
                 Field(type: .simple("__clawr_rc_header"), name: "header"),
-                Field(type: .simple("__\(dataStructure.name)_data"), name: dataStructure.name),
-            ]
+            ] + dataStructure.fields.map {
+                Field(type: .simple($0.type.irName), name: $0.name)
+            }
+
         ))
         result.append(.variable(
             "__\(dataStructure.name)_data_type",
@@ -160,13 +156,9 @@ func irgen(assigned expression: Parser.Expression, to target: Reference) -> [Cod
             let assignments = irgen(
                 assigned: value,
                 to: .field(
-                    target: .reference(.field(
-                        target: .reference(target),
-                        name: type.name,
-                        isPointer: true
-                    )),
+                    target: .reference(target),
                     name: fieldName,
-                    isPointer: false
+                    isPointer: true
                 )
             )
             result.append(contentsOf: assignments)
@@ -190,13 +182,9 @@ func irgen(expression: Parser.Expression) -> Codegen.Expression {
     case .memberLookup(let target, member: let member, type: _):
         if target.type.isPointer {
             return .reference(.field(
-                target: .reference(.field(
-                    target: irgen(expression: target),
-                    name: target.type.name,
-                    isPointer: true
-                )),
+                target: irgen(expression: target),
                 name: member,
-                isPointer: false
+                isPointer: true
             ))
         } else {
             return .reference(.field(

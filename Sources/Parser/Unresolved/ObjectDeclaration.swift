@@ -2,8 +2,6 @@ import Lexer
 
 struct ObjectDeclaration {
     var name: Located<String>
-    var isAbstract: Bool
-    var supertype: Located<String>?
     var pureMethods: [FunctionDeclaration] = []
     var mutatingMethods: [FunctionDeclaration] = []
     var fields: [VariableDeclaration] = []
@@ -23,24 +21,7 @@ extension ObjectDeclaration: ParseableStatement {
     init(parsing stream: TokenStream) throws {
         _ = try stream.next().requiring { $0.value == "object" }
 
-        let isAbstract: Bool
-        let supertype : Located<String>?
-        if stream.peek()?.value == "abstract" {
-            _ = stream.next()
-            isAbstract = true
-        } else {
-            isAbstract = false
-        }
-
         let nameToken = try stream.next().requiring { $0.kind == .identifier }
-
-        if stream.peek()?.value == ":" {
-            _ = stream.next()
-            let supertypeToken = try stream.next().requiring { $0.kind == .identifier }
-            supertype = (supertypeToken.value, supertypeToken.location)
-        } else {
-            supertype = nil
-        }
 
         var pureMethods: [FunctionDeclaration] = []
         var mutatingMethods: [FunctionDeclaration]? = nil
@@ -128,8 +109,6 @@ extension ObjectDeclaration: ParseableStatement {
 
         self.init(
             name: (nameToken.value, location: nameToken.location),
-            isAbstract: isAbstract,
-            supertype: supertype,
             pureMethods: pureMethods,
             mutatingMethods: mutatingMethods ?? [],
             fields: dataFields ?? [],
@@ -141,9 +120,9 @@ extension ObjectDeclaration: ParseableStatement {
     func resolveObject(in scope: Scope) throws -> Object {
 
         let impureMethods = pureMethods.filter { !$0.isPure }
-        guard impureMethods.isEmpty else { throw ParserError.impureMethods(impureMethods.map { $0.name }) }
+        guard impureMethods.isEmpty else { throw ParserError.impureMethods(impureMethods.map { ($0.name.value, $0.name.location) }) }
 
-        let result = Object(name: name.value, isAbstract: isAbstract, supertype: scope.resolve(typeNamed: supertype))
+        let result = Object(name: name.value)
         result.fields = try fields.map { try $0.resolveVariable(in: scope) }
 
         if let staticSection {
