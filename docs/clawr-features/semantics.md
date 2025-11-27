@@ -9,7 +9,7 @@ Many languages define a `class` object as an entity in memory with multiple vari
 
 The *Functional Programming* paradigm solves the problem of shared mutable state by removing *mutability*. They make every single variable *immutable*—essentially a constant. This might or might not be delusional as any meaningful program will need to affect the world and update the state of the system itself. The principle of *limiting the scope* of mutation is however a good one whatever you might think of the paradigm.
 
-Many [^many?] modern languages use `struct` as an alternative to the `class` structure. A `struct` type has what has come to be called “value semantics.” In C#, for example, a `class` variable is essentially a pointer to an address in memory, while a `struct` is a box that contains all the data. When a `class` variable is assigned the value of another, the pointer is all that is copied, but for `struct` the entire data structure is copied from one box to another. 
+Many [^many?] modern languages use `struct` as an alternative to the `class` structure. A `struct` type has what has come to be called “value semantics.” In C#, for example, a `class` variable is essentially a pointer to an address in memory, while a `struct` is a box that contains all the data. When a `class` variable is assigned the value of another, the pointer is all that is copied, but for `struct` the entire data structure is copied from one box to another.
 
 [^many?]: From my own experience I can mention C# and Swift, but there are probably others.
 
@@ -53,11 +53,9 @@ The key takeaway here is that an object’s state is hidden away (“implied”)
 Clawr borrows Uncle Bob’s terminology in the keywords `object` and `data`. A `data` type defines structure for direct interaction with data elements.
 
 ```clawr
-data GeoCoordinate { latitude: real, longitude: real }
-data Velocity { heading: real, speed: real }
 data LogInfo {
-  position: GeoCoordinate
-  velocity: Velocity
+  position: { latitude: real, longitude: real }
+  velocity: { heading: real, speed: real }
 }
 
 let routeData: [LogInfo] = [
