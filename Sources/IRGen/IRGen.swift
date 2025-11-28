@@ -39,9 +39,8 @@ public func irgen(statement: Parser.Statement) -> [Codegen.Statement] {
     switch statement {
     case .variableDeclaration(let variable):
         result.append(.variable(variable.name, type: variable.type.irName, initializer: variable.initialValue.map(irgen(expression:)) ?? .literal("NULL")))
-        if let initializer = variable.initialValue {
-            let assignments = irgen(assigned: initializer, to: .name(variable.name))
-            result.append(contentsOf: assignments)
+        if case .dataStructureLiteral(_, fieldValues: let fields) = variable.initialValue {
+            result.append(contentsOf: irgen(assignFields: fields, to: .name(variable.name)))
         }
     case .objectDeclaration(let object):
         // An object is essentially a data structure, but it is hidden behind encapsulation
@@ -144,18 +143,25 @@ func irgen(assigned expression: Parser.Expression, to target: Reference) -> [Cod
     var result: [Codegen.Statement] = []
     result.append(.assign(target, value: irgen(expression: expression)))
 
-    if case .dataStructureLiteral(.data(let type), fieldValues: let values) = expression {
-        for (fieldName, value) in values {
-            let assignments = irgen(
-                assigned: value,
-                to: .field(
-                    target: .reference(target),
-                    name: fieldName,
-                    isPointer: true
-                )
+    if case .dataStructureLiteral(_, fieldValues: let values) = expression {
+        result.append(contentsOf: irgen(assignFields: values, to: target))
+    }
+
+    return result
+}
+
+func irgen(assignFields values: [String : Parser.Expression], to target: Reference) -> [Codegen.Statement] {
+    var result: [Codegen.Statement] = []
+    for (fieldName, value) in values {
+        let assignments = irgen(
+            assigned: value,
+            to: .field(
+                target: .reference(target),
+                name: fieldName,
+                isPointer: true
             )
-            result.append(contentsOf: assignments)
-        }
+        )
+        result.append(contentsOf: assignments)
     }
     return result
 }
